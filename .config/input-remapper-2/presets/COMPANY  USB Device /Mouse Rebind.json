@@ -1,0 +1,14 @@
+[
+    {
+        "input_combination": [
+            {
+                "type": 1,
+                "code": 276,
+                "origin_hash": "aad174d6b2186c6c2ac7078e857a8f33"
+            }
+        ],
+        "target_uinput": "keyboard",
+        "output_symbol": "KEY_FINANCE",
+        "mapping_type": "key_macro"
+    }
+]

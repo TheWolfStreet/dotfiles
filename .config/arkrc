@@ -1,0 +1,162 @@
+[ExtractDialog]
+DirHistory[$e]=$HOME/Desktop/,$HOME/Desktop/archroot/,$HOME/3D/Blender/Assets/TF2/maps/,$HOME/Desktop/unreal/
+
+[General]
+LockSidebar=true
+ShowSidebar=false
+
+[KFileDialog Settings]
+Recent Files[$e]=file:$HOME,file:$HOME/Software/Games/SPT
+Recent URLs[$e]=file:$HOME/Desktop/,file:$HOME/Software/Games/,file:$HOME/
+detailViewIconSize=16
+
+[KTextEditor Document]
+Allow End of Line Detection=true
+Auto Detect Indent=true
+Auto Reload If State Is In Version Control=true
+Auto Save=false
+Auto Save Interval=0
+Auto Save On Focus Out=false
+BOM=false
+Backup Local=false
+Backup Prefix=
+Backup Remote=false
+Backup Suffix=~
+Camel Cursor=true
+Encoding=UTF-8
+End of Line=0
+Indent On Backspace=true
+Indent On Tab=true
+Indent On Text Paste=false
+Indentation Mode=normal
+Indentation Width=4
+Keep Extra Spaces=false
+Line Length Limit=10000
+Newline at End of File=true
+On-The-Fly Spellcheck=false
+Overwrite Mode=false
+PageUp/PageDown Moves Cursor=false
+Remove Spaces=1
+ReplaceTabsDyn=true
+Show Spaces=0
+Show Tabs=true
+Smart Home=true
+Swap Directory=
+Swap File Mode=1
+Swap Sync Interval=15
+Tab Handling=2
+Tab Width=4
+Trailing Marker Size=1
+Word Wrap=false
+Word Wrap Column=80
+
+[KTextEditor Editor]
+Encoding Prober Type=1
+Fallback Encoding=ISO 8859-15
+
+[KTextEditor Renderer]
+Animate Bracket Matching=false
+Auto Color Theme Selection=true
+Color Theme=Breeze Dark
+Font=JetBrainsMono Nerd Font Mono,11,-1,5,50,0,0,0,0,0
+Line Height Multiplier=1
+Show Indentation Lines=false
+Show Whole Bracket Expression=false
+Word Wrap Marker=false
+
+[KTextEditor View]
+Allow Mark Menu=true
+Auto Brackets=true
+Auto Center Lines=0
+Auto Completion=true
+Auto Completion Preselect First Entry=true
+Backspace Remove Composed Characters=false
+Bookmark Menu Sorting=0
+Bracket Match Preview=false
+Chars To Enclose Selection=<>(){}[]'"
+Default Mark Type=1
+Dynamic Word Wrap=true
+Dynamic Word Wrap Align Indent=80
+Dynamic Word Wrap At Static Marker=false
+Dynamic Word Wrap Indicators=1
+Dynamic Wrap not at word boundaries=false
+Enable Tab completion=false
+Fold First Line=false
+Folding Bar=true
+Folding Preview=true
+Icon Bar=false
+Input Mode=0
+Keyword Completion=true
+Line Modification=true
+Line Numbers=true
+Max Clipboard History Entries=20
+Maximum Search History Size=100
+Mouse Paste At Cursor Position=false
+Multiple Cursor Modifier=134217728
+Persistent Selection=false
+Scroll Bar Marks=false
+Scroll Bar Mini Map All=true
+Scroll Bar Mini Map Width=60
+Scroll Bar MiniMap=true
+Scroll Bar Preview=true
+Scroll Past End=false
+Search/Replace Flags=140
+Shoe Line Ending Type in Statusbar=false
+Show Documentation With Completion=true
+Show File Encoding=true
+Show Focus Frame Around Editor=true
+Show Folding Icons On Hover Only=true
+Show Line Count=false
+Show Scrollbars=0
+Show Statusbar Dictionary=true
+Show Statusbar Highlighting Mode=true
+Show Statusbar Input Mode=true
+Show Statusbar Line Column=true
+Show Statusbar Tab Settings=true
+Show Word Count=false
+Smart Copy Cut=true
+Statusbar Line Column Compact Mode=true
+Text Drag And Drop=true
+User Sets Of Chars To Enclose Selection=
+Vi Input Mode Steal Keys=false
+Vi Relative Line Numbers=false
+Word Completion=true
+Word Completion Minimal Word Length=3
+Word Completion Remove Tail=true
+
+[KTextEditor::Search]
+Search History=skip,current,getcurrent,keymaps
+
+[MainWindow]
+1920x1080 screen: Height=1036
+1920x1080 screen: Width=951
+1920x1080 screen: XPosition=963
+1920x1080 screen: YPosition=38
+2 screens: Height=664
+2 screens: Width=1280
+2 screens: XPosition=748
+2 screens: YPosition=1308
+HDMI-0=HDMI-0
+HDMI-0 HDMI-1=HDMI-1
+HDMI-1=HDMI-1
+StatusBar=Disabled
+ToolBarsMovable=Disabled
+splitterSizes=637,319
+
+[MainWindow][Toolbar mainToolBar]
+ToolButtonStyle=IconOnly
+
+[Viewer]
+1920x1080 screen: Height=515
+1920x1080 screen: Width=951
+1920x1080 screen: XPosition=963
+1920x1080 screen: YPosition=38
+2 screens: Height=329
+2 screens: Width=207
+2 screens: Window-Maximized=true
+HDMI-0=HDMI-0
+HDMI-1=HDMI-1
+MenuBar=Disabled
+State=AAAA/wAAAAD9AAAAAAAAA7cAAAHdAAAABAAAAAQAAAAIAAAACPwAAAACAAAAAQAAAAAAAAACAAAAAQAAABYAbQBhAGkAbgBUAG8AbwBsAEIAYQByAQAAAAD/////AAAAAAAAAAA=
+StatusBar=Disabled
+ToolBarsMovable=Disabled

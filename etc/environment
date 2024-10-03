@@ -1,0 +1,15 @@
+#
+# This file is parsed by pam_env module
+#
+# Syntax: simple "KEY=VAL" pairs on separate lines
+
+KWIN_X11_REFRESH_RATE=60000
+KWIN_X11_NO_SYNC_TO_VBLANK=1
+KWIN_X11_FORCE_SOFTWARE_VSYNC=1
+
+QT_QPA_PLATFORMTHEME="wayland;xcb"
+
+GBM_BACKEND=nvidia-drm
+__GLX_VENDOR_LIBRARY_NAME=nvidia
+ENABLE_VKBASALT=1
+LIBVA_DRIVER_NAME=nvidia

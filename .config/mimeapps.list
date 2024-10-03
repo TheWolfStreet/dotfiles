@@ -1,0 +1,7 @@
+[Added Associations]
+audio/flac=vlc.desktop;
+text/plain=nvim.desktop;
+
+[Default Applications]
+audio/flac=vlc.desktop;
+text/plain=nvim.desktop;

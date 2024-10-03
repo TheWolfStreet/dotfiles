@@ -1,0 +1,25 @@
+return {
+  -- {
+  --   "TheWolfStreet/sonarlint.nvim",
+  --   opts = function()
+  --     return {
+  --       server = {
+  --         cmd = {
+  --           "sonarlint-language-server",
+  --           -- Ensure that sonarlint-language-server uses stdio channel
+  --           "-stdio",
+  --           "-analyzers",
+  --           -- paths to the analyzers you need, using those for python and java in this example
+  --           vim.fn.expand("$MASON/share/sonarlint-analyzers/sonarcfamily.jar"),
+  --         },
+  --       },
+  --       filetypes = {
+  --         "cpp",
+  --       },
+  --     }
+  --   end,
+  --   config = function(_, opts)
+  --     require("sonarlint").setup(opts)
+  --   end,
+  -- },
+}

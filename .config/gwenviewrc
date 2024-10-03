@@ -1,0 +1,81 @@
+2 screens: Height=688
+2 screens: Width=964
+2 screens: XPosition=497
+2 screens: YPosition=1285
+HDMI-0 HDMI-1=HDMI-0
+MenuBar=Disabled
+
+[$Version]
+update_info=gwenview.upd:SideBar_StatusBar_Rename,gwenview.upd:ImageView_AlphaBackgroundMode_Update,gwenview.upd:DeleteThumbnailSetting_Rename
+
+[Audio Preview Settings]
+Autoplay=false
+
+[General]
+LastTargetDir[$e]=file:$HOME/Desktop
+LastUsedVersion=210800
+SideBarPage=operations
+
+[ImageView]
+ThumbnailSplitterSizes=673,266
+
+[KFileDialog Settings]
+Recent Files[$e]=file:$HOME/Desktop/1699436393724.jpg,file:$HOME/Desktop/1699436393724.jpg
+Recent URLs[$e]=file:$HOME/Desktop/
+detailViewIconSize=16
+
+[KPropertiesDialog]
+1920x1080 screen: Height=410
+1920x1080 screen: Width=378
+
+[MainWindow]
+1920x1080 screen: Height=1036
+1920x1080 screen: Width=951
+1920x1080 screen: XPosition=6
+1920x1080 screen: YPosition=38
+2 screens: Height=722
+2 screens: Width=964
+2 screens: XPosition=433
+2 screens: YPosition=1438
+HDMI-0=HDMI-0
+HDMI-0 HDMI-1=HDMI-0
+HDMI-1=HDMI-1
+MenuBar=Disabled
+ToolBarsMovable=Disabled
+
+[MainWindow][Toolbar mainToolBar]
+IconSize=16
+ToolButtonStyle=IconOnly
+
+[Recent Files]
+File1[$e]=$HOME/Desktop/RecentRender/mp5/0003.png
+File10[$e]=$HOME/Desktop/MacSonoma-kde/sddm/images/Background-Dark.jpg
+File2[$e]=$HOME/Desktop/RecentRender/mp5/0002.png
+File3[$e]=$HOME/Desktop/RecentRender/mp5/0001.png
+File4[$e]=$HOME/Desktop/RecentRender/mp5/0000.png
+File5[$e]=$HOME/.steam/steam/steamapps/compatdata/2229228228/pfx/drive_c/8f6a2bca9b215b07a88966ea3a68d73b/SplashScreen.bmp
+File6[$e]=$HOME/Desktop/Screenshot_20240227_222536.png
+File7[$e]=$HOME/.local/share/plasma/desktoptheme/MacSonoma-Dark/icons/video.svg
+File8[$e]=$HOME/Desktop/MacSonoma-kde/sddm/images/Preview-Light.jpg
+File9[$e]=$HOME/Desktop/MacSonoma-kde/sddm/images/Preview-Dark.jpg
+Name1[$e]=0003.png
+Name10[$e]=Background-Dark.jpg
+Name2[$e]=0002.png
+Name3[$e]=0001.png
+Name4[$e]=0000.png
+Name5[$e]=SplashScreen.bmp
+Name6[$e]=Screenshot_20240227_222536.png
+Name7[$e]=video.svg
+Name8[$e]=Preview-Light.jpg
+Name9[$e]=Preview-Dark.jpg
+
+[SideBar]
+InformationSplitterSizes=236,239
+SideBarSplitterSizes=210,1709
+
+[StatusBar]
+IsVisible ViewMode FullScreen=true
+
+[Toolbar mainToolBar]
+IconSize=16
+ToolButtonStyle=IconOnly

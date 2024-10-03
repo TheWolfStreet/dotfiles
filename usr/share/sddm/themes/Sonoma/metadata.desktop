@@ -1,0 +1,14 @@
+[SddmGreeterTheme]
+Name=Sonoma
+Description=MacOS-like lockscreen
+Author=zayronxio
+Copyright=(c) 2022, zayronxio
+License=gpl3.0
+Type=sddm-theme
+Version=0.3.1
+Website=https://github.com/varlesh/rounded
+Screenshot=preview.png
+MainScript=Main.qml
+ConfigFile=theme.conf
+Theme-Id=Sonoma
+Theme-API=2.0

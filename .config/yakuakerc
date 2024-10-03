@@ -1,0 +1,22 @@
+[Appearance]
+HideSkinBorders=true
+Translucency=true
+
+[Desktop Entry]
+DefaultProfile=Main.profile
+
+[Dialogs]
+FirstRun=false
+
+[KFileDialog Settings]
+detailViewIconSize=16
+
+[Notification Messages]
+CloseSingleTab=true
+ShowPasteHugeTextWarning=false
+hinding_title_bar=false
+
+[Window]
+DynamicTabTitles=true
+ShowTabBar=false
+ShowTitleBar=false

@@ -1,0 +1,8 @@
+[Plymouth Theme]
+Name=macOS
+Description=macOS boot screen
+ModuleName=script
+
+[script]
+ImageDir=/usr/share/plymouth/themes/macOS/
+ScriptFile=/usr/share/plymouth/themes/macOS/macOS.script

@@ -1,0 +1,33 @@
+[$Version]
+update_info=ksmserver_update_loginMode_value.upd:ksmserver_update_loginMode_value_default_enum
+
+[General]
+loginMode=emptySession
+
+[LegacySession: saved at previous logout]
+count=0
+
+[Session: saved at previous logout]
+clientId1=1014cd7d2d4000169350776800000006790006
+clientId2=1014cd7d2d4000169350776900000006790007
+clientId3=1014cd7d2d4000169350776900000006790008
+clientId4=1014cd7d2d4000169349720400000006790011
+count=4
+discardCommand1[$e]=rm,$HOME/.config/session/yakuake_1014cd7d2d4000169350776800000006790006_1693497679_434826
+discardCommand4[$e]=rm,$HOME/.config/session/dolphin_1014cd7d2d4000169349720400000006790011_1693497679_434831
+program1=/usr/bin/yakuake
+program2=/usr/bin/firewall-applet
+program3=ksnip
+program4=/usr/bin/dolphin
+restartCommand1=/usr/bin/yakuake,-session,1014cd7d2d4000169350776800000006790006_1693497679_434826
+restartCommand2=/usr/bin/firewall-applet,-session,1014cd7d2d4000169350776900000006790007_1693497679_434826,-name,firewall-applet
+restartCommand3=ksnip,-session,1014cd7d2d4000169350776900000006790008_1693497679_434834
+restartCommand4=/usr/bin/dolphin,-session,1014cd7d2d4000169349720400000006790011_1693497679_434831
+restartStyleHint1=0
+restartStyleHint2=0
+restartStyleHint3=0
+restartStyleHint4=0
+userId1=tws
+userId2=tws
+userId3=tws
+userId4=tws

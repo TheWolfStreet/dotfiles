@@ -1,0 +1,8 @@
+[Plymouth Theme]
+Name=archOS
+Description=archOS boot screen
+ModuleName=script
+
+[script]
+ImageDir=/usr/share/plymouth/themes/archOS/
+ScriptFile=/usr/share/plymouth/themes/archOS/archOS.script

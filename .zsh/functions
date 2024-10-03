@@ -1,0 +1,9 @@
+ZDIR=$HOME/.zsh
+source $ZDIR/themes/$ZSH_THEME.zsh-theme
+for plugin ($plugins); do
+  if [[ -f "$ZDIR/plugins/$plugin/$plugin.plugin.zsh" ]]; then
+    source "$ZDIR/plugins/$plugin/$plugin.plugin.zsh"
+  fi
+done
+
+unset plugin

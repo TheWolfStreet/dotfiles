@@ -1,0 +1,45 @@
+[Desktop Action ActiveWindowScreenShot]
+Exec=/usr/bin/qdbus org.kde.Spectacle / ActiveWindow -1 -1
+Name=Capture Active Window
+X-KDE-Shortcuts=Meta+Print
+
+[Desktop Action CurrentMonitorScreenShot]
+Exec=/usr/bin/qdbus org.kde.Spectacle / CurrentScreen -1
+Name=Capture Current Monitor
+
+[Desktop Action FullScreenScreenShot]
+Exec=/usr/bin/qdbus org.kde.Spectacle / FullScreen -1
+Name=Capture Entire Desktop
+X-KDE-Shortcuts=Shift+Print
+
+[Desktop Action OpenWithoutScreenshot]
+Exec=/usr/bin/qdbus org.kde.Spectacle / OpenWithoutScreenshot
+Name=Launch without taking a screenshot
+
+[Desktop Action RectangularRegionScreenShot]
+Exec=/usr/bin/qdbus org.kde.Spectacle / RectangularRegion -1
+Name=Capture Rectangular Region
+X-KDE-Shortcuts=Meta+Shift+Print
+
+[Desktop Action WindowUnderCursorScreenShot]
+Exec=/usr/bin/qdbus org.kde.Spectacle / WindowUnderCursor -1 -1
+Name=Capture Window Under Cursor
+X-KDE-Shortcuts=Meta+Ctrl+Print
+
+[Desktop Entry]
+Actions=FullScreenScreenShot;CurrentMonitorScreenShot;ActiveWindowScreenShot;RectangularRegionScreenShot;WindowUnderCursorScreenShot;OpenWithoutScreenshot;
+Categories=Qt;KDE;Utility;
+Comment=Screenshot capture utility
+Exec=/usr/bin/spectacle
+GenericName=Screenshot Capture Utility
+Icon=spectacle
+Keywords=snapshot;capture;print;screenshot;snipping;snipping tool;snip;
+Name=Spectacle
+StartupNotify=false
+Type=Application
+X-DBUS-ServiceName=org.kde.Spectacle
+X-DBUS-StartupType=Unique
+X-KDE-DBUS-Restricted-Interfaces=org.kde.kwin.Screenshot,org.kde.KWin.ScreenShot2
+X-KDE-Shortcuts=Print
+X-KDE-Wayland-Interfaces=org_kde_plasma_window_management,zkde_screencast_unstable_v1
+Hidden=true

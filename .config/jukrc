@@ -1,0 +1,59 @@
+[FileRemover]
+deleteInsteadOfTrash=true
+
+[LyricsWidget]
+Show=true
+
+[MainWindow]
+1920x1080 screen: Height=480
+1920x1080 screen: Width=801
+1920x1080 screen: XPosition=1077
+1920x1080 screen: YPosition=366
+HDMI-0=HDMI-0
+MenuBar=Disabled
+State=AAAA/wAAAAD9AAAAAAAAAyEAAAGdAAAABAAAAAQAAAAIAAAACPwAAAABAAAAAgAAAAIAAAAWAG0AYQBpAG4AVABvAG8AbABCAGEAcgAAAAAA/////wAAAAAAAAAAAAAAFgBwAGwAYQB5AFQAbwBvAGwAQgBhAHIBAAAAAP////8AAAAAAAAAAA==
+ToolBarsMovable=Disabled
+
+[MainWindow][Toolbar playToolBar]
+ToolButtonStyle=IconOnly
+
+[Notification Messages]
+hideOnCloseInfo=false
+
+[Player]
+CrossfadeTracks=false
+LoopPlaylist=false
+RandomPlay=Disabled
+Volume=100
+
+[PlaylistBox]
+ViewMode=0
+
+[PlaylistShared]
+ColumnOrder=
+ResizeColumnsManually=false
+VisibleColumns=0,1,2,3,4,5,6,7
+
+[Playlists]
+CollectionListSortAscending=true
+CollectionListSortColumn=1
+DirectoryList[$e]=$HOME/Music
+ImportPlaylists=true
+showUpcoming=false
+
+[Settings]
+DockInSystemTray=true
+DockOnClose=true
+StartDocked=true
+TrackPopup=false
+
+[Splitter]
+EditorSplitterSizes=413,0
+PlaylistSplitterSizes=98,501,200
+ShowSearch=true
+
+[TagEditor]
+AlbumNameBoxMode=2
+ArtistNameBoxMode=2
+GenreBoxMode=2
+Show=false
