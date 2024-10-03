@@ -134,6 +134,9 @@ in {
           "SUPER, SPACE, togglefloating"
           "SUPER, P, togglesplit"
 
+          "SUPER, grave, togglespecialworkspace"
+          "SUPER SHIFT, grave, movetoworkspace, special"
+
           (mvfocus "k" "u")
           (mvfocus "j" "d")
           (mvfocus "l" "r")
