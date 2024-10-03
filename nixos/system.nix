@@ -99,8 +99,10 @@
     };
     nvidia = {
       modesetting.enable = true;
+      nvidiaPersistenced = true;
       open = false;
       powerManagement.enable = false;
+      powerManagement.finegrained = false;
       nvidiaSettings = false; # GUI App
       package = config.boot.kernelPackages.nvidiaPackages.latest;
     };
