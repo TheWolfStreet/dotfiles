@@ -46,6 +46,12 @@ in {
         resize_on_border = true;
       };
 
+      render = {
+        explicit_sync = 2;
+        explicit_sync_kms = 2;
+        direct_scanout = false;
+      };
+
       misc = {
         disable_hyprland_logo = true;
         disable_splash_rendering = true;
@@ -136,6 +142,7 @@ in {
 
           "SUPER, grave, togglespecialworkspace"
           "SUPER SHIFT, grave, movetoworkspace, special"
+          ",mouse:276, pass, class:^(discord|vesktop)$"
 
           (mvfocus "k" "u")
           (mvfocus "j" "d")

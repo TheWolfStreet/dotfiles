@@ -12,6 +12,10 @@
       spotify
       fragments
       discord
+      vesktop
+      bottles
+      telegram-desktop
+      easyeffects
       steam
       figma-linux
       nodejs
@@ -19,6 +23,7 @@
     cli = [
       bat
       eza
+      zoxide
       fd
       ripgrep
       fzf

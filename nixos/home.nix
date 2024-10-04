@@ -24,12 +24,13 @@
   gtk.gtk3.bookmarks = let
     home = config.home.homeDirectory;
   in [
-    "file://${home}/Documents"
-    "file://${home}/Music"
-    "file://${home}/Pictures"
-    "file://${home}/Videos"
-    "file://${home}/Downloads"
     "file://${home}/Desktop"
+    "file://${home}/Downloads"
+    "file://${home}/Documents"
+    "file://${home}/Videos"
+    "file://${home}/Music"
+    "file://${home}/Software"
+    "file://${home}/Pictures"
     "file://${home}/Projects"
     "file://${home}/.config Config"
   ];

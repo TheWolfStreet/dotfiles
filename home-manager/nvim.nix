@@ -11,7 +11,7 @@
       icon = "nvim";
       exec = "xterm -e ${pkgs.neovim}/bin/nvim %F";
       categories = ["TerminalEmulator"];
-      terminal = false;
+      terminal = true;
       mimeType = ["text/plain"];
     };
   };

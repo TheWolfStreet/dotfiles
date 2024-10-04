@@ -58,7 +58,7 @@
     HandleLidSwitchExternalPower=ignore
   '';
 
-  # kde connect
+  # KDE connect
   networking.firewall = rec {
     allowedTCPPortRanges = [
       {
@@ -84,10 +84,38 @@
     tmp.cleanOnBoot = true;
     supportedFilesystems = ["ntfs"];
     loader = {
-      timeout = 2;
+      timeout = 0;
       systemd-boot.enable = true;
       efi.canTouchEfiVariables = true;
     };
+    kernelModules = ["nvidia"];
+    kernelPackages = pkgs.linuxPackages_latest;
+
+    # splash screen
+    plymouth = {
+      enable = true;
+      theme = "rings";
+      themePackages = with pkgs; [
+        # by default we would install all themes
+        (adi1090x-plymouth-themes.override {
+          selected_themes = ["rings"];
+        })
+      ];
+    };
+
+    # enable "silent boot"
+    consoleLogLevel = 0;
+    initrd.verbose = false;
+    kernelParams = [
+      "video=1920x1080"
+      "quiet"
+      "splash"
+      "boot.shell_on_fail"
+      "loglevel=3"
+      "rd.systemd.show_status=false"
+      "rd.udev.log_level=3"
+      "udev.log_priority=3"
+    ];
   };
 
   # GPU
@@ -100,21 +128,21 @@
     nvidia = {
       modesetting.enable = true;
       nvidiaPersistenced = true;
-      open = false;
+      open = true;
       powerManagement.enable = false;
       powerManagement.finegrained = false;
       nvidiaSettings = false; # GUI App
-      package = config.boot.kernelPackages.nvidiaPackages.latest;
+      package = config.boot.kernelPackages.nvidiaPackages.beta;
     };
     steam-hardware.enable = true;
   };
-  environment.variables = {
+  environment.sessionVariables = {
     LIBVA_DRIVER_NAME = "nvidia";
     GBM_BACKEND = "nvidia-drm";
     __GLX_VENDOR_LIBRARY_NAME = "nvidia";
     NVD_BACKEND = "direct";
+    NIXOS_OZONE_WL = "1";
     WLR_RENDERER_ALLOW_SOFTWARE = "1";
   };
-
-  system.stateVersion = "23.05";
+  system.stateVersion = "24.05";
 }
