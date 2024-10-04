@@ -38,6 +38,7 @@
     neovim
     git
     wget
+    nvidia-vaapi-driver
   ];
 
   # services
