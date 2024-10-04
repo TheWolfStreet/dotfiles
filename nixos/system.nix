@@ -39,6 +39,9 @@
     git
     wget
     nvidia-vaapi-driver
+    libvdpau-va-gl
+    egl-wayland
+    libGL
   ];
 
   # services
@@ -50,6 +53,7 @@
     printing.enable = true;
     flatpak.enable = true;
     openssh.enable = true;
+    fstrim.enable = true;
   };
 
   # logind
@@ -72,6 +76,7 @@
 
   # network
   networking.networkmanager.enable = true;
+  systemd.services.NetworkManager-wait-online.enable = false;
 
   # bluetooth
   hardware.bluetooth = {
@@ -97,7 +102,7 @@
       enable = true;
       theme = "rings";
       themePackages = with pkgs; [
-        # by default we would install all themes
+        # by default it would install all themes
         (adi1090x-plymouth-themes.override {
           selected_themes = ["rings"];
         })
@@ -112,27 +117,30 @@
       "quiet"
       "splash"
       "boot.shell_on_fail"
-      "loglevel=3"
+      "loglevel=2"
+      "rd.udev.log_level=2"
+      "udev.log_priority=2"
       "rd.systemd.show_status=false"
-      "rd.udev.log_level=3"
-      "udev.log_priority=3"
+      "systemd.show_status=false"
+      "libahci.ignore_sss=1"
     ];
   };
 
-  # GPU
+  # Hardware
   services.xserver.videoDrivers = ["nvidia"];
   hardware = {
     graphics = {
       enable = true;
       enable32Bit = true;
     };
+    cpu.amd.updateMicrocode = true;
     nvidia = {
       modesetting.enable = true;
       nvidiaPersistenced = true;
       open = true;
       powerManagement.enable = false;
       powerManagement.finegrained = false;
-      nvidiaSettings = false; # GUI App
+      nvidiaSettings = false; # GUI app
       package = config.boot.kernelPackages.nvidiaPackages.beta;
     };
     steam-hardware.enable = true;
@@ -145,5 +153,6 @@
     NIXOS_OZONE_WL = "1";
     WLR_RENDERER_ALLOW_SOFTWARE = "1";
   };
+
   system.stateVersion = "24.05";
 }

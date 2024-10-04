@@ -11,6 +11,7 @@
       (mpv.override {scripts = [mpvScripts.mpris];})
       spotify
       fragments
+      file-roller
       discord
       vesktop
       bottles
@@ -21,6 +22,7 @@
       nodejs
     ];
     cli = [
+      fastfetch
       bat
       eza
       zoxide
