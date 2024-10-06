@@ -27,12 +27,7 @@
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-    ucodenix.url = "github:e-tho/ucodenix";
-
-    wezterm = {
-      url = "github:wez/wezterm/main?dir=nix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    apple-fonts.url = "github:Lyndeno/apple-fonts.nix";
 
     home-manager = {
       url = "github:nix-community/home-manager";

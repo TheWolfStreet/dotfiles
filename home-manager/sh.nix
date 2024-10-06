@@ -27,10 +27,11 @@
     "del" = "gio trash";
   };
 in {
-  options.shellAliases = with lib; mkOption {
-    type = types.attrsOf types.str;
-    default = {};
-  };
+  options.shellAliases = with lib;
+    mkOption {
+      type = types.attrsOf types.str;
+      default = {};
+    };
 
   config.programs = {
     zsh = {
@@ -65,8 +66,8 @@ in {
         NIXPKGS_ALLOW_UNFREE = "1";
         NIXPKGS_ALLOW_INSECURE = "1";
         SHELL = ''"${pkgs.nushell}/bin/nu"'';
-        EDITOR = config.home.sessionVariables.EDITOR;
-        VISUAL = config.home.sessionVariables.VISUAL;
+        EDITOR = ''"${config.home.sessionVariables.EDITOR}"'';
+        VISUAL = ''"${config.home.sessionVariables.VISUAL}"'';
       };
       extraConfig = let
         conf = builtins.toJSON {

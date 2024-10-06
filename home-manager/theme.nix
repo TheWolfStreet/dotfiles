@@ -1,27 +1,28 @@
 {
   pkgs,
   config,
+  inputs,
   ...
 }: let
-  nerdfonts = pkgs.nerdfonts.override {
-    fonts = [
-      "Ubuntu"
-      "UbuntuMono"
-      "CascadiaCode"
-      "FantasqueSansMono"
-      "FiraCode"
-      "Mononoki"
-    ];
-  };
-
   theme = {
     name = "adw-gtk3-dark";
     package = pkgs.adw-gtk3;
   };
   font = {
-    name = "Ubuntu Nerd Font";
-    package = nerdfonts;
+    name = "SF Pro Display Nerd Font";
     size = 11;
+    package = inputs.apple-fonts.packages.${pkgs.system}.sf-pro-nerd;
+  };
+  nerdfonts = {
+    package = pkgs.nerdfonts.override {
+      fonts = [
+        "UbuntuMono"
+        "CascadiaCode"
+        "FantasqueSansMono"
+        "FiraCode"
+        "Mononoki"
+      ];
+    };
   };
   cursorTheme = {
     name = "Qogir";
@@ -29,8 +30,8 @@
     package = pkgs.qogir-icon-theme;
   };
   iconTheme = {
-    name = "MoreWaita";
-    package = pkgs.morewaita-icon-theme;
+    name = "WhiteSur";
+    package = pkgs.whitesur-icon-theme;
   };
 in {
   home = {
@@ -39,6 +40,7 @@ in {
       font-awesome
       theme.package
       font.package
+      nerdfonts.package
       cursorTheme.package
       iconTheme.package
       adwaita-icon-theme

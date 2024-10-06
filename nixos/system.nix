@@ -78,11 +78,37 @@
   networking.networkmanager.enable = true;
   systemd.services.NetworkManager-wait-online.enable = false;
 
-  # bluetooth
-  hardware.bluetooth = {
-    enable = true;
-    powerOnBoot = false;
-    settings.General.Experimental = true; # for gnome-bluetooth percentage
+  services.xserver.videoDrivers = ["nvidia"];
+  services.irqbalance.enable = true;
+  hardware = {
+    bluetooth = {
+      enable = true;
+      powerOnBoot = false;
+      settings.General.Experimental = true; # for gnome-bluetooth percentage
+    };
+    graphics = {
+      enable = true;
+      enable32Bit = true;
+    };
+    cpu.amd.updateMicrocode = true;
+    nvidia = {
+      modesetting.enable = true;
+      nvidiaPersistenced = true;
+      open = false;
+      powerManagement.enable = false;
+      powerManagement.finegrained = false;
+      nvidiaSettings = false; # GUI app
+      package = config.boot.kernelPackages.nvidiaPackages.latest;
+    };
+    steam-hardware.enable = true;
+  };
+  environment.sessionVariables = {
+    LIBVA_DRIVER_NAME = "nvidia";
+    GBM_BACKEND = "nvidia-drm";
+    __GLX_VENDOR_LIBRARY_NAME = "nvidia";
+    NVD_BACKEND = "direct";
+    NIXOS_OZONE_WL = "1";
+    WLR_RENDERER_ALLOW_SOFTWARE = "1";
   };
 
   # bootloader
@@ -95,7 +121,7 @@
       efi.canTouchEfiVariables = true;
     };
     kernelModules = ["nvidia"];
-    kernelPackages = pkgs.linuxPackages_latest;
+    kernelPackages = pkgs.linuxPackages_xanmod_latest;
 
     # splash screen
     plymouth = {
@@ -123,35 +149,8 @@
       "rd.systemd.show_status=false"
       "systemd.show_status=false"
       "libahci.ignore_sss=1"
+      "threadirqs"
     ];
-  };
-
-  # Hardware
-  services.xserver.videoDrivers = ["nvidia"];
-  hardware = {
-    graphics = {
-      enable = true;
-      enable32Bit = true;
-    };
-    cpu.amd.updateMicrocode = true;
-    nvidia = {
-      modesetting.enable = true;
-      nvidiaPersistenced = true;
-      open = true;
-      powerManagement.enable = false;
-      powerManagement.finegrained = false;
-      nvidiaSettings = false; # GUI app
-      package = config.boot.kernelPackages.nvidiaPackages.beta;
-    };
-    steam-hardware.enable = true;
-  };
-  environment.sessionVariables = {
-    LIBVA_DRIVER_NAME = "nvidia";
-    GBM_BACKEND = "nvidia-drm";
-    __GLX_VENDOR_LIBRARY_NAME = "nvidia";
-    NVD_BACKEND = "direct";
-    NIXOS_OZONE_WL = "1";
-    WLR_RENDERER_ALLOW_SOFTWARE = "1";
   };
 
   system.stateVersion = "24.05";

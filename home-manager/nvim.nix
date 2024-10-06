@@ -9,9 +9,9 @@
       name = "NeoVim";
       comment = "Edit text files";
       icon = "nvim";
-      exec = "xterm -c ${pkgs.neovim}/bin/nvim %F";
+      exec = "blackbox -c \"${pkgs.neovim}/bin/nvim %F\"";
       categories = ["TerminalEmulator"];
-      terminal = true;
+      terminal = false;
       mimeType = ["text/plain"];
     };
   };

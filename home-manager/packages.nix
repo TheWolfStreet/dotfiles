@@ -16,6 +16,10 @@
       vesktop
       bottles
       telegram-desktop
+      krita
+      blender
+      obsidian
+      ghidra
       easyeffects
       steam
       figma-linux
@@ -25,9 +29,10 @@
       fastfetch
       bat
       eza
-      zoxide
       fd
       ripgrep
+      ncdu
+      btop
       fzf
       lazydocker
       lazygit

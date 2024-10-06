@@ -58,7 +58,7 @@ in {
         disable_splash_rendering = true;
         mouse_move_enables_dpms = true;
         force_default_wallpaper = 0;
-        vfr = false;
+        vfr = true;
         enable_swallow = true;
         swallow_regex = "^(Alacritty|kitty|footclient|wezterm|blackbox)$";
       };
@@ -107,6 +107,7 @@ in {
         (f "de.haeckerfelix.Fragments")
         (f "com.github.Aylur.ags")
         "workspace 5, title:Spotify"
+        "workspace special, title:Discord"
       ];
 
       windowrulev2 = [
@@ -160,8 +161,8 @@ in {
         ++ (map (i: mvtows (toString i) (toString i)) arr);
 
       # Push to talk
-      bindp = ",mouse:276, exec, ${pactl} set-source-mute @DEFAULT_SOURCE@ 0";
-      bindr = ",mouse:276, exec, ${pactl} set-source-mute @DEFAULT_SOURCE@ 1";
+      bindip = ",mouse:276, exec, ${pactl} set-source-mute @DEFAULT_SOURCE@ 0";
+      bindir = ",mouse:276, exec, ${pactl} set-source-mute @DEFAULT_SOURCE@ 1";
 
       bindle = [
         ",XF86MonBrightnessUp,   exec, ${brightnessctl} set +5%"
