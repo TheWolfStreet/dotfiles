@@ -49,7 +49,9 @@
     xserver = {
       enable = true;
       excludePackages = [pkgs.xterm];
+      videoDrivers = ["nvidia"];
     };
+    irqbalance.enable = true;
     printing.enable = true;
     flatpak.enable = true;
     openssh.enable = true;
@@ -78,8 +80,6 @@
   networking.networkmanager.enable = true;
   systemd.services.NetworkManager-wait-online.enable = false;
 
-  services.xserver.videoDrivers = ["nvidia"];
-  services.irqbalance.enable = true;
   hardware = {
     bluetooth = {
       enable = true;
@@ -97,7 +97,7 @@
       open = false;
       powerManagement.enable = false;
       powerManagement.finegrained = false;
-      nvidiaSettings = false; # GUI app
+      nvidiaSettings = false;
       package = config.boot.kernelPackages.nvidiaPackages.latest;
     };
     steam-hardware.enable = true;

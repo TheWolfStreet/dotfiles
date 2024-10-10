@@ -1,11 +1,8 @@
 {
-  inputs,
   pkgs,
   config,
   ...
 }: let
-  hyprland = inputs.hyprland.packages.${pkgs.system}.hyprland;
-
   yt = pkgs.writeShellScript "yt" ''
     notify-send "Opening video" "$(wl-paste)"
     mpv "$(wl-paste)"
@@ -27,7 +24,6 @@ in {
 
   wayland.windowManager.hyprland = {
     enable = true;
-    package = hyprland;
     systemd.enable = true;
     xwayland.enable = true;
 

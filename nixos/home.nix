@@ -6,6 +6,12 @@
     warn-dirty = false;
   };
 
+  nixpkgs.overlays = [
+    (self: super: {
+      stdenv = super.impureUseNativeOptimizations super.stdenv;
+    })
+  ];
+
   home = {
     sessionVariables = {
       QT_XCB_GL_INTEGRATION = "none"; # kde-connect

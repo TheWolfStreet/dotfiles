@@ -34,10 +34,10 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    hyprland = {
-      url = "git+https://github.com/hyprwm/Hyprland?submodules=1";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    # hyprland = {
+    #   url = "git+https://github.com/hyprwm/Hyprland?submodules=1";
+    #   inputs.nixpkgs.follows = "nixpkgs";
+    # };
 
     hyprland-plugins = {
       url = "github:hyprwm/hyprland-plugins";
@@ -54,11 +54,6 @@
 
     lf-icons = {
       url = "github:gokcehan/lf";
-      flake = false;
-    };
-
-    firefox-gnome-theme = {
-      url = "github:rafaelmardojai/firefox-gnome-theme";
       flake = false;
     };
   };
