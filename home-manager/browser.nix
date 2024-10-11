@@ -18,7 +18,26 @@ in {
     profiles.default = {
       name = "default";
       isDefault = true;
-      settings = {
+    };
+    policies = {
+      DisableTelemetry = true;
+      DisableFirefoxStudies = true;
+      EnableTrackingProtection = {
+        Value = true;
+        Locked = true;
+        Cryptomining = true;
+        Fingerprinting = false;
+      };
+      DisablePocket = true;
+      DisableFirefoxAccounts = true;
+      DisableAccounts = true;
+      DisableFirefoxScreenshots = true;
+      OverrideFirstRunPage = "";
+      OverridePostUpdatePage = "";
+      DontCheckDefaultBrowser = true;
+      DisplayMenuBar = "default-off";
+      SearchBar = "unified";
+      Preferences = {
         "browser.contentblocking.category" = {
           Value = "strict";
           Status = "locked";
@@ -42,27 +61,6 @@ in {
         "browser.newtabpage.activity-stream.showSponsored" = lock-false;
         "browser.newtabpage.activity-stream.system.showSponsored" = lock-false;
         "browser.newtabpage.activity-stream.showSponsoredTopSites" = lock-false;
-      };
-    };
-    policies = {
-      DisableTelemetry = true;
-      DisableFirefoxStudies = true;
-      EnableTrackingProtection = {
-        Value = true;
-        Locked = true;
-        Cryptomining = true;
-        Fingerprinting = false;
-      };
-      DisablePocket = true;
-      DisableFirefoxAccounts = true;
-      DisableAccounts = true;
-      DisableFirefoxScreenshots = true;
-      OverrideFirstRunPage = "";
-      OverridePostUpdatePage = "";
-      DontCheckDefaultBrowser = true;
-      DisplayMenuBar = "default-off";
-      SearchBar = "unified";
-      Preferences = {
       };
       ExtensionSettings = with builtins; let
         extension = shortId: uuid: {
