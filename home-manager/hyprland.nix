@@ -231,7 +231,7 @@ in {
           bar_height = 28;
           col_text = "rgba(ffffffdd)";
           bar_text_size = 11;
-          bar_text_font = "Ubuntu Nerd Font";
+          bar_text_font = "SFProDisplay Nerd Font";
 
           buttons = {
             button_size = 0;

@@ -16,11 +16,7 @@
   nerdfonts = {
     package = pkgs.nerdfonts.override {
       fonts = [
-        "UbuntuMono"
-        "CascadiaCode"
-        "FantasqueSansMono"
-        "FiraCode"
-        "Mononoki"
+        "JetBrainsMono"
       ];
     };
   };
@@ -36,7 +32,6 @@
 in {
   home = {
     packages = with pkgs; [
-      cantarell-fonts
       font-awesome
       theme.package
       font.package

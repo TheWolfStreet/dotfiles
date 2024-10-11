@@ -98,7 +98,7 @@
     nvidia = {
       modesetting.enable = true;
       nvidiaPersistenced = true;
-      open = true;
+      open = false;
       powerManagement.enable = false;
       powerManagement.finegrained = false;
       nvidiaSettings = false;

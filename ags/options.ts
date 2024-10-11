@@ -4,7 +4,7 @@ import { icon } from "lib/utils"
 import icons from "lib/icons"
 
 const options = mkOptions(OPTIONS, {
-    autotheme: opt(false),
+    autotheme: opt(true),
 
     wallpaper: {
         resolution: opt<import("service/wallpaper").Resolution>(1920),
@@ -41,25 +41,25 @@ const options = mkOptions(OPTIONS, {
             border: opt("#080808"),
         },
 
-        blur: opt(0),
+        blur: opt(70),
         scheme: opt<"dark" | "light">("dark"),
         widget: { opacity: opt(94) },
         border: {
             width: opt(1),
-            opacity: opt(96),
+            opacity: opt(86),
         },
 
         shadows: opt(true),
-        padding: opt(7),
-        spacing: opt(12),
-        radius: opt(11),
+        padding: opt(8),
+        spacing: opt(6),
+        radius: opt(12),
     },
 
     transition: opt(200),
 
     font: {
-        size: opt(13),
-        name: opt("Ubuntu Nerd Font"),
+        size: opt(11),
+        name: opt("SFProDisplay Nerd Font Regular"),
     },
 
     bar: {
@@ -91,17 +91,17 @@ const options = mkOptions(OPTIONS, {
         },
         launcher: {
             icon: {
-                colored: opt(true),
+                colored: opt(false),
                 icon: opt(icon(distro.logo, icons.ui.search)),
             },
             label: {
                 colored: opt(false),
-                label: opt(" Applications"),
+                label: opt(""),
             },
             action: opt(() => App.toggleWindow("launcher")),
         },
         date: {
-            format: opt("%H:%M - %A %e."),
+            format: opt("%a %b %-d %H:%M"),
             action: opt(() => App.toggleWindow("datemenu")),
         },
         battery: {
@@ -117,7 +117,7 @@ const options = mkOptions(OPTIONS, {
         },
         taskbar: {
             iconSize: opt(0),
-            monochrome: opt(true),
+            monochrome: opt(false),
             exclusive: opt(false),
         },
         messages: {
@@ -235,7 +235,7 @@ const options = mkOptions(OPTIONS, {
     hyprland: {
         gaps: opt(2.4),
         inactiveBorder: opt("#282828"),
-        gapsWhenOnly: opt(false),
+        gapsWhenOnly: opt(true),
     },
 })
 
