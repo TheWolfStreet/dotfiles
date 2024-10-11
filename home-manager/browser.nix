@@ -58,6 +58,8 @@ in {
           Value = "strict";
           Status = "locked";
         };
+        "privacy.history.custom" = lock-false;
+        "places.history.enabled" = lock-false;
         "extensions.pocket.enabled" = lock-false;
         "extensions.screenshots.disabled" = lock-true;
         "browser.topsites.contile.enabled" = lock-false;
