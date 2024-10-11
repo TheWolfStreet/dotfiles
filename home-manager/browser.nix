@@ -92,7 +92,6 @@ in {
           (extension "localcdn-fork-of-decentraleyes" "{b86e4813-687a-43e6-ab65-0bde4ab75758}")
           (extension "privacy-badger17" "jid1-MnnxcxisBPnSXQ@jetpack")
           (extension "simple-translate" "simple-translate@sienori")
-          (extension "veepn-free-fast-security-vpn" "{94ed9bbf-a1e2-4e58-81ae-cd16dad818d8}")
         ];
     };
   };
