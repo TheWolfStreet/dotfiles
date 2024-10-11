@@ -3,7 +3,6 @@
     self,
     home-manager,
     nixpkgs,
-    nur,
     ...
   }: {
     packages.x86_64-linux.default =
