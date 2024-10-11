@@ -23,6 +23,8 @@
     "gc" = "git commit";
     "ga" = "git add";
     "gr" = "git reset --soft HEAD~1";
+    "cd" = "z";
+    "cdi" = "zi";
 
     "del" = "gio trash";
   };
@@ -32,7 +34,6 @@ in {
       type = types.attrsOf types.str;
       default = {};
     };
-
   config.programs = {
     zsh = {
       shellAliases = aliases // config.shellAliases;
@@ -123,6 +124,12 @@ in {
         alias pueued = ${pkgs.pueue}/bin/pueued
         use ${pkgs.nu_scripts}/share/nu_scripts/modules/background_task/task.nu
       '';
+    };
+    zoxide = {
+      enable = true;
+      enableBashIntegration = true;
+      enableNushellIntegration = true;
+      enableZshIntegration = true;
     };
   };
 }

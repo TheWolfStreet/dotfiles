@@ -39,6 +39,7 @@
     git
     wget
     nvidia-vaapi-driver
+    vaapiVdpau
     libvdpau-va-gl
     egl-wayland
     libGL
@@ -83,8 +84,11 @@
   hardware = {
     bluetooth = {
       enable = true;
-      powerOnBoot = false;
-      settings.General.Experimental = true; # for gnome-bluetooth percentage
+      powerOnBoot = true;
+      settings.General = {
+        Experimental = true; # for gnome-bluetooth percentage
+        Enable = "Source,Sink,Media,Socket";
+      };
     };
     graphics = {
       enable = true;
@@ -94,7 +98,7 @@
     nvidia = {
       modesetting.enable = true;
       nvidiaPersistenced = true;
-      open = false;
+      open = true;
       powerManagement.enable = false;
       powerManagement.finegrained = false;
       nvidiaSettings = false;

@@ -30,6 +30,7 @@
       bat
       eza
       fd
+      zoxide
       ripgrep
       ncdu
       btop

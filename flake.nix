@@ -3,6 +3,7 @@
     self,
     home-manager,
     nixpkgs,
+    nur,
     ...
   }: {
     packages.x86_64-linux.default =
@@ -33,11 +34,6 @@
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-
-    # hyprland = {
-    #   url = "git+https://github.com/hyprwm/Hyprland?submodules=1";
-    #   inputs.nixpkgs.follows = "nixpkgs";
-    # };
 
     hyprland-plugins = {
       url = "github:hyprwm/hyprland-plugins";
