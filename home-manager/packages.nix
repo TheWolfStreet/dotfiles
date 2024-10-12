@@ -1,6 +1,4 @@
-{pkgs, ...}: let
-  aagl = import (builtins.fetchTarball "https://github.com/ezKEa/aagl-gtk-on-nix/archive/main.tar.gz");
-in {
+{pkgs, ...}: {
   imports = [
     ./modules/packages.nix
     ./scripts/blocks.nix
@@ -8,17 +6,15 @@ in {
     ./scripts/vault.nix
   ];
 
-  nix.settings = aagl.nixConfig;
   packages = with pkgs; {
     linux = [
       (mpv.override {scripts = [mpvScripts.mpris];})
-      aagl.anime-games-launcher
       spotify
+      bottles
+      libreoffice
       fragments
       file-roller
-      discord
-      vesktop
-      bottles
+      evince
       telegram-desktop
       krita
       blender

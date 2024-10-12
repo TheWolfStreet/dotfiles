@@ -2,7 +2,6 @@ return {
     { "Mofiqul/vscode.nvim" },
     { "Mofiqul/adwaita.nvim" },
     { "nyoom-engineering/oxocarbon.nvim" },
-    { "rebelot/kanagawa.nvim" },
     { "rose-pine/neovim" },
     { "navarasu/onedark.nvim" },
     { "projekt0n/github-nvim-theme" },
@@ -10,11 +9,13 @@ return {
         "LazyVim/LazyVim",
         opts = { colorscheme = "catppuccin" },
     },
+
+    { "rebelot/kanagawa.nvim", name = "kanagawa", opts = { transparent = true } },
     {
         "catppuccin/nvim",
         name = "catppuccin",
         opts = {
-            -- transparent_background = true,
+            transparent_background = true,
             flavour = "mocha",
             color_overrides = {
                 mocha = {

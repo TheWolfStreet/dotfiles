@@ -8,7 +8,6 @@
     packages.x86_64-linux.default =
       nixpkgs.legacyPackages.x86_64-linux.callPackage ./ags {inherit inputs;};
 
-    # nixos config
     nixosConfigurations = {
       "nixos" = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";

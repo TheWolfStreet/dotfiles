@@ -38,11 +38,6 @@
     neovim
     git
     wget
-    nvidia-vaapi-driver
-    vaapiVdpau
-    libvdpau-va-gl
-    egl-wayland
-    libGL
   ];
 
   # services
@@ -93,6 +88,11 @@
     graphics = {
       enable = true;
       enable32Bit = true;
+      extraPackages = with pkgs; [
+        nvidia-vaapi-driver
+        vaapiVdpau
+        libvdpau-va-gl
+      ];
     };
     cpu.amd.updateMicrocode = true;
     nvidia = {
@@ -108,6 +108,7 @@
   };
   environment.sessionVariables = {
     LIBVA_DRIVER_NAME = "nvidia";
+    VDPAU_DRIVER = "nvidia";
     GBM_BACKEND = "nvidia-drm";
     __GLX_VENDOR_LIBRARY_NAME = "nvidia";
     NVD_BACKEND = "direct";

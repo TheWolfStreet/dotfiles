@@ -19,6 +19,10 @@ return {
         opts = {
             ensure_installed = {
                 "lua",
+                "rust",
+                "cpp",
+                "svelte",
+                "go",
                 "nix",
                 "bash",
             },

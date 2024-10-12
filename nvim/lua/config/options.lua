@@ -12,11 +12,10 @@ opt.clipboard = "unnamedplus" -- sync clipboard with os
 opt.breakindent = true
 opt.inccommand = "split"
 
-opt.tabstop = 4
-opt.softtabstop = 4
-opt.shiftwidth = 4
+opt.tabstop = 2
+opt.softtabstop = 2
+opt.shiftwidth = 2
 opt.expandtab = true
 
 opt.swapfile = false
-
 opt.cinoptions:append(":0") -- switch statement indentations

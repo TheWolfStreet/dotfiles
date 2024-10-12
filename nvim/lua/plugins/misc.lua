@@ -3,9 +3,9 @@ return {
         "nvim-lspconfig",
         opts = { inlay_hints = { enabled = false } },
     },
-    { "folke/noice.nvim", enabled = false },
-    { "rcarriga/nvim-notify", enabled = false },
-    { "stevearc/dressing.nvim", enabled = false },
+    { "folke/noice.nvim", enabled = true },
+    { "rcarriga/nvim-notify", enabled = true },
+    { "stevearc/dressing.nvim", enabled = true },
 
     { "nvim-pack/nvim-spectre", enabled = false },
 
