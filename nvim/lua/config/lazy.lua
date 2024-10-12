@@ -10,7 +10,6 @@ if not vim.loop.fs_stat(lazypath) then
     })
 end
 vim.opt.rtp:prepend(vim.env.LAZY or lazypath)
-
 require("lazy").setup({
     spec = {
         { "LazyVim/LazyVim", import = "lazyvim.plugins" },
@@ -33,7 +32,7 @@ require("lazy").setup({
         { import = "lazyvim.plugins.extras.lang.nushell" },
 
         { import = "lazyvim.plugins.extras.lang.markdown" },
-        { import = "lazyvim.plugins.extras.lang.svelte" },
+        -- { import = "lazyvim.plugins.extras.lang.svelte" },
         { import = "lazyvim.plugins.extras.lang.typescript" },
         { import = "lazyvim.plugins.extras.lang.json" },
         { import = "lazyvim.plugins.extras.lang.yaml" },

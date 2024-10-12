@@ -45,6 +45,7 @@
 
       nil
       lua-language-server
+      bash-language-server
       stylua
       alejandra
     ];
