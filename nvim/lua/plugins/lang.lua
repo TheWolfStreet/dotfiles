@@ -44,6 +44,7 @@ return {
                 cssmodules_ls = {},
                 vala_ls = {},
                 mesonlsp = {},
+                svelte = {},
             },
         },
     },
