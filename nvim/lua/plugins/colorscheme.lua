@@ -1,4 +1,4 @@
-local transparent = false
+local transparent = true
 
 return {
     { "Mofiqul/vscode.nvim" },

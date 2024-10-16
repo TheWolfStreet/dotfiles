@@ -1,8 +1,4 @@
-{
-  pkgs,
-  config,
-  ...
-}: {
+{pkgs, ...}: {
   # nix
   documentation.nixos.enable = false; # .desktop
   nixpkgs.config.allowUnfree = true;
@@ -45,7 +41,6 @@
     xserver = {
       enable = true;
       excludePackages = [pkgs.xterm];
-      videoDrivers = ["nvidia"];
     };
     irqbalance.enable = true;
     printing.enable = true;
@@ -79,41 +74,12 @@
   hardware = {
     bluetooth = {
       enable = true;
-      powerOnBoot = true;
       settings.General = {
         Experimental = true; # for gnome-bluetooth percentage
         Enable = "Source,Sink,Media,Socket";
       };
     };
-    graphics = {
-      enable = true;
-      enable32Bit = true;
-      extraPackages = with pkgs; [
-        nvidia-vaapi-driver
-        vaapiVdpau
-        libvdpau-va-gl
-      ];
-    };
-    cpu.amd.updateMicrocode = true;
-    nvidia = {
-      modesetting.enable = true;
-      nvidiaPersistenced = true;
-      open = false;
-      powerManagement.enable = false;
-      powerManagement.finegrained = false;
-      nvidiaSettings = false;
-      package = config.boot.kernelPackages.nvidiaPackages.latest;
-    };
     steam-hardware.enable = true;
-  };
-  environment.sessionVariables = {
-    LIBVA_DRIVER_NAME = "nvidia";
-    VDPAU_DRIVER = "nvidia";
-    GBM_BACKEND = "nvidia-drm";
-    __GLX_VENDOR_LIBRARY_NAME = "nvidia";
-    NVD_BACKEND = "direct";
-    NIXOS_OZONE_WL = "1";
-    WLR_RENDERER_ALLOW_SOFTWARE = "1";
   };
 
   # bootloader
@@ -125,7 +91,6 @@
       systemd-boot.enable = true;
       efi.canTouchEfiVariables = true;
     };
-    kernelModules = ["nvidia"];
     kernelPackages = pkgs.linuxPackages_xanmod_latest;
 
     # splash screen
