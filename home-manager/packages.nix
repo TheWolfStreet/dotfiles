@@ -16,6 +16,7 @@
       file-roller
       evince
       telegram-desktop
+      vesktop
       krita
       blender
       obsidian
