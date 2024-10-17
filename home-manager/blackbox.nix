@@ -20,7 +20,7 @@
       show-headerbar = false;
       pretty = true;
       theme-light = "Adwaita";
-      theme-dark = "Charmful";
+      theme-dark = "Dracula";
       terminal-padding = with lib.hm.gvariant; let
         p = mkUint32 18;
       in
@@ -28,7 +28,7 @@
     };
 
     colors = {
-      "Charmful" = {
+      "Dracula" = {
         foreground-color = "#b2b5b3";
         background-color = "#171717";
         use-theme-colors = true;

@@ -14,9 +14,10 @@
   };
 in {
   environment = {
-    systemPackages = [nautEnv];
+    systemPackages = [nautEnv pkgs.libheif pkgs.libheif.out];
     pathsToLink = [
       "/share/nautilus-python/extensions"
+      "share/thumbnailers"
     ];
     sessionVariables = {
       NAUTILUS_4_EXTENSION_DIR = lib.mkDefault "${nautEnv}/lib/nautilus/extensions-4";

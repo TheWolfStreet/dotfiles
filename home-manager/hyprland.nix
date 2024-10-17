@@ -54,9 +54,6 @@ in {
         disable_splash_rendering = true;
         mouse_move_enables_dpms = true;
         force_default_wallpaper = 0;
-        vfr = true;
-        enable_swallow = true;
-        swallow_regex = "^(Alacritty|kitty|footclient|wezterm|blackbox)$";
       };
 
       input = {
