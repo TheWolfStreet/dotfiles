@@ -10,9 +10,18 @@ end
 
 return {
     {
+
+        "jay-babu/mason-nvim-dap.nvim",
+        -- enable in containers and Mac, but not NixOS
+        enabled = io.open("/run/.containerenv", "r") ~= nil or uname() == "Darwin",
+    },
+    {
         "williamboman/mason.nvim",
         -- enable in containers and Mac, but not NixOS
         enabled = io.open("/run/.containerenv", "r") ~= nil or uname() == "Darwin",
+        opts = {
+            PATH = "append",
+        },
     },
     {
         "nvim-treesitter/nvim-treesitter",

@@ -18,7 +18,11 @@
         modules = [
           ./nixos/nixos.nix
           home-manager.nixosModules.home-manager
-          {networking.hostName = "nixos";}
+          {
+            networking.hosts = {
+              "127.0.0.1" = ["localhost" "nixos"];
+            };
+          }
         ];
       };
     };
