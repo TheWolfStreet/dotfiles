@@ -7,8 +7,6 @@
 
   terminals.blackbox = {
     enable = true;
-
-    alias = ["xterm" "kgx" "gnome-terminal"];
     sessionVariable = true;
 
     settings = {

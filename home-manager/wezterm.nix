@@ -80,10 +80,11 @@
     };
   in {
     enable = true;
+    alias = ["xterm" "kgx" "gnome-terminal"];
     font = "JetBrainsMono Nerd Font";
 
     themes = {
-      Dark = "Charmful Dark";
+      Dark = "Dracula";
       Light = "Gnome Light";
     };
 
@@ -94,6 +95,7 @@
         "Charmful Dark" = charmful-dark;
       };
       color_scheme = "Charmful Dark";
+      front_end = "WebGpu";
       cell_width = 0.9;
       default_cursor_style = "BlinkingBar";
 
@@ -147,7 +149,6 @@
       	end
       	window:set_config_overrides(overrides)
       end)
-
       config.keys = {
       	{ key = "p", mods = "CTRL", action = wa.EmitEvent("padding-off") },
       	{ key = "o", mods = "CTRL", action = wa.EmitEvent("toggle-opacity") },
