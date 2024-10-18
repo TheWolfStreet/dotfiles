@@ -1,13 +1,9 @@
 {
   pkgs,
   config,
+  inputs,
   ...
 }: let
-  yt = pkgs.writeShellScript "yt" ''
-    notify-send "Opening video" "$(wl-paste)"
-    mpv "$(wl-paste)"
-  '';
-
   playerctl = "${pkgs.playerctl}/bin/playerctl";
   brightnessctl = "${pkgs.brightnessctl}/bin/brightnessctl";
   pactl = "${pkgs.pulseaudio}/bin/pactl";
@@ -24,6 +20,7 @@ in {
 
   wayland.windowManager.hyprland = {
     enable = true;
+    package = inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.hyprland;
     systemd.enable = true;
     xwayland.enable = true;
 
@@ -47,6 +44,10 @@ in {
         explicit_sync = 2;
         explicit_sync_kms = 2;
         direct_scanout = false;
+      };
+
+      cursor = {
+        no_hardware_cursors = true;
       };
 
       misc = {
@@ -99,7 +100,7 @@ in {
         (f "xdg-desktop-portal-gnome")
         (f "de.haeckerfelix.Fragments")
         (f "com.github.Aylur.ags")
-        "workspace 5, title:Spotify"
+        "workspace special, title:Spotify"
         "workspace special, title:Discord"
       ];
 
@@ -130,9 +131,6 @@ in {
           "SUPER, B, exec, ${config.home.sessionVariables.BROWSER}"
           "SUPER, E, exec, nautilus"
           "SUPER, X, exec, xterm" # A symlink to other terminal
-
-          # youtube
-          "SUPER SHIFT, Y , exec, ${yt}"
 
           "ALT, Tab, cyclenext"
           "ALT, Tab, bringactivetotop"
@@ -210,32 +208,6 @@ in {
           "fade, 1, 7, default"
           "workspaces, 1, 6, default"
         ];
-      };
-
-      plugin = {
-        overview = {
-          centerAligned = true;
-          hideTopLayers = true;
-          hideOverlayLayers = true;
-          showNewWorkspace = true;
-          exitOnClick = true;
-          exitOnSwitch = true;
-          drawActiveWorkspace = true;
-          reverseSwipe = true;
-        };
-        hyprbars = {
-          bar_color = "rgb(2a2a2a)";
-          bar_height = 28;
-          col_text = "rgba(ffffffdd)";
-          bar_text_size = 11;
-          bar_text_font = "SFProDisplay Nerd Font";
-
-          buttons = {
-            button_size = 0;
-            "col.maximize" = "rgba(ffffff11)";
-            "col.close" = "rgba(ff111133)";
-          };
-        };
       };
     };
   };

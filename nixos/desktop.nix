@@ -10,7 +10,6 @@
       extraPackages = with pkgs; [
         nvidia-vaapi-driver
         vaapiVdpau
-        libvdpau-va-gl
       ];
     };
     nvidia = {
@@ -22,6 +21,8 @@
       nvidiaSettings = false;
       package = config.boot.kernelPackages.nvidiaPackages.latest;
     };
+    enableAllFirmware = true;
+    enableRedistributableFirmware = true;
     cpu.amd.updateMicrocode = true;
   };
   environment.sessionVariables = {

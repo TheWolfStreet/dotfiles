@@ -69,6 +69,8 @@
 
   # network
   networking.networkmanager.enable = true;
+  # disable IPv6 so that only IPv4 evaluates in hosts, otherwise Nvim DAP fails to connect
+  networking.enableIPv6 = false;
   systemd.services.NetworkManager-wait-online.enable = false;
 
   hardware = {
@@ -91,7 +93,7 @@
       systemd-boot.enable = true;
       efi.canTouchEfiVariables = true;
     };
-    kernelPackages = pkgs.linuxPackages_xanmod_latest;
+    kernelPackages = pkgs.linuxPackages_zen;
 
     # splash screen
     plymouth = {

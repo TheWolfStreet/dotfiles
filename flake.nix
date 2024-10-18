@@ -4,25 +4,22 @@
     home-manager,
     nixpkgs,
     ...
-  }: {
-    packages.x86_64-linux.default =
-      nixpkgs.legacyPackages.x86_64-linux.callPackage ./ags {inherit inputs;};
-
+  }: let
+    platform = builtins.currentSystem;
+  in {
+    packages.${platform}.default =
+      nixpkgs.legacyPackages.${platform}.callPackage ./ags {inherit inputs;};
     nixosConfigurations = {
       "nixos" = nixpkgs.lib.nixosSystem {
-        system = "x86_64-linux";
+        system = "${platform}";
         specialArgs = {
           inherit inputs;
-          asztal = self.packages.x86_64-linux.default;
+          asztal = self.packages.${platform}.default;
         };
         modules = [
           ./nixos/nixos.nix
           home-manager.nixosModules.home-manager
-          {
-            networking.hosts = {
-              "127.0.0.1" = ["localhost" "nixos"];
-            };
-          }
+          {networking.hostName = "nixos";}
         ];
       };
     };
@@ -31,21 +28,16 @@
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     apple-fonts.url = "github:Lyndeno/apple-fonts.nix";
-
+    hyprland = {
+      type = "git";
+      url = "https://github.com/hyprwm/Hyprland";
+      submodules = true;
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     home-manager = {
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-
-    hyprland-plugins = {
-      url = "github:hyprwm/hyprland-plugins";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    hyprland-hyprspace = {
-      url = "github:KZDKM/Hyprspace";
-    };
-
     matugen.url = "github:InioX/matugen?ref=v2.2.0";
     ags.url = "github:Aylur/ags";
     astal.url = "github:Aylur/astal";
