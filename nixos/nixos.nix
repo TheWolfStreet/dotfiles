@@ -42,8 +42,7 @@ in {
       home.homeDirectory = "/home/${username}";
       imports = [
         ../home-manager/ags.nix
-        ../home-manager/blackbox.nix
-        ../home-manager/wezterm.nix
+        ../home-manager/kitty.nix
         ../home-manager/browser.nix
         ../home-manager/dconf.nix
         ../home-manager/distrobox.nix
