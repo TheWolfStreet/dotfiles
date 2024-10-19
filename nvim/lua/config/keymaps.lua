@@ -47,9 +47,4 @@ km({ "n", "i", "v" }, "<C-k>", vim.cmd.TmuxNavigateUp)
 km({ "n", "i", "v" }, "<C-l>", vim.cmd.TmuxNavigateRight)
 
 -- tranparency
-km("n", "<leader>o", function()
-    vim.cmd("highlight Normal guibg=NONE")
-    vim.cmd("highlight NonText guibg=NONE")
-    vim.cmd("highlight NonText ctermbg=NONE")
-    vim.cmd("highlight NonText ctermbg=NONE")
-end)
+km("n", "<leader>o", function() vim.cmd("TransparentToggle") end)

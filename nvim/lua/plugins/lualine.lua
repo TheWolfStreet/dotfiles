@@ -25,9 +25,7 @@ local filename = {
         local bufs_loaded = {}
 
         for i, buf_hndl in ipairs(vim.api.nvim_list_bufs()) do
-            if vim.api.nvim_buf_is_loaded(buf_hndl) then
-                bufs_loaded[i] = buf_hndl
-            end
+            if vim.api.nvim_buf_is_loaded(buf_hndl) then bufs_loaded[i] = buf_hndl end
         end
 
         return #bufs_loaded == 2
@@ -41,12 +39,8 @@ local filename = {
 }
 
 local navic = {
-    function()
-        return require("nvim-navic").get_location()
-    end,
-    cond = function()
-        return package.loaded["nvim-navic"] and require("nvim-navic").is_available()
-    end,
+    function() return require("nvim-navic").get_location() end,
+    cond = function() return package.loaded["nvim-navic"] and require("nvim-navic").is_available() end,
 }
 
 local position = {

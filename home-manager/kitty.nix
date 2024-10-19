@@ -10,6 +10,7 @@
       background_opacity = 0.50;
       window_padding_width = 12;
       confirm_os_window_close = 0;
+      enable_audio_bell = "no";
       shell = "tmux";
     };
     shellIntegration = {
