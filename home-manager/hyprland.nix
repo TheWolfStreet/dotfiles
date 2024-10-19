@@ -54,6 +54,7 @@ in {
         disable_hyprland_logo = true;
         disable_splash_rendering = true;
         mouse_move_enables_dpms = true;
+        middle_click_paste = false;
         force_default_wallpaper = 0;
       };
 
@@ -176,6 +177,11 @@ in {
       bindm = [
         "SUPER, mouse:273, resizewindow"
         "SUPER, mouse:272, movewindow"
+      ];
+
+      bindn = [
+        # Disable middle click paste
+        ",mouse:274, exec, wl-copy -pc"
       ];
 
       decoration = {
