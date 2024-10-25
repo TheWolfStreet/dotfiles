@@ -5,24 +5,11 @@
   ...
 }: let
   aliases = {
-    "db" = "distrobox";
     "tree" = "eza --tree";
-    "nv" = "nvim";
-
-    "ll" = "ls";
-    "éé" = "ls";
-    "és" = "ls";
-    "l" = "ls";
 
     ":q" = "exit";
     "q" = "exit";
 
-    "gs" = "git status";
-    "gb" = "git branch";
-    "gch" = "git checkout";
-    "gc" = "git commit";
-    "ga" = "git add";
-    "gr" = "git reset --soft HEAD~1";
     "cd" = "z";
     "cdi" = "zi";
 
@@ -60,8 +47,8 @@ in {
       shellAliases = aliases // config.shellAliases;
       enable = true;
       environmentVariables = {
-        PROMPT_INDICATOR_VI_INSERT = "\"  \"";
-        PROMPT_INDICATOR_VI_NORMAL = "\"∙ \"";
+        PROMPT_INDICATOR_VI_INSERT = "  ";
+        PROMPT_INDICATOR_VI_NORMAL = "• ";
         PROMPT_COMMAND = ''""'';
         PROMPT_COMMAND_RIGHT = ''""'';
         NIXPKGS_ALLOW_UNFREE = "1";
