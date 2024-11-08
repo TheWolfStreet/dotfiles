@@ -19,7 +19,6 @@
       vesktop
       krita
       blender
-      obsidian
       ghidra
       easyeffects
       steam
