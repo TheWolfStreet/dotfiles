@@ -13,6 +13,9 @@
     ];
   };
 in {
+  xdg.mime.defaultApplications = {
+    "inode/directory" = ["org.gnome.Nautilus.desktop"];
+  };
   environment = {
     systemPackages = [nautEnv pkgs.libheif pkgs.libheif.out];
     pathsToLink = [
