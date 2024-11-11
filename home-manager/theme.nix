@@ -38,6 +38,8 @@ in {
       nerdfonts.package
       cursorTheme.package
       iconTheme.package
+      noto-fonts-cjk-serif
+      noto-fonts-cjk-sans
       adwaita-icon-theme
       papirus-icon-theme
     ];

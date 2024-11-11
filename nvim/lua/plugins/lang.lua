@@ -50,7 +50,10 @@ return {
                 },
 
                 cssls = {},
+                svelte = {},
+                tailwindcss = {},
                 cssmodules_ls = {},
+                eslint = {},
                 vala_ls = {},
                 mesonlsp = {},
                 taplo = {},
