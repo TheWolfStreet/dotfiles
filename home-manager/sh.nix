@@ -65,9 +65,16 @@ in {
           ls.clickable_links = true;
           rm.always_trash = true;
 
+          completions = {
+            case_sensitive = false;
+            quick = true;
+            partial = true;
+            algorithm = "fuzzy";
+          };
+
           table = {
-            mode = "compact"; # compact thin rounded
-            index_mode = "always"; # alway never auto
+            mode = "compact";
+            index_mode = "always";
             header_on_separator = false;
           };
 
@@ -82,10 +89,11 @@ in {
               only_buffer_difference = false;
               marker = "? ";
               type = {
-                layout = "columnar"; # list, description
+                layout = "columnar";
                 columns = 4;
                 col_padding = 2;
               };
+
               style = {
                 text = "magenta";
                 selected_text = "blue_reverse";
@@ -94,23 +102,16 @@ in {
             }
           ];
         };
-        completions = let
-          completion = name: ''
-            source ${pkgs.nu_scripts}/share/nu_scripts/custom-completions/${name}/${name}-completions.nu
-          '';
-        in
-          names:
-            builtins.foldl'
-            (prev: str: "${prev}\n${str}") ""
-            (map (name: completion name) names);
       in ''
         $env.config = ${conf};
-        ${completions ["cargo" "git" "nix" "npm" "poetry" "curl"]}
-
         alias pueue = ${pkgs.pueue}/bin/pueue
         alias pueued = ${pkgs.pueue}/bin/pueued
         use ${pkgs.nu_scripts}/share/nu_scripts/modules/background_task/task.nu
       '';
+    };
+    carapace = {
+      enable = true;
+      enableNushellIntegration = true;
     };
     zoxide = {
       enable = true;
