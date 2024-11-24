@@ -12,6 +12,8 @@
       spotify
       bottles
       libreoffice
+      kdenlive
+      obs-studio
       fragments
       file-roller
       evince
