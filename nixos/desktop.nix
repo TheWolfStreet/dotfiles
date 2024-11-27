@@ -21,6 +21,7 @@
       nvidiaSettings = false;
       package = config.boot.kernelPackages.nvidiaPackages.latest;
     };
+    nvidia-container-toolkit.enable = true;
     enableAllFirmware = true;
     enableRedistributableFirmware = true;
     cpu.amd.updateMicrocode = true;
@@ -33,6 +34,11 @@
     NVD_BACKEND = "direct";
     NIXOS_OZONE_WL = "1";
     WLR_RENDERER_ALLOW_SOFTWARE = "1";
+  };
+  virtualisation.docker = {
+    daemon.settings = {
+      features.cdi = true;
+    };
   };
   boot.kernelModules = ["nvidia"];
   services.xserver.videoDrivers = ["nvidia"];

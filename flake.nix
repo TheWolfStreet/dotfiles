@@ -15,6 +15,7 @@
         specialArgs = {
           inherit inputs;
           asztal = self.packages.${platform}.default;
+          username = "tws";
         };
         modules = [
           ./nixos/nixos.nix

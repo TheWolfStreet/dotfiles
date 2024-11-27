@@ -1,10 +1,9 @@
 {
   inputs,
   lib,
+  username,
   ...
-}: let
-  username = "tws";
-in {
+}: {
   imports = [
     /etc/nixos/hardware-configuration.nix
     ./desktop.nix

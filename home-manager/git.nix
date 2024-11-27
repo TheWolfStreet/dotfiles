@@ -1,5 +1,6 @@
 {config, ...}: let
   name = "TheWolfStreet";
+  email = "wolfthestreet@gmail.com";
 in {
   programs.git = {
     enable = true;
@@ -9,9 +10,10 @@ in {
       core.editor = config.home.sessionVariables.EDITOR;
       credential.helper = "store";
       github.user = name;
+      init.defaultBranch = "main";
       push.autoSetupRemote = true;
     };
-    userEmail = "wolfthestreet@gmail.com";
+    userEmail = email;
     userName = name;
   };
   programs.ssh = {
