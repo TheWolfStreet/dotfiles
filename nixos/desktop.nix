@@ -9,6 +9,7 @@
       enable32Bit = true;
       extraPackages = with pkgs; [
         nvidia-vaapi-driver
+        egl-wayland
         vaapiVdpau
       ];
     };
