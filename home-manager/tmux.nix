@@ -1,4 +1,21 @@
 {pkgs, ...}: let
+  has_battery = pkgs.writeShellScript "isBatteryPowered" ''
+    if pkgs.stdenv.isDarwin
+    then
+      if pmset -g batt | grep -q "Battery Power"; then
+        echo "true"
+      else
+        echo "false"
+      fi
+    else
+      path="/org/freedesktop/UPower/devices/DisplayDevice"
+      if ${pkgs.upower}/bin/upower -i $path | grep -q "battery"; then
+        echo "true"
+      else
+        echo "false"
+      fi
+    fi
+  '';
   bg = "default";
   fg = "default";
   bg2 = "brightblack";
@@ -104,6 +121,11 @@
   in "#[fg=magenta]#(${icon} #{pane_current_path})#(${branch} #{pane_current_path})";
 
   separator = "#[fg=${fg}]|";
+
+  status_right =
+    if has_battery == "true"
+    then "${git} ${pwd} ${separator} ${battery} ${time}"
+    else "${git} ${pwd} ${time}";
 in {
   programs.tmux = {
     enable = true;
@@ -136,7 +158,7 @@ in {
       set-option -g pane-border-style fg=black
       set-option -g status-style "bg=${bg} fg=${fg}"
       set-option -g status-left "${indicator}"
-      set-option -g status-right "${git} ${pwd} ${separator} ${battery} ${time}"
+      set-option -g status-right "${status_right}"
       set-option -g window-status-current-format "${current_window}"
       set-option -g window-status-format "${window_status}"
       set-option -g window-status-separator ""

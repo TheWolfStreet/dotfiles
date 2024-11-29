@@ -1,13 +1,13 @@
 {pkgs, ...}: {
   programs.kitty = {
     enable = true;
-    themeFile = "Dracula";
+    themeFile = "Hardcore";
     font = {
       name = "JetBrainsMono Nerd Font";
       size = 14;
     };
     settings = {
-      background_opacity = 0.50;
+      background_opacity = 1.00;
       window_padding_width = 12;
       confirm_os_window_close = 0;
       enable_audio_bell = "no";
