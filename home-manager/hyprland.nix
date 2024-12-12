@@ -185,10 +185,10 @@ in {
       ];
 
       decoration = {
-        drop_shadow = "yes";
-        shadow_range = 8;
-        shadow_render_power = 2;
-        "col.shadow" = "rgba(00000044)";
+        # drop_shadow = "yes";
+        # shadow_range = 8;
+        # shadow_render_power = 2;
+        # "col.shadow" = "rgba(00000044)";
 
         dim_inactive = false;
 

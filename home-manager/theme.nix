@@ -13,19 +13,12 @@
     size = 11;
     package = inputs.apple-fonts.packages.${pkgs.system}.sf-pro-nerd;
   };
-  nerdfonts = {
-    package = pkgs.nerdfonts.override {
-      fonts = [
-        "JetBrainsMono"
-      ];
-    };
-  };
-  cursorTheme = {
+  cursor_theme = {
     name = "Qogir";
     size = 24;
     package = pkgs.qogir-icon-theme;
   };
-  iconTheme = {
+  icon_theme = {
     name = "WhiteSur";
     package = pkgs.whitesur-icon-theme;
   };
@@ -35,20 +28,20 @@ in {
       font-awesome
       theme.package
       font.package
-      nerdfonts.package
-      cursorTheme.package
-      iconTheme.package
+      nerd-fonts.jetbrains-mono
+      cursor_theme.package
+      icon_theme.package
       noto-fonts-cjk-serif
       noto-fonts-cjk-sans
       adwaita-icon-theme
       papirus-icon-theme
     ];
     sessionVariables = {
-      XCURSOR_THEME = cursorTheme.name;
-      XCURSOR_SIZE = "${toString cursorTheme.size}";
+      XCURSOR_THEME = cursor_theme.name;
+      XCURSOR_SIZE = "${toString cursor_theme.size}";
     };
     pointerCursor =
-      cursorTheme
+      cursor_theme
       // {
         gtk.enable = true;
       };
@@ -66,7 +59,9 @@ in {
   fonts.fontconfig.enable = true;
 
   gtk = {
-    inherit font cursorTheme iconTheme;
+    inherit font;
+    iconTheme = icon_theme;
+    cursorTheme = cursor_theme;
     theme.name = theme.name;
     enable = true;
     gtk3.extraCss = ''
