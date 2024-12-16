@@ -8,6 +8,7 @@
   brightnessctl = "${pkgs.brightnessctl}/bin/brightnessctl";
   pactl = "${pkgs.pulseaudio}/bin/pactl";
   screenshot = import ./scripts/screenshot.nix pkgs;
+  hyprlock = "pidof hyprlock || hyprlock ";
 in {
   xdg.desktopEntries."org.gnome.Settings" = {
     name = "Settings";
@@ -59,7 +60,7 @@ in {
       };
 
       input = {
-        kb_layout = "us, ru";
+        kb_layout = "us, ru, il";
         follow_mouse = 1;
         kb_options = "grp:alt_shift_toggle";
         touchpad = {
@@ -122,16 +123,17 @@ in {
         arr = [1 2 3 4 5 6 7];
       in
         [
-          "CTRL ALT, Delete,  ${e} quit; ags -b hypr"
-          "SUPER, R,       ${e} -t launcher"
-          "SUPER, Tab,     ${e} -t overview"
-          ",XF86PowerOff,  ${e} -r 'powermenu.shutdown()'"
+          "CTRL ALT, Delete, ${e} quit; ags -b hypr"
+          "SUPER, R,         ${e} -t launcher"
+          "SUPER, Tab,       ${e} -t overview"
+          "SUPER, L,         exec, ${hyprlock}"
+          ",XF86PowerOff,    ${e} -r 'powermenu.shutdown()'"
           "SUPER SHIFT, R,   ${e} -r 'recorder.start()'"
-          ",Print,         exec, ${screenshot}"
-          "SHIFT, Print,    exec, ${screenshot} --full"
-          "SUPER, B, exec, ${config.home.sessionVariables.BROWSER}"
-          "SUPER, E, exec, nautilus"
-          "SUPER, X, exec, xterm" # A symlink to other terminal
+          ",Print,           exec, ${screenshot}"
+          "SHIFT, Print,     exec, ${screenshot} --full"
+          "SUPER, B, exec,   ${config.home.sessionVariables.BROWSER}"
+          "SUPER, E, exec,   nautilus"
+          "SUPER, X, exec,   xterm" # A symlink to other terminal
 
           "ALT, Tab, cyclenext"
           "ALT, Tab, bringactivetotop"
@@ -163,25 +165,22 @@ in {
         ",XF86KbdBrightnessDown, exec, ${brightnessctl} -d asus::kbd_backlight set  1-"
         ",XF86AudioRaiseVolume,  exec, ${pactl} set-sink-volume @DEFAULT_SINK@ +5%"
         ",XF86AudioLowerVolume,  exec, ${pactl} set-sink-volume @DEFAULT_SINK@ -5%"
+        ",XF86AudioMute,         exec, ${pactl} set-sink-mute @DEFAULT_SINK@ toggle"
       ];
 
       bindl = [
-        ",XF86AudioPlay,    exec, ${playerctl} play-pause"
-        ",XF86AudioStop,    exec, ${playerctl} pause"
-        ",XF86AudioPause,   exec, ${playerctl} pause"
-        ",XF86AudioPrev,    exec, ${playerctl} previous"
-        ",XF86AudioNext,    exec, ${playerctl} next"
-        "SHIFT, XF86AudioMute, exec, ${pactl} set-source-mute @DEFAULT_SOURCE@ toggle"
+        ",XF86AudioPlay,       exec, ${playerctl} play-pause"
+        ",XF86AudioStop,       exec, ${playerctl} pause"
+        ",XF86AudioPause,      exec, ${playerctl} pause"
+        ",XF86AudioPrev,       exec, ${playerctl} previous"
+        ",XF86AudioNext,       exec, ${playerctl} next"
+        "SHIFT ,XF86AudioMute, exec, ${pactl} set-source-mute @DEFAULT_SOURCE@ toggle"
+        ",XF86AudioMicMute,    exec, ${pactl} set-source-mute @DEFAULT_SOURCE@ toggle"
       ];
 
       bindm = [
         "SUPER, mouse:273, resizewindow"
         "SUPER, mouse:272, movewindow"
-      ];
-
-      bindn = [
-        # Disable middle click paste
-        ",mouse:274, exec, wl-copy -pc"
       ];
 
       decoration = {
@@ -216,6 +215,108 @@ in {
           "fade, 1, 7, default"
           "workspaces, 1, 6, default"
         ];
+      };
+    };
+  };
+  services.hypridle = {
+    enable = true;
+    settings = {
+      general = {
+        after_sleep_cmd = "hyprctl dispatch dpms on";
+        before_sleep_cmd = "${hyprlock}";
+        ignore_dbus_inhibit = false;
+        lock_cmd = "${hyprlock}";
+      };
+      listener = [
+        {
+          timeout = 900;
+          on-timeout = "${hyprlock}";
+        }
+      ];
+    };
+  };
+  programs.hyprlock = {
+    enable = true;
+    settings = {
+      background = {
+        path = "screenshot";
+        blur_passes = 5;
+        contrast = 0.8916;
+        brightness = 0.8172;
+        vibrancy = 0.1696;
+        vibrancy_darkness = 0.0;
+      };
+      general = {
+        no_fade_in = false;
+        grace = 0;
+        disable_loading_bar = false;
+      };
+
+      label = [
+        {
+          text = "cmd[update:1000] echo -e \"$(date +\"%A, %B %d\")\"";
+          color = "rgba(216, 222, 233, 0.70)";
+          font_size = 25;
+          font_family = "SF Pro Display Nerd Font Bold";
+          position = "0, 350";
+          halign = "center";
+          valign = "center";
+        }
+        {
+          text = "cmd[update:1000] echo \"<span>$(date +\"%I:%M\")</span>\"";
+          color = "rgba(216, 222, 233, 0.70)";
+          font_size = 120;
+          font_family = "SF Pro Display Nerd Font Bold";
+          position = "0, 250";
+          halign = "center";
+          valign = "center";
+        }
+        {
+          text = "$USER";
+          color = "rgba(216, 222, 233, 0.80)";
+          dots_center = true;
+          font_size = 20;
+          font_family = "SF Pro Display Nerd Font Bold";
+          position = "0, -82";
+          halign = "center";
+          valign = "center";
+        }
+      ];
+
+      image = {
+        path = "/var/lib/AccountsService/icons/$USER";
+        border_size = 2;
+        border_color = "rgba(255, 255, 255, .65)";
+        size = 180;
+        rounding = -1;
+        rotate = 0;
+        reload_time = -1;
+        reload_cmd = "";
+        position = "0, 40";
+        halign = "center";
+        valign = "center";
+      };
+
+      input-field = {
+        size = "125, 50";
+        dots_center = true;
+        outline_thickness = 0;
+        outer_color = "rgba(0, 0, 0, 0)";
+        inner_color = "rgba(255, 255, 255, 0.1)";
+        check_color = "rgba(255, 255, 255, 0.1)";
+        fail_color = "rgba(255, 255, 255, 0.1)";
+        capslock_color = "rgba(255, 255, 255, 0.1)";
+        numlock_color = "rgba(255, 255, 255, 0.1)";
+        bothlock_color = "rgba(255, 255, 255, 0.1)";
+        font_color = "rgb(200, 200, 200)";
+        fade_on_empty = false;
+        font_family = "SF Pro Display Nerd Font Regular";
+        placeholder_text = "Password";
+        fail_text = "Incorrect";
+        hide_input = false;
+        position = "0, -140";
+        halign = "center";
+        valign = "center";
       };
     };
   };

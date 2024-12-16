@@ -1,0 +1,52 @@
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}: {
+  options.desktopPC = {
+    enable = lib.mkEnableOption "Desktop PC";
+  };
+
+  config = lib.mkIf config.desktopPC.enable {
+    hardware = {
+      graphics = {
+        enable = true;
+        enable32Bit = true;
+        extraPackages = with pkgs; [
+          nvidia-vaapi-driver
+          egl-wayland
+          vaapiVdpau
+        ];
+      };
+      nvidia = {
+        modesetting.enable = true;
+        nvidiaPersistenced = true;
+        open = false;
+        powerManagement.enable = false;
+        powerManagement.finegrained = false;
+        nvidiaSettings = false;
+        package = config.boot.kernelPackages.nvidiaPackages.latest;
+      };
+      nvidia-container-toolkit.enable = true;
+      enableAllFirmware = true;
+      cpu.amd.updateMicrocode = true;
+    };
+    environment.sessionVariables = {
+      LIBVA_DRIVER_NAME = "nvidia";
+      VDPAU_DRIVER = "nvidia";
+      GBM_BACKEND = "nvidia-drm";
+      __GLX_VENDOR_LIBRARY_NAME = "nvidia";
+      NVD_BACKEND = "direct";
+      NIXOS_OZONE_WL = "1";
+      WLR_RENDERER_ALLOW_SOFTWARE = "1";
+    };
+    virtualisation.docker = {
+      daemon.settings = {
+        features.cdi = true;
+      };
+    };
+    boot.kernelModules = ["nvidia"];
+    services.xserver.videoDrivers = ["nvidia"];
+  };
+}

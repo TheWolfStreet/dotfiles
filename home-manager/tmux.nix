@@ -1,21 +1,4 @@
 {pkgs, ...}: let
-  has_battery = pkgs.writeShellScript "isBatteryPowered" ''
-    if pkgs.stdenv.isDarwin
-    then
-      if pmset -g batt | grep -q "Battery Power"; then
-        echo "true"
-      else
-        echo "false"
-      fi
-    else
-      path="/org/freedesktop/UPower/devices/DisplayDevice"
-      if ${pkgs.upower}/bin/upower -i $path | grep -q "battery"; then
-        echo "true"
-      else
-        echo "false"
-      fi
-    fi
-  '';
   bg = "default";
   fg = "default";
   bg2 = "brightblack";
@@ -122,10 +105,24 @@
 
   separator = "#[fg=${fg}]|";
 
-  status_right =
-    if has_battery == "true"
-    then "${git} ${pwd} ${separator} ${battery} ${time}"
-    else "${git} ${pwd} ${time}";
+  # has_battery = pkgs.writeShellScript "isBatteryPowered" ''
+  #      if pkgs.stdenv.isDarwin
+  #      then
+  #        if pmset -g batt | grep -q "Battery Power"; then
+  #          echo "true"
+  #        else
+  #          echo "false"
+  #        fi
+  #      else
+  #        path="/org/freedesktop/UPower/devices/DisplayDevice"
+  #        if ${pkgs.upower}/bin/upower -i $path | grep -q -E "present:[[:space:]]*yes"; then
+  #          echo "true"
+  #        else
+  #          echo "false"
+  #        fi
+  #   fi
+  # '';
+  status_right = "${git} ${pwd} ${separator} ${battery} ${time}";
 in {
   programs.tmux = {
     enable = true;

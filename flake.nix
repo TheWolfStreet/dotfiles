@@ -5,23 +5,55 @@
     nixpkgs,
     ...
   }: let
-    platform = builtins.currentSystem;
+    platform = "x86_64-linux";
+    common_args = {
+      inherit inputs;
+      asztal = self.packages.${platform}.default;
+      username = "tws";
+    };
+    common_mods = [
+      ./nixos/nixos.nix
+      home-manager.nixosModules.home-manager
+    ];
   in {
     packages.${platform}.default =
       nixpkgs.legacyPackages.${platform}.callPackage ./ags {inherit inputs;};
+
     nixosConfigurations = {
       "nixos" = nixpkgs.lib.nixosSystem {
-        system = "${platform}";
-        specialArgs = {
-          inherit inputs;
-          asztal = self.packages.${platform}.default;
-          username = "tws";
-        };
-        modules = [
-          ./nixos/nixos.nix
-          home-manager.nixosModules.home-manager
-          {networking.hostName = "nixos";}
-        ];
+        system = platform;
+        specialArgs =
+          common_args
+          // {
+            desktopPC.enable = true;
+          };
+        modules =
+          common_mods
+          ++ [
+            {networking.hostName = "nixos";}
+          ];
+      };
+
+      "nixtop" = nixpkgs.lib.nixosSystem {
+        system = platform;
+        specialArgs =
+          common_args
+          // {
+            asusLaptop.enable = true;
+          };
+        modules =
+          common_mods
+          ++ [
+            {
+              networking.hostName = "nixtop";
+              swapDevices = [
+                {
+                  device = "/var/lib/swapfile";
+                  size = 16 * 1024;
+                }
+              ];
+            }
+          ];
       };
     };
   };

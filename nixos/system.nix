@@ -67,6 +67,9 @@
     allowedUDPPortRanges = allowedTCPPortRanges;
   };
 
+  # screen lock
+  security.pam.services.hyprlock = {};
+
   # network
   networking.networkmanager.enable = true;
   # disable IPv6 so that only IPv4 evaluates in hosts, otherwise Nvim DAP fails to connect

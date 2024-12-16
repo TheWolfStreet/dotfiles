@@ -6,7 +6,8 @@
 }: {
   imports = [
     /etc/nixos/hardware-configuration.nix
-    ./desktop.nix
+    ./configs/desktop.nix
+    ./configs/laptop.nix
     ./system.nix
     ./audio.nix
     ./locale.nix
