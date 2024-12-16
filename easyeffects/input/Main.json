@@ -5,9 +5,9 @@
             "input-gain": 0.0,
             "maximum-history": 6,
             "output-gain": 0.0,
-            "reference": "Momentary",
-            "silence-threshold": -100.0,
-            "target": -25.00000000000003
+            "reference": "Geometric Mean (MSI)",
+            "silence-threshold": -70.0,
+            "target": -40.0
         },
         "blocklist": [],
         "deepfilternet#0": {
@@ -36,20 +36,9 @@
             "threshold": -30.300000000000175
         },
         "plugins_order": [
-            "autogain#0",
-            "deesser#0",
             "deepfilternet#0",
-            "rnnoise#0"
-        ],
-        "rnnoise#0": {
-            "bypass": false,
-            "enable-vad": true,
-            "input-gain": 0.0,
-            "model-name": "",
-            "output-gain": 0.0,
-            "release": 1000.0,
-            "vad-thres": 25.0,
-            "wet": 0.0
-        }
+            "autogain#0",
+            "deesser#0"
+        ]
     }
 }
