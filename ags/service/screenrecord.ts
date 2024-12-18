@@ -1,102 +1,81 @@
-import GLib from "gi://GLib"
-import icons from "lib/icons"
-import { dependencies, sh, bash } from "lib/utils"
+import { register, GObject, GLib, interval, AstalIO, property, execAsync } from "astal"
+
+import { bash, dependencies, ensureDir, notify } from "../lib/utils"
+import { env } from "../lib/environment"
+import icons from "../lib/icons"
 
 const now = () => GLib.DateTime.new_now_local().format("%Y-%m-%d_%H-%M-%S")
 
-class Recorder extends Service {
-    static {
-        Service.register(this, {}, {
-            "timer": ["int"],
-            "recording": ["boolean"],
-        })
-    }
+@register()
+export default class Recorder extends GObject.Object {
+	static instance: Recorder
+	static get_default() {
+		if (!this.instance)
+			this.instance = new Recorder()
 
-    #recordings = Utils.HOME + "/Videos/Screencasting"
-    #screenshots = Utils.HOME + "/Pictures/Screenshots"
-    #file = ""
-    #interval = 0
+		return this.instance
+	}
 
-    recording = false
-    timer = 0
+	#recordings = `${env.paths.home}/Videos/Screencasting`
+	#file = ""
+	#interval = new AstalIO.Time
+	#recording = false
+	#timer = 0
 
-    async start() {
-        if (!dependencies("slurp", "wf-recorder"))
-            return
+	@property(Number)
+	get timer() {
+		return this.#timer
+	}
 
-        if (this.recording)
-            return
+	@property(Boolean)
+	get recording() {
+		return this.#recording
+	}
 
-        Utils.ensureDirectory(this.#recordings)
-        this.#file = `${this.#recordings}/${now()}.mp4`
-        sh(`wf-recorder -g "${await sh("slurp")}" -f ${this.#file} --pixel-format yuv420p`)
+	async start(select: boolean = false) {
+		if (select && !dependencies("wf-recorder", "slurp")) {
+			return
+		} else if (!dependencies("wf-recorder")) {
+			return
+		}
 
-        this.recording = true
-        this.changed("recording")
+		if (this.#recording) return
 
-        this.timer = 0
-        this.#interval = Utils.interval(1000, () => {
-            this.changed("timer")
-            this.timer++
-        })
-    }
+		ensureDir(this.#recordings)
+		this.#file = `"${this.#recordings}/${now()}.mkv"`
 
-    async stop() {
-        if (!this.recording)
-            return
+		const area = select ? await bash("slurp").catch(() => "").then(o => o && `-g "${o}"`) : ""
+		if (select && !area) return
+		execAsync(`wf-recorder ${area} -f ${this.#file} --pixel-format yuv420p`)
 
-        await bash("killall -INT wf-recorder")
-        this.recording = false
-        this.changed("recording")
-        GLib.source_remove(this.#interval)
+		this.#recording = true
+		this.notify("recording")
 
-        Utils.notify({
-            iconName: icons.fallback.video,
-            summary: "Screenrecord",
-            body: this.#file,
-            actions: {
-                "Show in Files": () => sh(`xdg-open ${this.#recordings}`),
-                "View": () => sh(`xdg-open ${this.#file}`),
-            },
-        })
-    }
+		this.#timer = 0
+		this.#interval = interval(1000, () => {
+			this.notify("timer")
+			this.#timer++
+		})
+	}
 
-    async screenshot(full = false) {
-        if (!dependencies("slurp", "wayshot"))
-            return
+	async stop() {
+		if (!this.#recording)
+			return
 
-        const file = `${this.#screenshots}/${now()}.png`
-        Utils.ensureDirectory(this.#screenshots)
+		await bash("pkill --signal SIGINT wf-recorder").catch(() => null)
+		this.#recording = false
+		this.notify("recording")
+		this.#interval.cancel()
 
-        if (full) {
-            await sh(`wayshot -f ${file}`)
-        }
-        else {
-            const size = await sh("slurp")
-            if (!size)
-                return
-
-            await sh(`wayshot -f ${file} -s "${size}"`)
-        }
-
-        bash(`wl-copy < ${file}`)
-
-        Utils.notify({
-            image: file,
-            summary: "Screenshot",
-            body: file,
-            actions: {
-                "Show in Files": () => sh(`xdg-open ${this.#screenshots}`),
-                "View": () => sh(`xdg-open ${file}`),
-                "Edit": () => {
-                    if (dependencies("swappy"))
-                        sh(`swappy -f ${file}`)
-                },
-            },
-        })
-    }
+		notify({
+			appIcon: icons.fallback.video,
+			appName: "Recorder",
+			summary: "Recording saved",
+			body: `${this.#file}`,
+			actions: {
+				"Show in Files": `bash -c 'xdg-open "${this.#recordings}"'`,
+				"View": `bash -c 'xdg-open "${this.#file}"'`,
+			},
+		})
+	}
 }
-
-const recorder = new Recorder
-Object.assign(globalThis, { recorder })
-export default recorder

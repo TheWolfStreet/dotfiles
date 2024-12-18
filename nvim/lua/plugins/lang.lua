@@ -41,15 +41,14 @@ return {
         "neovim/nvim-lspconfig",
         opts = {
             servers = {
-                nil_ls = {},
+                nixd = {},
                 lua_ls = {},
                 bashls = {},
-
                 denols = {
                     root_dir = require("lspconfig").util.root_pattern("deno.json"),
                 },
-
                 cssls = {},
+                glsl_analyzer = {},
                 svelte = {},
                 tailwindcss = {},
                 cssmodules_ls = {},

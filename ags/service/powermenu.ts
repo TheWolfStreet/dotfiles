@@ -1,47 +1,45 @@
-import options from "options"
+import { exec, GObject, property, register } from "astal"
+import { App } from "astal/gtk3"
+
+import { toggleWindow } from "../lib/utils"
+import options from "../options"
 
 const { sleep, reboot, logout, shutdown } = options.powermenu
 
 export type Action = "sleep" | "reboot" | "logout" | "shutdown"
+@register({ GTypeName: "Powermenu" })
+export default class PowerMenu extends GObject.Object {
+	static instance: PowerMenu
+	static get_default() {
+		if (!this.instance)
+			this.instance = new PowerMenu()
 
-class PowerMenu extends Service {
-    static {
-        Service.register(this, {}, {
-            "title": ["string"],
-            "cmd": ["string"],
-        })
-    }
+		return this.instance
+	}
 
-    #title = ""
-    #cmd = ""
+	#title = ""
+	#cmd = ""
 
-    get title() { return this.#title }
+	@property(String)
+	get title() { return this.#title }
 
-    action(action: Action) {
-        [this.#cmd, this.#title] = {
-            sleep: [sleep.value, "Sleep"],
-            reboot: [reboot.value, "Reboot"],
-            logout: [logout.value, "Log Out"],
-            shutdown: [shutdown.value, "Shutdown"],
-        }[action]
+	action(action: Action) {
+		[this.#cmd, this.#title] = {
+			sleep: [sleep.get(), "Sleep"],
+			reboot: [reboot.get(), "Reboot"],
+			logout: [logout.get(), "Log Out"],
+			shutdown: [shutdown.get(), "Shutdown"],
+		}[action]
+		this.notify("title")
+		this.notify("cmd")
+		if (App.get_window("powermenu")?.visible) {
+			toggleWindow("powermenu")
+		}
+		toggleWindow("verification")
+	}
 
-        this.notify("cmd")
-        this.notify("title")
-        this.emit("changed")
-        App.closeWindow("powermenu")
-        App.openWindow("verification")
-    }
-
-    readonly shutdown = () => {
-        this.action("shutdown")
-    }
-
-    readonly exec = () => {
-        App.closeWindow("verification")
-        Utils.exec(this.#cmd)
-    }
+	readonly exec = () => {
+		toggleWindow("verification")
+		exec(this.#cmd)
+	}
 }
-
-const powermenu = new PowerMenu
-Object.assign(globalThis, { powermenu })
-export default powermenu

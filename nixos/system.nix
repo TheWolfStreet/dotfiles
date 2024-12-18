@@ -1,23 +1,25 @@
 {pkgs, ...}: {
-  # nix
-  documentation.nixos.enable = false; # .desktop
+  # Nix
+  documentation.nixos.enable = false; # A .desktop entry
   nixpkgs.config.allowUnfree = true;
   nix = {
     gc = {
       automatic = true;
       dates = "hourly";
-      options = "--delete-older-than 30min";
+      options = "--delete-older-than 1d";
     };
     settings = {
+      keep-outputs = true;
+      keep-derivations = true;
       experimental-features = "nix-command flakes";
       auto-optimise-store = true;
     };
   };
 
-  # camera
+  # Camera
   programs.droidcam.enable = true;
 
-  # virtualisation
+  # Virtualisation
   programs.virt-manager.enable = true;
   virtualisation = {
     podman.enable = true;
@@ -25,10 +27,10 @@
     libvirtd.enable = true;
   };
 
-  # dconf
+  # Dconf
   programs.dconf.enable = true;
 
-  # packages
+  # Packages
   environment.systemPackages = with pkgs; [
     home-manager
     neovim
@@ -36,7 +38,7 @@
     wget
   ];
 
-  # services
+  # Services
   services = {
     xserver = {
       enable = true;
@@ -49,14 +51,14 @@
     fstrim.enable = true;
   };
 
-  # logind
+  # Logind
   services.logind.extraConfig = ''
     HandlePowerKey=ignore
     HandleLidSwitch=suspend
     HandleLidSwitchExternalPower=ignore
   '';
 
-  # KDE connect
+  # KDE Connect
   networking.firewall = rec {
     allowedTCPPortRanges = [
       {
@@ -67,54 +69,57 @@
     allowedUDPPortRanges = allowedTCPPortRanges;
   };
 
-  # screen lock
-  security.pam.services.hyprlock = {};
+  # Screen lock and greeter
+  security.pam.services = {
+    hyprlock = {};
+    astal-auth = {};
+  };
 
-  # network
+  # Network
   networking.networkmanager.enable = true;
-  # disable IPv6 so that only IPv4 evaluates in hosts, otherwise Nvim DAP fails to connect
-  networking.enableIPv6 = false;
+  networking.enableIPv6 = false; # Disable IPv6 so that only IPv4 evaluates in hosts, otherwise Nvim DAP fails to connect
   systemd.services.NetworkManager-wait-online.enable = false;
 
   hardware = {
     bluetooth = {
+      powerOnBoot = true;
       enable = true;
       settings.General = {
-        Experimental = true; # for gnome-bluetooth percentage
+        Experimental = true; # For gnome-bluetooth percentage
         Enable = "Source,Sink,Media,Socket";
       };
     };
     steam-hardware.enable = true;
   };
 
-  # bootloader
+  # Bootloader
   boot = {
     tmp.cleanOnBoot = true;
     supportedFilesystems = ["ntfs"];
     loader = {
       timeout = 0;
-      systemd-boot.enable = true;
+      systemd-boot = {
+        enable = true;
+        configurationLimit = 5;
+      };
       efi.canTouchEfiVariables = true;
     };
     kernelPackages = pkgs.linuxPackages_zen;
 
-    # splash screen
+    # Splash screen
     plymouth = {
       enable = true;
       theme = "rings";
       themePackages = with pkgs; [
-        # by default it would install all themes
         (adi1090x-plymouth-themes.override {
           selected_themes = ["rings"];
         })
       ];
     };
 
-    # enable "silent boot"
     consoleLogLevel = 0;
     initrd.verbose = false;
     kernelParams = [
-      "video=1920x1080"
       "quiet"
       "splash"
       "boot.shell_on_fail"

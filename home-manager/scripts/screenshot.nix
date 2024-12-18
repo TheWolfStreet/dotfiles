@@ -15,9 +15,12 @@ in
     if [[ -n "$1" ]]; then
         ${wayshot} -f $TARGET
     else
-        ${wayshot} -f $TARGET -s "$(${slurp})"
+        SELECTION=$(${slurp})
+        if [[ -z "$SELECTION" ]]; then
+            exit 0
+        fi
+        ${wayshot} -f $TARGET -s "$SELECTION"
     fi
-
     ${wl-copy} < $TARGET
 
     RES=$(${notify-send} \

@@ -1,26 +1,27 @@
+@use "sass:color";
+
 window.indicator {
-    .progress {
-        @include floating-widget;
-        padding: $padding * .5;
-        border-radius: if($radius >0, calc($radius + $padding*.5), 0);
-        @debug $radius;
+  progress {
+    background-color: $primary-bg;
+    color: $primary-fg;
+  }
 
-        .fill {
-            border-radius: $radius;
-            background-color: $primary-bg;
-            color: $primary-fg;
 
-            image {
-                -gtk-icon-transform: scale(0.7);
-            }
-        }
+
+  .audio-state {
+    border {
+      all: unset;
     }
 
-    .microphone {
-        @include floating-widget;
-        margin: $spacing * 2;
-        padding: $popover-padding * 2;
+    box {
+      @include floating-widget;
+
+      icon {
+        margin: $spacing;
+        padding: $popover-padding;
         font-size: 58px;
-        color: transparentize($fg, .1)
+        color: color.scale($fg, $alpha: -10%)
+      }
     }
+  }
 }

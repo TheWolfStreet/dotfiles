@@ -1,6 +1,6 @@
 {pkgs, ...}: let
   vault = pkgs.writeShellScriptBin "vault" ''
-    cd ~/Vault
+    cd ~/Documents/Obsidian Vault/
     git add .
     git commit -m "sync $(date '+%Y-%m-%d %H:%M')"
     git push

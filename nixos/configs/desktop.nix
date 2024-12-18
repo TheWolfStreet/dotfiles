@@ -5,7 +5,11 @@
   ...
 }: {
   options.desktopPC = {
-    enable = lib.mkEnableOption "Desktop PC";
+    enable = lib.options.mkEnableOption {
+      type = lib.types.bool;
+      default = false;
+      description = "Enable desktop configuration";
+    };
   };
 
   config = lib.mkIf config.desktopPC.enable {
@@ -22,7 +26,7 @@
       nvidia = {
         modesetting.enable = true;
         nvidiaPersistenced = true;
-        open = false;
+        open = true;
         powerManagement.enable = false;
         powerManagement.finegrained = false;
         nvidiaSettings = false;
@@ -32,21 +36,15 @@
       enableAllFirmware = true;
       cpu.amd.updateMicrocode = true;
     };
-    environment.sessionVariables = {
-      LIBVA_DRIVER_NAME = "nvidia";
-      VDPAU_DRIVER = "nvidia";
-      GBM_BACKEND = "nvidia-drm";
-      __GLX_VENDOR_LIBRARY_NAME = "nvidia";
-      NVD_BACKEND = "direct";
-      NIXOS_OZONE_WL = "1";
-      WLR_RENDERER_ALLOW_SOFTWARE = "1";
+    boot = {
+      kernelParams = ["video=1920x1080"];
+      kernelModules = ["nvidia"];
     };
     virtualisation.docker = {
       daemon.settings = {
         features.cdi = true;
       };
     };
-    boot.kernelModules = ["nvidia"];
     services.xserver.videoDrivers = ["nvidia"];
   };
 }

@@ -1,99 +1,69 @@
-import options from "options"
-import { dependencies, sh } from "lib/utils"
+import { GObject, register, monitorFile, execAsync, property } from "astal"
 
-export type Resolution = 1920 | 1366 | 3840
-export type Market =
-    | "random"
-    | "en-US"
-    | "ja-JP"
-    | "en-AU"
-    | "en-GB"
-    | "de-DE"
-    | "en-NZ"
-    | "en-CA"
+import { env } from "../lib/environment"
+import { bash, bashSync, dependencies } from "../lib/utils"
 
-const WP = `${Utils.HOME}/.config/background`
-const Cache = `${Utils.HOME}/Pictures/Wallpapers/Bing`
+const wp = `${env.paths.home}/.config/background`
 
-class Wallpaper extends Service {
-    static {
-        Service.register(this, {}, {
-            "wallpaper": ["string"],
-        })
-    }
+@register({ GTypeName: "Wallpaper" })
+export default class Wallpaper extends GObject.Object {
+	static instance: Wallpaper
+	static get_default() {
+		if (!this.instance)
+			this.instance = new Wallpaper()
 
-    #blockMonitor = false
+		return this.instance
+	}
 
-    #wallpaper() {
-        if (!dependencies("swww"))
-            return
+	#lock = false
+	#wallpaper() {
+		if (!dependencies("swww")) {
+			return
+		}
 
-        sh("hyprctl cursorpos").then(pos => {
-            sh([
-                "swww", "img",
-                "--invert-y",
-                "--transition-type", "grow",
-                "--transition-pos", pos.replace(" ", ""),
-                WP,
-            ]).then(() => {
-                this.changed("wallpaper")
-            })
-        })
-    }
+		bash("hyprctl cursorpos").then(pos => {
+			execAsync(`swww img --invert-y --transition-type fade --transition-pos ${pos.replace(" ", "")} "${wp}"`).then(() => {
+				this.notify("wallpaper")
+			})
+		})
+	}
 
-    async #setWallpaper(path: string) {
-        this.#blockMonitor = true
+	@property(String)
+	get wallpaper() {
+		return wp
+	}
 
-        await sh(`cp ${path} ${WP}`)
-        this.#wallpaper()
+	set wallpaper(path: string) {
+		if (!dependencies("swww")) return
 
-        this.#blockMonitor = false
-    }
+		this.#lock = true
 
-    async #fetchBing() {
-        const res = await Utils.fetch("https://bing.biturl.top/", {
-            params: {
-                resolution: options.wallpaper.resolution.value,
-                format: "json",
-                image_format: "jpg",
-                index: "random",
-                mkt: options.wallpaper.market.value,
-            },
-        }).then(res => res.text())
+		const finalize = () => {
+			this.#wallpaper()
+			this.#lock = false
+		}
 
-        if (!res.startsWith("{"))
-            return console.warn("bing api", res)
+		if (path.toLowerCase().endsWith(".heic")) {
+			const tmp = `${env.paths.tmp}/heic.png`
+			dependencies("heif-dec") &&
+				bash(`heif-dec "${path}" "${tmp}" && cp "${tmp}" "${wp}"`).catch(() => this.#lock = false).then(finalize)
+		} else {
+			bashSync(`cp "${path}" "${wp}"`)
+			finalize()
+		}
+	}
 
-        const { url } = JSON.parse(res)
-        const file = `${Cache}/${url.replace("https://www.bing.com/th?id=", "")}`
+	constructor() {
+		super()
 
-        if (dependencies("curl")) {
-            Utils.ensureDirectory(Cache)
-            await sh(`curl "${url}" --output ${file}`)
-            this.#setWallpaper(file)
-        }
-    }
+		if (!dependencies("swww")) {
+			return this
+		}
 
-    readonly random = () => { this.#fetchBing() }
-    readonly set = (path: string) => { this.#setWallpaper(path) }
-    get wallpaper() { return WP }
-
-    constructor() {
-        super()
-
-        if (!dependencies("swww"))
-            return this
-
-        // gtk portal
-        Utils.monitorFile(WP, () => {
-            if (!this.#blockMonitor)
-                this.#wallpaper()
-        })
-
-        Utils.execAsync("swww-daemon")
-            .then(this.#wallpaper)
-            .catch(() => null)
-    }
+		monitorFile(wp, () => {
+			if (!this.#lock)
+				this.wallpaper
+		})
+		execAsync("swww-daemon").catch(() => null)
+	}
 }
-
-export default new Wallpaper

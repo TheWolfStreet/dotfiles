@@ -1,44 +1,50 @@
-{pkgs, ...}: {
+{pkgs, ...}: let
+  mkIf = cond: value:
+    if cond
+    then value
+    else [];
+in {
   imports = [
-    ./modules/packages.nix
     ./scripts/blocks.nix
     ./scripts/nx-switch.nix
     ./scripts/vault.nix
   ];
 
-  packages = with pkgs; {
-    linux = [
+  home.packages = pkgs.lib.flatten (with pkgs; [
+    fastfetch
+    bat
+    eza
+    fd
+    zoxide
+    ripgrep
+    ncdu
+    btop
+    powertop
+    fzf
+    xxd
+    lazydocker
+    lazygit
+
+    (mkIf pkgs.stdenv.isLinux [
       (mpv.override {scripts = [mpvScripts.mpris];})
-      spotify
+      xdg-desktop-portal-gtk
       bottles
       libreoffice
       kdenlive
       obs-studio
       fragments
+      steam-run
       file-roller
       evince
       telegram-desktop
-      vesktop
       krita
-      blender
+      audacity
+      blender-hip
       ghidra
       easyeffects
-      steam
       figma-linux
       nodejs
-    ];
-    cli = [
-      fastfetch
-      bat
-      eza
-      fd
-      zoxide
-      ripgrep
-      ncdu
-      btop
-      fzf
-      lazydocker
-      lazygit
-    ];
-  };
+      appimage-run
+    ])
+  ]);
 }

@@ -1,14 +1,14 @@
 {
   pkgs,
   config,
-  inputs,
   ...
 }: let
   playerctl = "${pkgs.playerctl}/bin/playerctl";
   brightnessctl = "${pkgs.brightnessctl}/bin/brightnessctl";
   pactl = "${pkgs.pulseaudio}/bin/pactl";
   screenshot = import ./scripts/screenshot.nix pkgs;
-  hyprlock = "pidof hyprlock || hyprlock ";
+  hyprlock = "pidof hyprlock || hyprlock";
+  touchpad_toggle = import ./scripts/touchpad.nix pkgs;
 in {
   xdg.desktopEntries."org.gnome.Settings" = {
     name = "Settings";
@@ -21,13 +21,20 @@ in {
 
   wayland.windowManager.hyprland = {
     enable = true;
-    package = inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.hyprland;
     systemd.enable = true;
     xwayland.enable = true;
 
     settings = {
+      ecosystem = {
+        no_update_news = true;
+        no_donation_nag = true;
+      };
+
+      env = [
+        ''QT_QPA_PLATFORMTHEME, gtk3''
+      ];
       exec-once = [
-        "ags -b hypr"
+        "ags run"
         "hyprctl setcursor Qogir 24"
       ];
 
@@ -52,6 +59,7 @@ in {
       };
 
       misc = {
+        vfr = true;
         disable_hyprland_logo = true;
         disable_splash_rendering = true;
         mouse_move_enables_dpms = true;
@@ -60,13 +68,13 @@ in {
       };
 
       input = {
-        kb_layout = "us, ru, il";
+        kb_layout = "us, ru";
         follow_mouse = 1;
         kb_options = "grp:alt_shift_toggle";
         touchpad = {
           natural_scroll = "yes";
           middle_button_emulation = true;
-          disable_while_typing = true;
+          disable_while_typing = false;
           drag_lock = true;
         };
         sensitivity = 0;
@@ -101,43 +109,63 @@ in {
         (f "xdg-desktop-portal")
         (f "xdg-desktop-portal-gnome")
         (f "de.haeckerfelix.Fragments")
-        (f "com.github.Aylur.ags")
+        (f "gjs")
         "workspace special, title:Spotify"
         "workspace special, title:Discord"
       ];
 
       windowrulev2 = [
+        # Discord and xwayland video bridge
         "opacity 0.0 override, class:^(xwaylandvideobridge)$"
         "noanim, class:^(xwaylandvideobridge)$"
         "noinitialfocus, class:^(xwaylandvideobridge)$"
         "maxsize 1 1, class:^(xwaylandvideobridge)$"
         "noblur, class:^(xwaylandvideobridge)$"
         "allowsinput, class:^(discord|vesktop)$"
+
+        # KDE Connect
+        "opacity 1, class:^(org.kde.kdeconnect.daemon)"
+        "minsize 1920 1200, class:^(org.kde.kdeconnect.daemon)"
+        "noblur, class:^(org.kde.kdeconnect.daemon)"
+        "noborder, class:^(org.kde.kdeconnect.daemon)"
+        "noshadow, class:^(org.kde.kdeconnect.daemon)"
+        "noanim, class:^(org.kde.kdeconnect.daemon)"
+        "nofocus, class:^(org.kde.kdeconnect.daemon)"
+        "suppressevent fullscreen, class:^(org.kde.kdeconnect.daemon)"
+        "float, class:^(org.kde.kdeconnect.daemon)"
+        "pin, class:^(org.kde.kdeconnect.daemon)"
+        "move, 50% 50%, class:^(org.kde.kdeconnect.daemon)"
+        "decorate, off, class:^(org.kde.kdeconnect.daemon)"
       ];
 
       bind = let
         binding = mod: cmd: key: arg: "${mod}, ${key}, ${cmd}, ${arg}";
         ws = binding "SUPER" "workspace";
         mvtows = binding "SUPER SHIFT" "movetoworkspace";
-        e = "exec, ags -b hypr";
+        e = "exec, ags -i ags-main";
         arr = [1 2 3 4 5 6 7];
       in
         [
-          "CTRL ALT, Delete, ${e} quit; ags -b hypr"
-          "SUPER, R,         ${e} -t launcher"
-          "SUPER, Tab,       ${e} -t overview"
+          "CTRL ALT, Delete, ${e} quit; ags run"
+          "SUPER, R,         ${e} toggle launcher"
+          "SUPER, Tab,       ${e} toggle overview"
           "SUPER, L,         exec, ${hyprlock}"
-          ",XF86PowerOff,    ${e} -r 'powermenu.shutdown()'"
-          "SUPER SHIFT, R,   ${e} -r 'recorder.start()'"
+
+          ",XF86PowerOff,    ${e} request 'shutdown'"
+          "SUPER, Print,   ${e} request 'record-area'"
+          "SUPER SHIFT, Print,   ${e} request 'record'"
           ",Print,           exec, ${screenshot}"
           "SHIFT, Print,     exec, ${screenshot} --full"
+          ",XF86TouchpadToggle, exec, ${touchpad_toggle}"
+
           "SUPER, B, exec,   ${config.home.sessionVariables.BROWSER}"
           "SUPER, E, exec,   nautilus"
           "SUPER, X, exec,   xterm" # A symlink to other terminal
 
+          # Alt + TAB switch
           "ALT, Tab, cyclenext"
           "ALT, Tab, bringactivetotop"
-          "SUPER SHIFT, Q, exit"
+
           "SUPER, Q, killactive"
           "SUPER, F, fullscreen"
           "SUPER, SPACE, togglefloating"
@@ -145,20 +173,31 @@ in {
 
           "SUPER, grave, togglespecialworkspace"
           "SUPER SHIFT, grave, movetoworkspace, special"
-
-          (ws "left" "e-1")
-          (ws "right" "e+1")
-          (mvtows "left" "e-1")
-          (mvtows "right" "e+1")
         ]
         ++ (map (i: ws (toString i) (toString i)) arr)
         ++ (map (i: mvtows (toString i) (toString i)) arr);
+
+      binde = [
+        # Resize window with arrow keys
+        "SUPER SHIFT, right, resizeactive, 10 0"
+        "SUPER SHIFT, left, resizeactive,-10 0"
+        "SUPER SHIFT, up, resizeactive, 0 -10"
+        "SUPER SHIFT, down, resizeactive, 0 10"
+
+        # Move window with arrow keys
+        "SUPER, right, movewindow, r"
+        "SUPER, left, movewindow, l"
+        "SUPER, up, movewindow, u"
+        "SUPER, down, movewindow, d"
+      ];
 
       # Push to talk
       bindip = ",mouse:276, exec, ${pactl} set-source-mute @DEFAULT_SOURCE@ 0";
       bindir = ",mouse:276, exec, ${pactl} set-source-mute @DEFAULT_SOURCE@ 1";
 
       bindle = [
+        "CTRL, F8,               exec, ${brightnessctl} set +5%"
+        "CTRL, F7,               exec, ${brightnessctl} set 5%-"
         ",XF86MonBrightnessUp,   exec, ${brightnessctl} set +5%"
         ",XF86MonBrightnessDown, exec, ${brightnessctl} set  5%-"
         ",XF86KbdBrightnessUp,   exec, ${brightnessctl} -d asus::kbd_backlight set +1"
@@ -263,7 +302,7 @@ in {
           valign = "center";
         }
         {
-          text = "cmd[update:1000] echo \"<span>$(date +\"%I:%M\")</span>\"";
+          text = "cmd[update:1000] echo \"<span>$(date +\"%H:%M\")</span>\"";
           color = "rgba(216, 222, 233, 0.70)";
           font_size = 120;
           font_family = "SF Pro Display Nerd Font Bold";
@@ -274,7 +313,6 @@ in {
         {
           text = "$USER";
           color = "rgba(216, 222, 233, 0.80)";
-          dots_center = true;
           font_size = 20;
           font_family = "SF Pro Display Nerd Font Bold";
           position = "0, -82";

@@ -15,4 +15,17 @@ return {
     { "ziontee113/color-picker.nvim", opts = {} },
     { "danymat/neogen", opts = {} },
     { "j-hui/fidget.nvim", opts = {} },
+    -- Leetcode
+    {
+        "kawre/leetcode.nvim",
+        dependencies = {
+            "nvim-telescope/telescope.nvim",
+            "nvim-lua/plenary.nvim",
+            "MunifTanjim/nui.nvim",
+        },
+        opts = {
+            lang = "cpp",
+        },
+    },
+    { "RaafatTurki/hex.nvim", lazy = true, event = { "BufReadPre" } },
 }

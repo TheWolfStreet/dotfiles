@@ -9,7 +9,7 @@
       name = "NeoVim";
       comment = "Edit text files";
       icon = "nvim";
-      exec = "xterm -e ${pkgs.neovim}/bin/nvim %F";
+      exec = "xterm -e \"${pkgs.neovim}/bin/nvim\" \"%F\""; # Enclose %F in quotes
       categories = ["TerminalEmulator"];
       terminal = false;
       mimeType = ["text/plain"];
@@ -43,7 +43,7 @@
       fzf
       cargo
 
-      nil
+      nixd
       lua-language-server
       bash-language-server
       stylua
