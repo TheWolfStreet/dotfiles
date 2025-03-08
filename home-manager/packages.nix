@@ -30,7 +30,7 @@ in {
       xdg-desktop-portal-gtk
       bottles
       libreoffice
-      kdenlive
+      kdePackages.kdenlive
       obs-studio
       fragments
       steam-run

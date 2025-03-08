@@ -6,7 +6,7 @@
   imports = [inputs.ags.homeManagerModules.default];
   programs.ags = {
     enable = true;
-    configDir = ../ags2-shell/;
+    configDir = ../ags2-shell;
     extraPackages = with pkgs; [
       dart-sass
       brightnessctl
@@ -23,7 +23,6 @@
       pavucontrol
       networkmanager
       gtk3
-      gtk4
       inputs.matugen.packages.${system}.default
       inputs.ags.packages.${pkgs.system}.apps
       inputs.ags.packages.${pkgs.system}.battery

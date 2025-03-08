@@ -2,17 +2,14 @@
   symlink = pkgs.writeShellScript "symlink" ''
     if [[ "$1" == "-r" ]]; then
       rm -rf "$HOME/.config/nvim"
-      rm -rf "$HOME/.config/ags"
       rm -rf "$HOME/.config/easyeffects"
     fi
 
     if [[ "$1" == "-a" ]]; then
       rm -rf "$HOME/.config/nvim"
-      rm -rf "$HOME/.config/ags"
       rm -rf "$HOME/.config/easyeffects"
 
       ln -s "$HOME/.dotfiles/nvim" "$HOME/.config/nvim"
-      ln -s "$HOME/.dotfiles/ags2-shell" "$HOME/.config/ags"
       ln -s "$HOME/.dotfiles/easyeffects" "$HOME/.config/easyeffects";
     fi
   '';
