@@ -3,11 +3,6 @@
   documentation.nixos.enable = false; # A .desktop entry
   nixpkgs.config.allowUnfree = true;
   nix = {
-    gc = {
-      automatic = true;
-      dates = "hourly";
-      options = "--delete-older-than 1d";
-    };
     settings = {
       keep-outputs = true;
       keep-derivations = true;

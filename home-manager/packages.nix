@@ -22,6 +22,7 @@ in {
     powertop
     fzf
     xxd
+    distrobox
     lazydocker
     lazygit
 
