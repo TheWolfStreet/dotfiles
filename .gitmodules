@@ -1,0 +1,3 @@
+[submodule "ags2-shell"]
+	path = ags2-shell
+	url = git@github.com:TheWolfStreet/ags2-shell.git

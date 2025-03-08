@@ -23,9 +23,6 @@
     package = pkgs.whitesur-icon-theme;
   };
 in {
-  imports = [
-    inputs.matugen.nixosModules.default
-  ];
   home = {
     packages = with pkgs; [
       font-awesome

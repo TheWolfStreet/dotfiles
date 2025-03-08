@@ -9,11 +9,11 @@
 
     apple-fonts.url = "github:Lyndeno/apple-fonts.nix";
     matugen.url = "github:InioX/matugen?ref=v2.2.0";
+
     ags = {
       url = "github:Aylur/ags";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    astal.url = "github:Aylur/astal";
 
     spicetify-nix = {
       url = "github:Gerg-L/spicetify-nix";

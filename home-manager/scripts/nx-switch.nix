@@ -12,7 +12,7 @@
       rm -rf "$HOME/.config/easyeffects"
 
       ln -s "$HOME/.dotfiles/nvim" "$HOME/.config/nvim"
-      ln -s "$HOME/.dotfiles/ags" "$HOME/.config/ags"
+      ln -s "$HOME/.dotfiles/ags2-shell" "$HOME/.config/ags"
       ln -s "$HOME/.dotfiles/easyeffects" "$HOME/.config/easyeffects";
     fi
   '';

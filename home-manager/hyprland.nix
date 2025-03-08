@@ -6,7 +6,6 @@
   playerctl = "${pkgs.playerctl}/bin/playerctl";
   brightnessctl = "${pkgs.brightnessctl}/bin/brightnessctl";
   pactl = "${pkgs.pulseaudio}/bin/pactl";
-  screenshot = import ./scripts/screenshot.nix pkgs;
   hyprlock = "pidof hyprlock || hyprlock";
   touchpad_toggle = import ./scripts/touchpad.nix pkgs;
 in {
@@ -142,7 +141,7 @@ in {
         binding = mod: cmd: key: arg: "${mod}, ${key}, ${cmd}, ${arg}";
         ws = binding "SUPER" "workspace";
         mvtows = binding "SUPER SHIFT" "movetoworkspace";
-        e = "exec, ags -i ags-main";
+        e = "exec, ags -i ags2-shell";
         arr = [1 2 3 4 5 6 7];
       in
         [
@@ -154,8 +153,8 @@ in {
           ",XF86PowerOff,    ${e} request 'shutdown'"
           "SUPER, Print,   ${e} request 'record-area'"
           "SUPER SHIFT, Print,   ${e} request 'record'"
-          ",Print,           exec, ${screenshot}"
-          "SHIFT, Print,     exec, ${screenshot} --full"
+          ", Print,   ${e} request 'screenshot-area'"
+          "SHIFT, Print,   ${e} request 'screenshot'"
           ",XF86TouchpadToggle, exec, ${touchpad_toggle}"
 
           "SUPER, B, exec,   ${config.home.sessionVariables.BROWSER}"

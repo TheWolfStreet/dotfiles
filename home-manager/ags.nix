@@ -6,7 +6,7 @@
   imports = [inputs.ags.homeManagerModules.default];
   programs.ags = {
     enable = true;
-    configDir = ../ags;
+    configDir = ../ags2-shell/;
     extraPackages = with pkgs; [
       dart-sass
       brightnessctl
