@@ -48,6 +48,13 @@ return {
                     root_dir = require("lspconfig").util.root_pattern("deno.json"),
                 },
                 cssls = {},
+                clangd = {
+                    on_attach = function(client, bufnr)
+                        if client.server_capabilities.inlayHintProvider then
+                            vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })
+                        end
+                    end,
+                },
                 glsl_analyzer = {},
                 svelte = {},
                 tailwindcss = {},
