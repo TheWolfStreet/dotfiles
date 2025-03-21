@@ -31,8 +31,6 @@ in {
       xdg-desktop-portal-gtk
       bottles
       libreoffice
-      kdePackages.kdenlive
-      obs-studio
       fragments
       steam-run
       file-roller
