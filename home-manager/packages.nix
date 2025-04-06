@@ -25,6 +25,7 @@ in {
     distrobox
     lazydocker
     lazygit
+    scrcpy
 
     (mkIf pkgs.stdenv.isLinux [
       (mpv.override {scripts = [mpvScripts.mpris];})
