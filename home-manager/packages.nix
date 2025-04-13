@@ -31,6 +31,8 @@ in {
       (mpv.override {scripts = [mpvScripts.mpris];})
       xdg-desktop-portal-gtk
       bottles
+      gamescope
+      gamemode
       vesktop
       libreoffice
       fragments
