@@ -95,7 +95,7 @@ in {
       };
 
       windowrule = let
-        f = regex: "float, ^(${regex})$";
+        f = regex: "float, class:^(${regex})$";
       in [
         (f "org.gnome.Calculator")
         (f "org.gnome.Nautilus")
@@ -111,9 +111,7 @@ in {
         (f "gjs")
         "workspace special, title:Spotify"
         "workspace special, title:Discord"
-      ];
 
-      windowrulev2 = [
         # Discord and xwayland video bridge
         "opacity 0.0 override, class:^(xwaylandvideobridge)$"
         "noanim, class:^(xwaylandvideobridge)$"
