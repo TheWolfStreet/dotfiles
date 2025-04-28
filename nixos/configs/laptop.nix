@@ -84,6 +84,7 @@
           CPU_MIN_PERF_ON_BAT = 0;
           CPU_MAX_PERF_ON_BAT = 20;
 
+          USB_EXCLUDE_BTUSB = 1;
           # STOP_CHARGE_THRESH_BAT0 = 80;
         };
       };
