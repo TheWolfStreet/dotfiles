@@ -39,17 +39,6 @@
       ];
     };
 
-    # systemd.services.batteryThreshold = {
-    #   script = ''
-    #     echo 85 | tee /sys/class/power_supply/BAT0/charge_control_end_threshold
-    #   '';
-    #   wantedBy = ["multi-user.target"];
-    #   description = "Set the charge threshold to protect battery life";
-    #   serviceConfig = {
-    #     Restart = "on-failure";
-    #   };
-    # };
-
     powerManagement.powertop.enable = true;
     services = {
       asusd = {
@@ -85,7 +74,6 @@
           CPU_MAX_PERF_ON_BAT = 20;
 
           USB_EXCLUDE_BTUSB = 1;
-          # STOP_CHARGE_THRESH_BAT0 = 80;
         };
       };
       openssh.settings = {
