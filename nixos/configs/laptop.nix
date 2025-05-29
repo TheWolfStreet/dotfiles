@@ -36,6 +36,7 @@
         "ahci.mobile_lpm_policy=3"
         "amd_pstate=active"
         "elevator=noop"
+        "btusb.enable_autosuspend=0"
       ];
     };
 
