@@ -61,6 +61,7 @@
         to = 1764;
       }
     ];
+    allowedTCPPorts = [27040]; # Steam LAN share
     allowedUDPPortRanges = allowedTCPPortRanges;
   };
 
