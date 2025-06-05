@@ -8,7 +8,7 @@
     ];
   };
 
-  services.xserver.displayManager.startx.enable = true;
+  services.xserver.displayManager.gdm.enable = true;
 
   programs.hyprland = {
     enable = true;
