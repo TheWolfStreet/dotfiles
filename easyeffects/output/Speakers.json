@@ -1,6 +1,76 @@
 {
     "output": {
         "blocklist": [],
+        "crystalizer#0": {
+            "band0": {
+                "bypass": true,
+                "intensity": -40.0,
+                "mute": false
+            },
+            "band1": {
+                "bypass": true,
+                "intensity": -40.0,
+                "mute": false
+            },
+            "band10": {
+                "bypass": false,
+                "intensity": -4.0,
+                "mute": false
+            },
+            "band11": {
+                "bypass": false,
+                "intensity": 9.0,
+                "mute": false
+            },
+            "band12": {
+                "bypass": false,
+                "intensity": 11.0,
+                "mute": false
+            },
+            "band2": {
+                "bypass": true,
+                "intensity": -40.0,
+                "mute": false
+            },
+            "band3": {
+                "bypass": true,
+                "intensity": -40.0,
+                "mute": false
+            },
+            "band4": {
+                "bypass": true,
+                "intensity": -40.0,
+                "mute": false
+            },
+            "band5": {
+                "bypass": true,
+                "intensity": -40.0,
+                "mute": false
+            },
+            "band6": {
+                "bypass": true,
+                "intensity": -40.0,
+                "mute": false
+            },
+            "band7": {
+                "bypass": true,
+                "intensity": -40.0,
+                "mute": false
+            },
+            "band8": {
+                "bypass": true,
+                "intensity": -40.0,
+                "mute": false
+            },
+            "band9": {
+                "bypass": false,
+                "intensity": -1.0,
+                "mute": false
+            },
+            "bypass": false,
+            "input-gain": 0.0,
+            "output-gain": 0.0
+        },
         "equalizer#0": {
             "balance": 0.0,
             "bypass": false,
@@ -368,17 +438,6 @@
             },
             "split-channels": false
         },
-        "exciter#0": {
-            "amount": 1.0,
-            "blend": -10.0,
-            "bypass": false,
-            "ceil": 10000.0,
-            "ceil-active": false,
-            "harmonics": 8.0,
-            "input-gain": 0.0,
-            "output-gain": 0.0,
-            "scope": 5500.0
-        },
         "limiter#0": {
             "alr": false,
             "alr-attack": 0.1,
@@ -390,18 +449,18 @@
             "external-sidechain": false,
             "gain-boost": false,
             "input-gain": 6.0,
-            "lookahead": 0.1,
+            "lookahead": 5.0,
             "mode": "Line Thin",
             "output-gain": 0.0,
             "oversampling": "Half x4(3L)",
             "release": 0.25,
             "sidechain-preamp": 0.0,
-            "stereo-link": 100.0,
+            "stereo-link": 0.0,
             "threshold": 0.0
         },
         "plugins_order": [
             "equalizer#0",
-            "exciter#0",
+            "crystalizer#0",
             "limiter#0"
         ]
     }

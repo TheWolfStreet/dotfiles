@@ -23,6 +23,9 @@
       pavucontrol
       networkmanager
       gtk3
+      fd
+      # Font, icons and cursor are handled in theme.nix
+      # Matugen in flake.nix
       inputs.matugen.packages.${system}.default
       inputs.ags.packages.${pkgs.system}.apps
       inputs.ags.packages.${pkgs.system}.battery
