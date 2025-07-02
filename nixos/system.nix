@@ -113,13 +113,11 @@
       ];
     };
 
-    consoleLogLevel = 0;
+    consoleLogLevel = 2;
     initrd.verbose = false;
     kernelParams = [
       "quiet"
-      "splash"
       "boot.shell_on_fail"
-      "loglevel=2"
       "rd.udev.log_level=2"
       "udev.log_priority=2"
       "rd.systemd.show_status=false"
