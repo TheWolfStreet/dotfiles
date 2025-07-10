@@ -41,6 +41,7 @@ in {
       evince
       telegram-desktop
       krita
+      inkscape
       audacity
       blender-hip
       ghidra
