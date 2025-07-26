@@ -1,4 +1,4 @@
-{pkgs, ...}: let
+{...}: let
   lock-false = {
     Value = false;
     Status = "locked";
@@ -12,25 +12,24 @@ in {
     sessionVariables.BROWSER = "librewolf";
   };
 
-  programs.firefox = {
+  programs.librewolf = {
     enable = true;
-    package = pkgs.librewolf;
     profiles.default = {
       name = "default";
       isDefault = true;
     };
     policies = {
-      DisableTelemetry = true;
-      DisableFirefoxStudies = true;
       EnableTrackingProtection = {
         Value = true;
         Locked = true;
         Cryptomining = true;
         Fingerprinting = false;
       };
+      DisableTelemetry = true;
       DisablePocket = true;
-      DisableFirefoxAccounts = true;
       DisableAccounts = true;
+      DisableFirefoxStudies = true;
+      DisableFirefoxAccounts = true;
       DisableFirefoxScreenshots = true;
       OverrideFirstRunPage = "";
       OverridePostUpdatePage = "";
