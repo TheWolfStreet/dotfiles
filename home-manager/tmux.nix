@@ -1,117 +1,154 @@
 {pkgs, ...}: let
-  bg = "default";
-  fg = "default";
-  bg2 = "brightblack";
-  fg2 = "white";
-  color = c: "#{@${c}}";
+  accent = "#{@main_accent}";
 
-  indicator = let
-    accent = color "indicator_color";
-    content = "  ";
-  in "#[reverse,fg=${accent}]#{?client_prefix,${content},}";
+  client_prefix = let
+    left = "#[noreverse]#{?client_prefix,,}";
+    right = "#[noreverse]#{?client_prefix, ,}";
+    icon = "#[reverse]#{?client_prefix,,}";
+  in "#[fg=${accent}]${left}${icon}${right}";
 
   current_window = let
-    accent = color "main_accent";
-    index = "#[reverse,fg=${accent},bg=${fg}] #I ";
-    name = "#[fg=${bg2},bg=${fg2}] #W ";
-    # flags = "#{?window_flags,#{window_flags}, }";
-  in "${index}${name}";
+    bracket = "#[bold,fg=${accent}]";
+    name = "#[bold,fg=default]#W";
+  in "${bracket}#I[${name}${bracket}] ";
 
   window_status = let
-    accent = color "window_color";
-    index = "#[reverse,fg=${accent},bg=${fg}] #I ";
-    name = "#[fg=${bg2},bg=${fg2}] #W ";
-    # flags = "#{?window_flags,#{window_flags}, }";
-  in "${index}${name}";
+    bracket = "#[bold,fg=black]";
+    index = "#[bold,fg=default]#I";
+    name = "#[nobold,fg=default]#W";
+  in "${index}${bracket}[${name}${bracket}] ";
 
   time = let
-    accent = color "main_accent";
-    format = "%H:%M";
-    icon = pkgs.writeShellScript "icon" ''
-      hour=$(date +%H)
-      symbols=("󱑖" "󱑋" "󱑌" "󱑍" "󱑎" "󱑏" "󱑐" "󱑑" "󱑒" "󱑓" "󱑔" "󱑕")
-      printf "%s" ''${symbols[hour % 12]}
-    '';
-  in "#[reverse,fg=${accent}] ${format} #(${icon}) ";
+    icon =
+      pkgs.writers.writeNu "icon"
+      # nu
+      ''
+        [ 󱑖 󱑋 󱑌 󱑍 󱑎 󱑏 󱑐 󱑑 󱑒 󱑓 󱑔 󱑕 ]
+        | get ((date now | into record | get hour) mod 12)
+      '';
+  in " #[fg=${accent}]#(${icon}) #[bold,fg=default]%H:%M";
 
   battery = let
-    percentage = pkgs.writeShellScript "percentage" (
+    state =
       if pkgs.stdenv.isDarwin
-      then ''
-        echo $(pmset -g batt | grep -o "[0-9]\+%" | tr '%' ' ')
+      then
+        pkgs.writers.writeNu "battery"
+        # nu
+        ''
+          let info = pmset -g batt | lines
+
+          let is_charging = (
+              $info
+              | first
+              | parse "{pre} '{from}'"
+              | get 0
+              | do { $in.from == "AC Power" }
+          )
+
+          let percent = (
+              $info
+              | last
+              | parse "{head}\t{percent}%; {tail}"
+              | get 0
+              | do { ($in.percent | into int) / 100 }
+          )
+
+          { percent:$percent is_charging:$is_charging }
+          | to json
+        ''
+      else
+        pkgs.writers.writeNu "battery"
+        # nu
+        ''
+          let percent = (
+              open /sys/class/power_supply/*/capacity
+              | match ($in | describe) {
+                  "string" => $in,
+                  "list<string>" => ($in | get 0),
+                  _ => "-1",
+              }
+              | ($in | into int) / 100
+          )
+
+          let is_charging = (
+              open /sys/class/power_supply/*/status
+              | match ($in | describe) {
+                  "string" => $in,
+                  "list<string>" => ($in | get 0),
+                  _ => "Unknown",
+              }
+              | str trim
+              | do { ($in == "Charging") or ($in == "Full" and $percent == 1) }
+          )
+
+          { percent:$percent is_charging:$is_charging }
+          | to json
+        '';
+    script =
+      pkgs.writers.writeNu "battery"
+      # nu
       ''
-      else ''
-        path="/org/freedesktop/UPower/devices/DisplayDevice"
-        echo $(${pkgs.upower}/bin/upower -i $path | grep -o "[0-9]\+%" | tr '%' ' ')
-      ''
-    );
-    state = pkgs.writeShellScript "state" (
-      if pkgs.stdenv.isDarwin
-      then ''
-        echo $(pmset -g batt | awk '{print $4}')
-      ''
-      else ''
-        path="/org/freedesktop/UPower/devices/DisplayDevice"
-        echo $(${pkgs.upower}/bin/upower -i $path | grep state | awk '{print $2}')
-      ''
-    );
-    icon = pkgs.writeShellScript "icon" ''
-      percentage=$(${percentage})
-      state=$(${state})
-      if [ "$state" == "charging" ] || [ "$state" == "fully-charged" ]; then echo "󰂄"
-      elif [ $percentage -ge 75 ]; then echo "󱊣"
-      elif [ $percentage -ge 50 ]; then echo "󱊢"
-      elif [ $percentage -ge 25 ]; then echo "󱊡"
-      elif [ $percentage -ge 0  ]; then echo "󰂎"
-      fi
-    '';
-    color = pkgs.writeShellScript "color" ''
-      percentage=$(${percentage})
-      state=$(${state})
-      if [ "$state" == "charging" ] || [ "$state" == "fully-charged" ]; then echo "green"
-      elif [ $percentage -ge 75 ]; then echo "green"
-      elif [ $percentage -ge 50 ]; then echo "${fg2}"
-      elif [ $percentage -ge 30 ]; then echo "yellow"
-      elif [ $percentage -ge 0  ]; then echo "red"
-      fi
-    '';
-  in "#[fg=#(${color})]#(${icon}) #[fg=${fg}]#(${percentage})%";
+        let low_threshhold = 25
+        let state = ${state} | from json
+        let percent = $state.percent
+        let is_charging = $state.is_charging
+
+        let icons: list<string> = (
+            if $is_charging {
+                "󰢜 :󰂆 :󰂇 :󰂈 :󰢝 :󰂉 :󰢞 :󰂊 :󰂋 :󰂅 "
+            } else {
+                "󱃍 :󰁺 :󰁻 :󰁼 :󰁽 :󰁿 :󰁾 :󰂀 :󰂁 :󰂂 :󰁹 "
+            }
+            | split row ":"
+        )
+
+        let icon: string = $icons | get (
+            ($percent) * (($icons | length) - 1)
+            | math floor
+        )
+
+        let icon_fg = (
+            if $is_charging {
+                "green"
+            } else if ($percent * 100) <= ($low_threshhold) {
+                "red"
+            } else {
+                "default"
+            }
+        )
+
+        let label = $"($percent * 100 | math floor)%"
+
+        let label_fg = (
+            if ($percent * 100) <= ($low_threshhold) {
+                "red"
+            } else {
+                "default"
+            }
+        )
+
+        $"#[fg=($icon_fg)]($icon)#[fg=($label_fg)]($label)"
+      '';
+  in "#(${script})";
 
   pwd = let
-    accent = color "main_accent";
     icon = "#[fg=${accent}] ";
-    format = "#[fg=${fg}]#{b:pane_current_path}";
+    format = "#[fg=default]#{b:pane_current_path}";
   in "${icon}${format}";
 
   git = let
-    icon = pkgs.writeShellScript "branch" ''
-      git -C "$1" branch && echo " "
-    '';
-    branch = pkgs.writeShellScript "branch" ''
-      git -C "$1" rev-parse --abbrev-ref HEAD
-    '';
-  in "#[fg=magenta]#(${icon} #{pane_current_path})#(${branch} #{pane_current_path})";
-
-  separator = "#[fg=${fg}]|";
-
-  # has_battery = pkgs.writeShellScript "isBatteryPowered" ''
-  #      if pkgs.stdenv.isDarwin
-  #      then
-  #        if pmset -g batt | grep -q "Battery Power"; then
-  #          echo "true"
-  #        else
-  #          echo "false"
-  #        fi
-  #      else
-  #        path="/org/freedesktop/UPower/devices/DisplayDevice"
-  #        if ${pkgs.upower}/bin/upower -i $path | grep -q -E "present:[[:space:]]*yes"; then
-  #          echo "true"
-  #        else
-  #          echo "false"
-  #        fi
-  #   fi
-  # '';
-  status_right = "${git} ${pwd} ${separator} ${battery} ${time}";
+    script =
+      pkgs.writers.writeNu "git"
+      # nu
+      ''
+        def main [dir: string] {
+            let branch = git -C $dir rev-parse --abbrev-ref HEAD | complete
+            if ($branch.exit_code) == 0 {
+                $"#[fg=magenta] ($branch.stdout | str trim)"
+            }
+        }
+      '';
+  in "#(${script} #{pane_current_path})";
 in {
   programs.tmux = {
     enable = true;
@@ -125,29 +162,43 @@ in {
     keyMode = "vi";
     mouse = true;
     shell = "${pkgs.nushell}/bin/nu";
-    extraConfig = ''
-      set-option -sa terminal-overrides ",xterm*:Tc"
-      bind v copy-mode
-      bind-key -T copy-mode-vi v send-keys -X begin-selection
-      bind-key -T copy-mode-vi C-v send-keys -X rectangle-toggle
-      bind-key -T copy-mode-vi y send-keys -X copy-selection-and-cancel
-      bind-key b set-option status
-      bind '"' split-window -v -c "#{pane_current_path}"
-      bind % split-window -h -c "#{pane_current_path}"
+    extraConfig =
+      # sh
+      ''
+        set-option -sa terminal-overrides ",xterm*:Tc"
+        bind v copy-mode
+        bind-key -T copy-mode-vi v send-keys -X begin-selection
+        bind-key -T copy-mode-vi C-v send-keys -X rectangle-toggle
+        bind-key -T copy-mode-vi y send-keys -X copy-selection-and-cancel
+        bind-key b set-option status
+        bind '"' split-window -v -c "#{pane_current_path}"
+        bind % split-window -h -c "#{pane_current_path}"
 
-      set-option -g default-terminal "screen-256color"
-      set-option -g status-right-length 100
-      set-option -g @indicator_color "yellow"
-      set-option -g @window_color "magenta"
-      set-option -g @main_accent "blue"
-      set-option -g pane-active-border fg=black
-      set-option -g pane-border-style fg=black
-      set-option -g status-style "bg=${bg} fg=${fg}"
-      set-option -g status-left "${indicator}"
-      set-option -g status-right "${status_right}"
-      set-option -g window-status-current-format "${current_window}"
-      set-option -g window-status-format "${window_status}"
-      set-option -g window-status-separator ""
-    '';
+        # Navigate windows with Alt-N
+        bind-key -n M-1 select-window -t 1
+        bind-key -n M-2 select-window -t 2
+        bind-key -n M-3 select-window -t 3
+        bind-key -n M-4 select-window -t 4
+
+        # Fallback where terminals use Alt-N for tab navigations
+        bind-key -n M-F1 select-window -t 1
+        bind-key -n M-F2 select-window -t 2
+        bind-key -n M-F3 select-window -t 3
+        bind-key -n M-F4 select-window -t 4
+
+        set-option -g focus-events on
+        set-option -g default-terminal "screen-256color"
+
+        set-option -g @main_accent "blue"
+        set-option -g status-right-length 100
+        set-option -g pane-active-border fg=black
+        set-option -g pane-border-style fg=black
+        set-option -g status-style "bg=default fg=default"
+        set-option -g status-left "${client_prefix}"
+        set-option -g status-right "${git}  ${pwd}  ${battery} ${time}"
+        set-option -g window-status-current-format "${current_window}"
+        set-option -g window-status-format "${window_status}"
+        set-option -g window-status-separator ""
+      '';
   };
 }

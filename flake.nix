@@ -24,6 +24,7 @@
       url = "github:gokcehan/lf";
       flake = false;
     };
+    self.submodules = true;
   };
 
   outputs = inputs @ {

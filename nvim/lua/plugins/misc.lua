@@ -6,9 +6,7 @@ return {
     { "folke/noice.nvim", enabled = true },
     { "rcarriga/nvim-notify", enabled = true },
     { "stevearc/dressing.nvim", enabled = true },
-
     { "nvim-pack/nvim-spectre", enabled = false },
-
     { "norcalli/nvim-colorizer.lua" },
     { "christoomey/vim-tmux-navigator" },
     { "f-person/git-blame.nvim" },

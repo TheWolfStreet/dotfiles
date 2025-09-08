@@ -48,8 +48,6 @@ in {
       };
 
       render = {
-        explicit_sync = 2;
-        explicit_sync_kms = 2;
         direct_scanout = false;
       };
 
@@ -108,7 +106,7 @@ in {
         (f "xdg-desktop-portal")
         (f "xdg-desktop-portal-gnome")
         (f "de.haeckerfelix.Fragments")
-        (f "gjs")
+        (f "io.Astal.ags2-shell")
         "workspace special, title:Spotify"
         "workspace special, title:Discord"
 

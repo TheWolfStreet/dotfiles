@@ -8,11 +8,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1744557573,
-        "narHash": "sha256-XAyj0iDuI51BytJ1PwN53uLpzTDdznPDQFG4RwihlTQ=",
+        "lastModified": 1756679577,
+        "narHash": "sha256-pkfftqE2CxVN6nKDZvlNdBxIkb/x5ch4wVfwZMYNGCM=",
         "owner": "Aylur",
         "repo": "ags",
-        "rev": "3ed9737bdbc8fc7a7c7ceef2165c9109f336bff6",
+        "rev": "04d51ac4082af3ec47e8a803417a1a55b75151d7",
         "type": "github"
       },
       "original": {
@@ -34,11 +34,11 @@
         "sf-pro": "sf-pro"
       },
       "locked": {
-        "lastModified": 1740961576,
-        "narHash": "sha256-9L6d3owtajM72YvUOpK1zYle2nM0BpsuopbF9lm9lJs=",
+        "lastModified": 1752383772,
+        "narHash": "sha256-I5Y0gUJS85lGEuuKr+tKSRUpJWeKavE+WmiAHRcyBaU=",
         "owner": "Lyndeno",
         "repo": "apple-fonts.nix",
-        "rev": "4df58996ed654f6ce9b71b41c1826484c6870739",
+        "rev": "875c694d7f0ec2020d7511264907a1f0e3262931",
         "type": "github"
       },
       "original": {
@@ -55,11 +55,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1742571008,
-        "narHash": "sha256-5WgfJAeBpxiKbTR/gJvxrGYfqQRge5aUDcGKmU1YZ1Q=",
+        "lastModified": 1756474652,
+        "narHash": "sha256-iiBU6itpEqE0spXeNJ3uJTfioSyKYjt5bNepykpDXTE=",
         "owner": "aylur",
         "repo": "astal",
-        "rev": "dc0e5d37abe9424c53dcbd2506a4886ffee6296e",
+        "rev": "20bd8318e4136fbd3d4eb2d64dbabc3acbc915dd",
         "type": "github"
       },
       "original": {
@@ -75,11 +75,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1747688838,
-        "narHash": "sha256-FZq4/3OtGV/cti9Vccsy2tGSUrxTO4hkDF9oeGRTen4=",
+        "lastModified": 1757256385,
+        "narHash": "sha256-WK7tOhWwr15mipcckhDg2no/eSpM1nIh4C9le8HgHhk=",
         "owner": "nix-community",
         "repo": "home-manager",
-        "rev": "45c2985644b60ab64de2a2d93a4d132ecb87cf66",
+        "rev": "f35703b412c67b48e97beb6e27a6ab96a084cd37",
         "type": "github"
       },
       "original": {
@@ -91,11 +91,11 @@
     "lf-icons": {
       "flake": false,
       "locked": {
-        "lastModified": 1747474237,
-        "narHash": "sha256-I2Iswd3CeO0uX/QaeyEZgUUDNxQiLNBf2Nowx2iIv5c=",
+        "lastModified": 1757255424,
+        "narHash": "sha256-xVEbfPEBVH2fw2jFlyxMjHl+74AmBeWPc8b/VYikvqg=",
         "owner": "gokcehan",
         "repo": "lf",
-        "rev": "2494b3f632a9d735286f22b763a01fa20e81fdfa",
+        "rev": "168a64a2882532f9c0239fb3b6593ac4188ab650",
         "type": "github"
       },
       "original": {
@@ -157,11 +157,11 @@
     },
     "nixpkgs_3": {
       "locked": {
-        "lastModified": 1747542820,
-        "narHash": "sha256-GaOZntlJ6gPPbbkTLjbd8BMWaDYafhuuYRNrxCGnPJw=",
+        "lastModified": 1757068644,
+        "narHash": "sha256-NOrUtIhTkIIumj1E/Rsv1J37Yi3xGStISEo8tZm3KW4=",
         "owner": "nixos",
         "repo": "nixpkgs",
-        "rev": "292fa7d4f6519c074f0a50394dbbe69859bb6043",
+        "rev": "8eb28adfa3dc4de28e792e3bf49fcf9007ca8ac9",
         "type": "github"
       },
       "original": {
@@ -221,7 +221,7 @@
     "sf-compact": {
       "flake": false,
       "locked": {
-        "narHash": "sha256-J72Lyt2wy83E46wN8w6/Rih9kilM9wEjtY6KnbF0DsA=",
+        "narHash": "sha256-VMCf2Mhmx/qhLRQxlTAsQWxtonS27kPW+oTYBBRWHMg=",
         "type": "file",
         "url": "https://devimages-cdn.apple.com/design/resources/download/SF-Compact.dmg"
       },
@@ -269,7 +269,7 @@
     "sf-pro": {
       "flake": false,
       "locked": {
-        "narHash": "sha256-Q/pOQ4MGhW/ZtLka+UUQcwSoZFDWW34XvutxL4GvzUY=",
+        "narHash": "sha256-RX6X2ltVE88Hp1g9tpSywMT3UfdLpRxgw92KRpiAues=",
         "type": "file",
         "url": "https://devimages-cdn.apple.com/design/resources/download/SF-Pro.dmg"
       },
@@ -286,11 +286,11 @@
         "systems": "systems"
       },
       "locked": {
-        "lastModified": 1747607404,
-        "narHash": "sha256-xj2Ji+rE+oYjf0BsTDT7K/StnYuZQK9MTbX8U1DUcC0=",
+        "lastModified": 1757219159,
+        "narHash": "sha256-bpiaovTLPeScpnOdqfgq3oy4B/sD2Wnb5EdQZZM2tCY=",
         "owner": "Gerg-L",
         "repo": "spicetify-nix",
-        "rev": "8c1be0e5e9a7f35ccd6f7b10bcfa08f2734dad91",
+        "rev": "404130798716449bbd02e5f1b54272be55218644",
         "type": "github"
       },
       "original": {

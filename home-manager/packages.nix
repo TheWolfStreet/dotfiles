@@ -5,7 +5,6 @@
     else [];
 in {
   imports = [
-    ./scripts/blocks.nix
     ./scripts/nx-switch.nix
     ./scripts/vault.nix
   ];
@@ -15,7 +14,6 @@ in {
     bat
     eza
     fd
-    zoxide
     ripgrep
     ncdu
     btop

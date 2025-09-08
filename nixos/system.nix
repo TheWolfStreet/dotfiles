@@ -46,12 +46,12 @@
     fstrim.enable = true;
   };
 
-  # Logind
-  services.logind.extraConfig = ''
-    HandlePowerKey=ignore
-    HandleLidSwitch=suspend
-    HandleLidSwitchExternalPower=ignore
-  '';
+  # Logind       Failed assertions:
+  services.logind.settings.Login = {
+    HandleLidSwitch = "suspend";
+    HandlePowerKey = "ignore";
+    HandleLidSwitchExternalPower = "ignore";
+  };
 
   # KDE Connect
   networking.firewall = rec {
