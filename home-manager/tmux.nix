@@ -8,15 +8,14 @@
   in "#[fg=${accent}]${left}${icon}${right}";
 
   current_window = let
-    bracket = "#[bold,fg=${accent}]";
+    color = "#[bold,fg=${accent}]";
     name = "#[bold,fg=default]#W";
-  in "${bracket}#I[${name}${bracket}] ";
+  in "${color}#I ${name} ";
 
   window_status = let
-    bracket = "#[bold,fg=black]";
     index = "#[bold,fg=default]#I";
     name = "#[nobold,fg=default]#W";
-  in "${index}${bracket}[${name}${bracket}] ";
+  in "${index} ${name} ";
 
   time = let
     icon =
