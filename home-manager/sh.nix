@@ -47,17 +47,15 @@ in {
   config.programs.nushell = {
     shellAliases = aliases // config.shellAliases;
     enable = true;
-    environmentVariables =
-      config.home.sessionVariables
-      // {
-        PROMPT_INDICATOR_VI_INSERT = "  ";
-        PROMPT_INDICATOR_VI_NORMAL = "∙ ";
-        PROMPT_COMMAND = "";
-        PROMPT_COMMAND_RIGHT = "";
-        NIXPKGS_ALLOW_UNFREE = "1";
-        NIXPKGS_ALLOW_INSECURE = "1";
-        SHELL = "${pkgs.nushell}/bin/nu";
-      };
+    environmentVariables = {
+      PROMPT_INDICATOR_VI_INSERT = "  ";
+      PROMPT_INDICATOR_VI_NORMAL = "∙ ";
+      PROMPT_COMMAND = "";
+      PROMPT_COMMAND_RIGHT = "";
+      NIXPKGS_ALLOW_UNFREE = "1";
+      NIXPKGS_ALLOW_INSECURE = "1";
+      SHELL = "${pkgs.nushell}/bin/nu";
+    };
     extraConfig = let
       conf = builtins.toJSON {
         show_banner = false;

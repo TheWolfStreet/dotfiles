@@ -48,7 +48,6 @@
       };
       system76-scheduler.settings.cfsProfiles.enable = true;
       xserver.videoDrivers = ["amdgpu"];
-      power-profiles-daemon.enable = lib.mkForce false;
       udev.extraRules = lib.mkMerge [
         # Autosuspend all USB devices
         # ''ACTION=="add", SUBSYSTEM=="usb", TEST=="power/control", ATTR{power/control}="auto"''
@@ -59,24 +58,6 @@
         # Disable Ethernet Wake-on-LAN
         ''ACTION=="add", SUBSYSTEM=="net", NAME=="enp*", RUN+="${pkgs.ethtool}/sbin/ethtool -s $name wol d"''
       ];
-      thermald.enable = true;
-      tlp = {
-        enable = true;
-        settings = {
-          CPU_SCALING_GOVERNOR_ON_AC = "performance";
-          CPU_SCALING_GOVERNOR_ON_BAT = "powersave";
-
-          CPU_ENERGY_PERF_POLICY_ON_BAT = "power";
-          CPU_ENERGY_PERF_POLICY_ON_AC = "performance";
-
-          CPU_MIN_PERF_ON_AC = 0;
-          CPU_MAX_PERF_ON_AC = 100;
-          CPU_MIN_PERF_ON_BAT = 0;
-          CPU_MAX_PERF_ON_BAT = 20;
-
-          USB_EXCLUDE_BTUSB = 1;
-        };
-      };
       openssh.settings = {
         PasswordAuthentication = lib.mkForce false;
         KbdInteractiveAuthentication = lib.mkForce false;

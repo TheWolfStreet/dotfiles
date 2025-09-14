@@ -93,7 +93,7 @@
     tmp.cleanOnBoot = true;
     supportedFilesystems = ["ntfs"];
     loader = {
-      timeout = 0;
+      timeout = null;
       systemd-boot = {
         enable = true;
         configurationLimit = 5;

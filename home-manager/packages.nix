@@ -27,8 +27,11 @@ in {
 
     (mkIf pkgs.stdenv.isLinux [
       (mpv.override {scripts = [mpvScripts.mpris];})
+      (bottles.override {
+        removeWarningPopup = true;
+      })
+      krb5 # For wine
       xdg-desktop-portal-gtk
-      bottles
       gamescope
       gamemode
       vesktop
