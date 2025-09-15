@@ -41,6 +41,37 @@
     };
 
     powerManagement.powertop.enable = true;
+
+    systemd.services.amdgpu-dynamic-dpm = {
+      description = "AMDGPU power mode follows CPU profile";
+      wantedBy = ["multi-user.target"];
+
+      script = ''
+        CARD=1
+        while true; do
+            PROFILE=$(${pkgs.power-profiles-daemon}/bin/powerprofilesctl get)
+            case "$PROFILE" in
+                performance) LEVEL=high ;;
+                balanced)    LEVEL=auto ;;
+                power-saver) LEVEL=low ;;
+                *) continue ;;
+            esac
+
+            CURRENT=$(cat /sys/class/drm/card$CARD/device/power_dpm_force_performance_level)
+            if [ "$CURRENT" != "$LEVEL" ]; then
+                echo $LEVEL > /sys/class/drm/card$CARD/device/power_dpm_force_performance_level
+            fi
+
+            sleep 5
+        done
+      '';
+
+      serviceConfig = {
+        Restart = "always";
+        TimeoutStartSec = 0;
+      };
+    };
+
     services = {
       asusd = {
         enable = true;
@@ -49,8 +80,8 @@
       system76-scheduler.settings.cfsProfiles.enable = true;
       xserver.videoDrivers = ["amdgpu"];
       udev.extraRules = lib.mkMerge [
-        # Autosuspend all USB devices
-        # ''ACTION=="add", SUBSYSTEM=="usb", TEST=="power/control", ATTR{power/control}="auto"''
+        # Autosuspend all USB devices except HID
+        ''ACTION=="add", SUBSYSTEM=="usb", TEST=="power/control", ATTR{bDeviceClass}!="03", ATTR{power/control}="auto"''
 
         # Autosuspend PCI devices
         ''ACTION=="add", SUBSYSTEM=="pci", TEST=="power/control", ATTR{power/control}="auto"''
