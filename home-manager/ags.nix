@@ -26,7 +26,7 @@
       fd
       # Font, icons and cursor are handled in theme.nix
       # Matugen in flake.nix
-      inputs.matugen.packages.${system}.default
+      matugen
       inputs.ags.packages.${pkgs.system}.apps
       inputs.ags.packages.${pkgs.system}.battery
       inputs.ags.packages.${pkgs.system}.hyprland

@@ -1,13 +1,9 @@
 {
   lib,
-  pkgs,
   osConfig,
   ...
 }: {
   config = lib.mkIf osConfig.desktopPC.enable {
-    home.packages = with pkgs; [
-      steam
-    ];
     wayland.windowManager.hyprland.settings.env = [
       ''LIBVA_DRIVER_NAME, nvidia''
       ''VDPAU_DRIVER, nvidia''

@@ -11,6 +11,7 @@ in {
 
   home.packages = pkgs.lib.flatten (with pkgs; [
     fastfetch
+    steam
     bat
     eza
     fd

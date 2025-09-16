@@ -37,7 +37,10 @@
       cpu.amd.updateMicrocode = true;
     };
     boot = {
-      kernelParams = ["video=1920x1080"];
+      kernelParams = [
+        "video=1920x1080"
+        "amd_pstate=active"
+      ];
       kernelModules = ["nvidia"];
     };
     virtualisation.docker = {

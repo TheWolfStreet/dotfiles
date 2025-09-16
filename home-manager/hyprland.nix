@@ -87,10 +87,10 @@ in {
         preserve_split = "yes";
       };
 
-      gestures = {
-        workspace_swipe = true;
-        workspace_swipe_use_r = true;
-      };
+      gesture = [
+        "3, horizontal, workspace"
+        "2, swipe, mod: SUPER+SHIFT, resize"
+      ];
 
       windowrule = let
         f = regex: "float, class:^(${regex})$";

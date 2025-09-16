@@ -46,12 +46,14 @@
     fstrim.enable = true;
   };
 
-  # Logind       Failed assertions:
+  # Logind
   services.logind.settings.Login = {
     HandleLidSwitch = "suspend";
     HandlePowerKey = "ignore";
     HandleLidSwitchExternalPower = "ignore";
   };
+  #Disable lightdm
+  services.xserver.displayManager.lightdm.enable = false;
 
   # KDE Connect
   networking.firewall = rec {
@@ -93,7 +95,7 @@
     tmp.cleanOnBoot = true;
     supportedFilesystems = ["ntfs"];
     loader = {
-      timeout = null;
+      timeout = 0;
       systemd-boot = {
         enable = true;
         configurationLimit = 5;

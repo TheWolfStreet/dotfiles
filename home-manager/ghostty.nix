@@ -47,6 +47,7 @@ in {
       font-feature = liga
       font-feature = calt
       theme = light:charmful-light,dark:charmful-dark
+      background-opacity = 0.5
       window-padding-x = 12
       window-padding-y = 6
       window-decoration = ${boolToString pkgs.stdenv.isDarwin}
