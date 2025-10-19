@@ -12,14 +12,6 @@ km(
     { desc = "Telescope [f]ind file" }
 )
 
--- Toggle inlay hints
-km(
-    "n",
-    "<Leader>cH",
-    function() vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled()) end,
-    { desc = "Toggle Inlay Hints" }
-)
-
 -- Move selected lines
 km("v", "J", ":m '>+1<CR>gv=gv")
 km("v", "K", ":m '<-2<CR>gv=gv")
@@ -53,5 +45,12 @@ km({ "n", "i", "v" }, "<C-j>", vim.cmd.TmuxNavigateDown)
 km({ "n", "i", "v" }, "<C-k>", vim.cmd.TmuxNavigateUp)
 km({ "n", "i", "v" }, "<C-l>", vim.cmd.TmuxNavigateRight)
 
--- Tranparency
-km("n", "<leader>o", function() vim.cmd("TransparentToggle") end)
+require("snacks")
+    .toggle({
+        name = "Transparency",
+        get = function() return vim.g.transparent_enabled end,
+        set = function(state)
+            if state ~= vim.g.transparent_enabled then vim.cmd("TransparentToggle") end
+        end,
+    })
+    :map("<leader>ut", { mode = "n", opts = { desc = "Toggle transparency" } })

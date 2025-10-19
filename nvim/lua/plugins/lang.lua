@@ -1,70 +1,22 @@
-local function uname()
-    local handle = io.popen("uname")
-    if handle then
-        local res = handle:read("a")
-        handle:close()
-        return string.match(res, "^%s*(.-)%s*$")
-    end
-    return nil
-end
+vim.g.lazyvim_check_order = false
 
 return {
     {
+        "mason-org/mason.nvim",
+        enabled = vim.fn.executable("nix") == 0,
+    },
+    {
+        "mason-org/mason-lspconfig.nvim",
+        enabled = vim.fn.executable("nix") == 0,
+    },
 
-        "jay-babu/mason-nvim-dap.nvim",
-        -- enable in containers and Mac, but not NixOS
-        enabled = io.open("/run/.containerenv", "r") ~= nil or uname() == "Darwin",
-    },
-    {
-        "williamboman/mason.nvim",
-        -- enable in containers and Mac, but not NixOS
-        enabled = io.open("/run/.containerenv", "r") ~= nil or uname() == "Darwin",
-        opts = {
-            PATH = "append",
-        },
-    },
-    {
-        "nvim-treesitter/nvim-treesitter",
-        opts = {
-            ensure_installed = {
-                "lua",
-                "rust",
-                "cpp",
-                "svelte",
-                "go",
-                "nix",
-                "bash",
-            },
-        },
-    },
-    {
-        "neovim/nvim-lspconfig",
-        opts = {
-            servers = {
-                nixd = {},
-                lua_ls = {},
-                bashls = {},
-                denols = {
-                    root_dir = require("lspconfig").util.root_pattern("deno.json"),
-                },
-                cssls = {},
-                clangd = {},
-                glsl_analyzer = {},
-                svelte = {},
-                tailwindcss = {},
-                cssmodules_ls = {},
-                eslint = {},
-                vala_ls = {},
-                mesonlsp = {},
-                taplo = {},
-            },
-        },
-    },
+    { import = "plugins.lang" },
+
     {
         "stevearc/conform.nvim",
         opts = {
             formatters_by_ft = {
-                nix = { "alejandra" },
+                xml = { "xmllint --format" },
             },
         },
     },

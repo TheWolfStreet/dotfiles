@@ -69,7 +69,6 @@ return {
                     lualine_y = { filename },
                     lualine_z = { position },
                 },
-                extensions = { "neo-tree", "lazy" },
             }
         end,
     },

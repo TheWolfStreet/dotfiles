@@ -13,7 +13,6 @@ return {
     { "ziontee113/color-picker.nvim", opts = {} },
     { "danymat/neogen", opts = {} },
     { "j-hui/fidget.nvim", opts = {} },
-    -- Leetcode
     {
         "kawre/leetcode.nvim",
         dependencies = {

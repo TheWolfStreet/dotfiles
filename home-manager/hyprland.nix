@@ -241,13 +241,13 @@ in {
 
       animations = {
         enabled = "yes";
-        bezier = "myBezier, 0.05, 0.9, 0.1, 1.05";
+        bezier = "elasticSnap, 0.12, 1.0, 0.45, 0.98";
         animation = [
-          "windows, 1, 5, myBezier"
-          "windowsOut, 1, 7, default, popin 80%"
-          "border, 1, 10, default"
-          "fade, 1, 7, default"
-          "workspaces, 1, 6, default"
+          "windows, 1, 3.5, elasticSnap, popin 70%"
+          "windowsOut, 1, 3.8, elasticSnap, slidefade 70%"
+          "border, 1, 5.0, elasticSnap"
+          "fade, 1, 4.5, elasticSnap"
+          "workspaces, 1, 3.5, elasticSnap"
         ];
       };
     };

@@ -1,76 +1,6 @@
 {
     "output": {
         "blocklist": [],
-        "crystalizer#0": {
-            "band0": {
-                "bypass": true,
-                "intensity": -40.0,
-                "mute": false
-            },
-            "band1": {
-                "bypass": true,
-                "intensity": -40.0,
-                "mute": false
-            },
-            "band10": {
-                "bypass": false,
-                "intensity": -14.0,
-                "mute": false
-            },
-            "band11": {
-                "bypass": false,
-                "intensity": -7.0,
-                "mute": false
-            },
-            "band12": {
-                "bypass": false,
-                "intensity": -16.0,
-                "mute": false
-            },
-            "band2": {
-                "bypass": true,
-                "intensity": -40.0,
-                "mute": false
-            },
-            "band3": {
-                "bypass": true,
-                "intensity": -40.0,
-                "mute": false
-            },
-            "band4": {
-                "bypass": true,
-                "intensity": -40.0,
-                "mute": false
-            },
-            "band5": {
-                "bypass": true,
-                "intensity": -40.0,
-                "mute": false
-            },
-            "band6": {
-                "bypass": true,
-                "intensity": -40.0,
-                "mute": false
-            },
-            "band7": {
-                "bypass": true,
-                "intensity": -40.0,
-                "mute": false
-            },
-            "band8": {
-                "bypass": true,
-                "intensity": -40.0,
-                "mute": false
-            },
-            "band9": {
-                "bypass": false,
-                "intensity": -13.0,
-                "mute": false
-            },
-            "bypass": false,
-            "input-gain": 0.0,
-            "output-gain": 0.0
-        },
         "equalizer#1": {
             "balance": 0.0,
             "bypass": false,
@@ -153,8 +83,7 @@
             "split-channels": false
         },
         "plugins_order": [
-            "equalizer#1",
-            "crystalizer#0"
+            "equalizer#1"
         ]
     }
 }

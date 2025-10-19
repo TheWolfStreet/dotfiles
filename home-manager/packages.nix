@@ -31,6 +31,8 @@ in {
       (bottles.override {
         removeWarningPopup = true;
       })
+      virtiofsd
+      cups-filters
       krb5 # For wine
       xdg-desktop-portal-gtk
       gamescope
