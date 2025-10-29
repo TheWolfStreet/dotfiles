@@ -1,17 +1,12 @@
-{pkgs, ...}: let
-  mkIf = cond: value:
-    if cond
-    then value
-    else [];
-in {
+{pkgs, ...}: {
   imports = [
     ./scripts/nx-switch.nix
     ./scripts/vault.nix
   ];
 
-  home.packages = pkgs.lib.flatten (with pkgs; [
+  home.packages = with pkgs; [
+    # Core utilities
     fastfetch
-    steam
     bat
     eza
     fd
@@ -21,50 +16,64 @@ in {
     powertop
     fzf
     xxd
-    distrobox
+
+    # Development tools
     lazydocker
     lazygit
+    claude-code
+    nodejs
+    ghidra
+
+    # Virtualization & containers
+    distrobox
+    steam
+
+    # Mobile/Remote tools
     scrcpy
+  ] ++ lib.optionals stdenv.isLinux [
+    # Media applications
+    (mpv.override {scripts = [mpvScripts.mpris];})
+    audacity
+    krita
+    inkscape
+    blender-hip
 
-    (mkIf pkgs.stdenv.isLinux [
-      (mpv.override {scripts = [mpvScripts.mpris];})
-      (bottles.override {
-        removeWarningPopup = true;
-      })
-      virtiofsd
-      cups-filters
-      krb5 # For wine
-      xdg-desktop-portal-gtk
-      gamescope
-      gamemode
-      vesktop
-      libreoffice
-      fragments
-      steam-run
-      file-roller
-      evince
-      telegram-desktop
-      krita
-      inkscape
-      audacity
-      blender-hip
-      ghidra
-      easyeffects
-      figma-linux
-      nodejs
-      appimage-run
+    # Gaming
+    (bottles.override {
+      removeWarningPopup = true;
+    })
+    gamescope
+    gamemode
+    steam-run
 
-      (pkgs.symlinkJoin {
-        name = "FreeCAD";
-        paths = [pkgs.freecad-wayland];
-        buildInputs = [pkgs.makeWrapper];
-        postBuild = ''
-          wrapProgram $out/bin/FreeCAD \
-          --set __GLX_VENDOR_LIBRARY_NAME mesa \
-          --set __EGL_VENDOR_LIBRARY_FILENAMES ${pkgs.mesa}/share/glvnd/egl_vendor.d/50_mesa.json
-        '';
-        meta.mainProgram = "FreeCAD";
-      })
-    ])
-  ]);
+    # Office & productivity
+    libreoffice
+    evince
+    file-roller
+    telegram-desktop
+    vesktop
+    figma-linux
+
+    # System utilities
+    virtiofsd
+    cups-filters
+    krb5 # For wine
+    xdg-desktop-portal-gtk
+    fragments
+    easyeffects
+    appimage-run
+
+    # Custom FreeCAD with proper graphics setup
+    (symlinkJoin {
+      name = "FreeCAD";
+      paths = [freecad-wayland];
+      buildInputs = [makeWrapper];
+      postBuild = ''
+        wrapProgram $out/bin/FreeCAD \
+        --set __GLX_VENDOR_LIBRARY_NAME mesa \
+        --set __EGL_VENDOR_LIBRARY_FILENAMES ${mesa}/share/glvnd/egl_vendor.d/50_mesa.json
+      '';
+      meta.mainProgram = "FreeCAD";
+    })
+  ];
 }

@@ -3,6 +3,7 @@
   config,
   ...
 }: let
+  constants = import ../nixos/constants.nix;
   playerctl = "${pkgs.playerctl}/bin/playerctl";
   brightnessctl = "${pkgs.brightnessctl}/bin/brightnessctl";
   pactl = "${pkgs.pulseaudio}/bin/pactl";
@@ -34,7 +35,7 @@ in {
       ];
       exec-once = [
         "ags run"
-        "hyprctl setcursor Qogir 24"
+        "hyprctl setcursor ${constants.graphics.cursors.theme} ${toString constants.graphics.cursors.size}"
       ];
 
       monitor = [
@@ -65,7 +66,7 @@ in {
       };
 
       input = {
-        kb_layout = "us, ru";
+        kb_layout = constants.keyboards.desktop;
         follow_mouse = 1;
         kb_options = "grp:alt_shift_toggle";
         touchpad = {
@@ -263,7 +264,7 @@ in {
       };
       listener = [
         {
-          timeout = 900;
+          timeout = constants.power.idleTimeoutSec;
           on-timeout = "${hyprlock}";
         }
       ];

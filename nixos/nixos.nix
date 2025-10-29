@@ -7,6 +7,9 @@
     /etc/nixos/hardware-configuration.nix
     ./configs/desktop.nix
     ./configs/laptop.nix
+    ./hardware/common.nix
+    ./hardware/nvidia.nix
+    ./hardware/amd.nix
     ./system.nix
     ./audio.nix
     ./locale.nix

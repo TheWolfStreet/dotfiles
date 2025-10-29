@@ -32,6 +32,7 @@
     ...
   }: let
     system = "x86_64-linux";
+    constants = import ./nixos/constants.nix;
 
     mkSystem = {
       hostname,
@@ -44,7 +45,7 @@
         specialArgs =
           {
             inherit inputs;
-            username = "tws";
+            username = constants.system.username;
           }
           // extraArgs;
 
@@ -65,6 +66,7 @@
         extraModules = [
           {
             desktopPC.enable = true;
+            hardware.nvidia.desktop.enable = true;
           }
         ];
       };
@@ -74,10 +76,11 @@
         extraModules = [
           {
             asusLaptop.enable = true;
+            hardware.amd.laptop.enable = true;
             swapDevices = [
               {
                 device = "/var/lib/swapfile";
-                size = 16 * 1024;
+                size = constants.system.swapSizeGB * 1024;
               }
             ];
           }
