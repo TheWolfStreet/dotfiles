@@ -73,7 +73,7 @@ return {
         "folke/snacks.nvim",
         lazy = false,
         opts = {
-            explorer = { enabled = true, trash = true, replace_netrw = true },
+            explorer = { enabled = true },
             dashboard = { enabled = false },
             indent = {
                 indent = {

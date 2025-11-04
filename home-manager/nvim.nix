@@ -30,6 +30,17 @@
       fzf
       cargo
 
+      # For plugin rebuilds
+      rustc
+      luarocks
+      lua5_1
+
+      # Render PDF, PNG, TEX, Mermaid
+      ghostscript
+      tectonic
+      imagemagick
+      mermaid-cli
+
       nixd
       lua-language-server
       bash-language-server
