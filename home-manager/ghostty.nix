@@ -43,7 +43,7 @@ in {
     "ghostty/config".text = ''
       command = ${pkgs.tmux}/bin/tmux
       font-family = JetBrainsMono Nerd Font
-      font-size = 15
+      font-size = 16
       font-feature = liga
       font-feature = calt
       theme = light:charmful-light,dark:charmful-dark
