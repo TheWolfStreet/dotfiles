@@ -28,7 +28,7 @@ in {
       system76-scheduler.settings.cfsProfiles.enable = true;
       udev.extraRules = lib.mkMerge [
         # Autosuspend all USB devices except HID
-        ''ACTION=="add", SUBSYSTEM=="usb", TEST=="power/control", ATTR{bDeviceClass}!="03", ATTR{power/control}="auto"''
+        # ''ACTION=="add", SUBSYSTEM=="usb", TEST=="power/control", ATTR{bDeviceClass}!="03", ATTR{power/control}="auto"''
 
         # Autosuspend PCI devices
         ''ACTION=="add", SUBSYSTEM=="pci", TEST=="power/control", ATTR{power/control}="auto"''
