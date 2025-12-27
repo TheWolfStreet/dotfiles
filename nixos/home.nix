@@ -50,13 +50,14 @@
   gtk.gtk3.bookmarks = let
     home = config.home.homeDirectory;
   in [
-    "file://${home}/Desktop"
-    "file://${home}/Downloads"
-    "file://${home}/Documents"
-    "file://${home}/Videos"
-    "file://${home}/Music"
+    "file://${config.xdg.userDirs.desktop}"
+    "file://${config.xdg.userDirs.download}"
+    "file://${config.xdg.userDirs.documents}"
+    "file://${config.xdg.userDirs.videos}"
+    "file://${config.xdg.userDirs.music}"
     "file://${home}/Software"
-    "file://${home}/Pictures"
+    "file://${config.xdg.userDirs.pictures}"
+    "file://${config.xdg.userDirs.publicShare}"
     "file://${home}/Projects"
     "file://${home}/.config Config"
   ];
