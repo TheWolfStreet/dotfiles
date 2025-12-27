@@ -20,11 +20,28 @@ in {
 
     powerManagement.powertop.enable = true;
 
+    systemd.services.enable-power-actions = {
+      description = "Enable power profile actions";
+      after = ["power-profiles-daemon.service"];
+      wants = ["power-profiles-daemon.service"];
+      wantedBy = ["multi-user.target"];
+
+      serviceConfig = {
+        Type = "oneshot";
+        RemainAfterExit = true;
+        ExecStart = pkgs.writeShellScript "enable-power-actions" ''
+          ${pkgs.power-profiles-daemon}/bin/powerprofilesctl configure-action --enable amdgpu_panel_power
+          ${pkgs.power-profiles-daemon}/bin/powerprofilesctl configure-action --enable amdgpu_dpm
+        '';
+      };
+    };
+
     services = {
       asusd = {
         enable = true;
         enableUserService = true;
       };
+
       system76-scheduler.settings.cfsProfiles.enable = true;
       udev.extraRules = lib.mkMerge [
         # Autosuspend all USB devices except HID

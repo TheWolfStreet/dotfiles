@@ -29,36 +29,37 @@ in {
       ];
     };
 
-    systemd.services.amdgpu-dynamic-dpm = {
-      description = "AMDGPU power mode follows CPU profile";
-      wantedBy = ["multi-user.target"];
-
-      script = ''
-        CARD=1
-        while true; do
-            PROFILE=$(${pkgs.power-profiles-daemon}/bin/powerprofilesctl get)
-            case "$PROFILE" in
-                performance) LEVEL=high ;;
-                balanced)    LEVEL=auto ;;
-                power-saver) LEVEL=low ;;
-                *) continue ;;
-            esac
-
-            CURRENT=$(cat /sys/class/drm/card$CARD/device/power_dpm_force_performance_level)
-            if [ "$CURRENT" != "$LEVEL" ]; then
-                echo $LEVEL > /sys/class/drm/card$CARD/device/power_dpm_force_performance_level
-            fi
-
-            sleep ${toString constants.power.amdGpuPollIntervalSec}
-        done
-      '';
-
-      serviceConfig = {
-        Restart = "always";
-        TimeoutStartSec = 0;
-      };
-    };
+    # systemd.services.amdgpu-dynamic-dpm = {
+    #   description = "AMDGPU power mode follows CPU profile";
+    #   wantedBy = ["multi-user.target"];
+    #
+    #   script = ''
+    #     CARD=1
+    #     while true; do
+    #         PROFILE=$(${pkgs.power-profiles-daemon}/bin/powerprofilesctl get)
+    #         case "$PROFILE" in
+    #             performance) LEVEL=high ;;
+    #             balanced)    LEVEL=auto ;;
+    #             power-saver) LEVEL=low ;;
+    #             *) continue ;;
+    #         esac
+    #
+    #         CURRENT=$(cat /sys/class/drm/card$CARD/device/power_dpm_force_performance_level)
+    #         if [ "$CURRENT" != "$LEVEL" ]; then
+    #             echo $LEVEL > /sys/class/drm/card$CARD/device/power_dpm_force_performance_level
+    #         fi
+    #
+    #         sleep ${toString constants.power.amdGpuPollIntervalSec}
+    #     done
+    #   '';
+    #
+    #   serviceConfig = {
+    #     Restart = "always";
+    #     TimeoutStartSec = 0;
+    #   };
+    # };
 
     services.xserver.videoDrivers = ["amdgpu"];
   };
 }
+
