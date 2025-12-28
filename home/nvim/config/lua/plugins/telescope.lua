@@ -1,1 +1,18 @@
-/nix/store/ych7mzi6rjvl82ywms60qgn898dgadpd-home-manager-files/.config/nvim/lua/plugins/telescope.lua
+return {
+    {
+        "nvim-telescope/telescope.nvim",
+        opts = {
+            defaults = {
+                prompt_prefix = " ",
+                selection_caret = " ",
+                multi_icon = " ",
+                initial_mode = "insert",
+            },
+            pickers = {
+                find_files = {
+                    hidden = true,
+                },
+            },
+        },
+    },
+}

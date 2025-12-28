@@ -1,1 +1,14 @@
-/nix/store/ych7mzi6rjvl82ywms60qgn898dgadpd-home-manager-files/.config/nvim/lua/plugins/lang/nix.lua
+return {
+    {
+        "nvim-treesitter/nvim-treesitter",
+        opts = { ensure_installed = { "nix" } },
+    },
+    {
+        "neovim/nvim-lspconfig",
+        opts = { servers = { nixd = {} } },
+    },
+    {
+        "stevearc/conform.nvim",
+        opts = { formatters_by_ft = { nix = { "alejandra" } } },
+    },
+}

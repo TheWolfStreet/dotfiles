@@ -1,1 +1,120 @@
-/nix/store/ych7mzi6rjvl82ywms60qgn898dgadpd-home-manager-files/.config/nvim/lua/plugins/ui.lua
+return {
+    { "catppuccin/nvim", enabled = false },
+    { "tokyonight.nvim", enabled = false },
+    {
+        "LazyVim/LazyVim",
+        opts = { colorscheme = "kanagawa" },
+    },
+    {
+        "rebelot/kanagawa.nvim",
+        name = "kanagawa",
+        config = function()
+            local ok, scheme = pcall(
+                function()
+                    return vim.fn.system({
+                        "gsettings",
+                        "get",
+                        "org.gnome.desktop.interface",
+                        "color-scheme",
+                    })
+                end
+            )
+
+            if ok and vim.fn.trim(scheme, "") ~= "'prefer-dark'" then
+                vim.opt.background = "light"
+            else
+                vim.opt.background = "dark"
+            end
+
+            require("kanagawa").setup({
+                background = {
+                    dark = "wave",
+                    light = "lotus",
+                },
+                colors = {
+                    theme = {
+                        all = {
+                            ui = {
+                                bg_gutter = "none",
+                            },
+                        },
+                    },
+                },
+                overrides = function(colors)
+                    local theme = colors.theme
+                    return {
+                        NormalFloat = { bg = "none" },
+                        FloatBorder = { bg = "none" },
+                        FloatTitle = { bg = "none" },
+
+                        NormalDark = { fg = theme.ui.fg_dim, bg = theme.ui.bg_m3 },
+                        LazyNormal = { bg = theme.ui.bg_m3, fg = theme.ui.fg_dim },
+                        MasonNormal = { bg = theme.ui.bg_m3, fg = theme.ui.fg_dim },
+
+                        TelescopeTitle = { fg = theme.ui.special, bold = true },
+                        TelescopePromptNormal = { bg = theme.ui.bg_p1 },
+                        TelescopePromptBorder = { fg = theme.ui.bg_p1, bg = theme.ui.bg_p1 },
+                        TelescopeResultsNormal = { fg = theme.ui.fg_dim, bg = theme.ui.bg_m1 },
+                        TelescopeResultsBorder = { fg = theme.ui.bg_m1, bg = theme.ui.bg_m1 },
+                        TelescopePreviewNormal = { bg = theme.ui.bg_dim },
+                        TelescopePreviewBorder = { bg = theme.ui.bg_dim, fg = theme.ui.bg_dim },
+                        Pmenu = { fg = theme.ui.shade0, bg = theme.ui.bg_p1 },
+                        PmenuSel = { fg = "NONE", bg = theme.ui.bg_p2 },
+                        PmenuSbar = { bg = theme.ui.bg_m1 },
+                        PmenuThumb = { bg = theme.ui.bg_p2 },
+                    }
+                end,
+            })
+
+            vim.cmd("colorscheme kanagawa")
+        end,
+    },
+    {
+        "folke/snacks.nvim",
+        lazy = false,
+        opts = {
+            explorer = { enabled = true },
+            dashboard = { enabled = false },
+            indent = {
+                indent = {
+                    hl = "LineNr",
+                    char = "┊",
+                },
+                scope = {
+                    hl = "SnacksIndent",
+                },
+            },
+        },
+    },
+    {
+        "xiyaowong/transparent.nvim",
+        enabled = true,
+        lazy = false,
+        config = function()
+            local transparent = require("transparent")
+            transparent.clear_prefix("NeoTree")
+            transparent.clear_prefix("lualine_c")
+            return {
+                extra_groups = {
+                    "NormalFloat",
+                    "FloatBorder",
+                    "FloatTitle",
+                    "NormalDark",
+                    "LazyNormal",
+                    "MasonNormal",
+                    "TabLine",
+                    "TabLineFill",
+                    "TabLineSel",
+                    "TelescopeBorder",
+                    "Pmenu",
+                    "PmenuSbar",
+                    "PmenuThumb",
+                    "PmenuSel",
+                    "WFFloatBorder",
+                    "WFFloatBorderFocus",
+                    "WFTheme",
+                },
+            }
+        end,
+    },
+}

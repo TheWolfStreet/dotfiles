@@ -1,1 +1,3 @@
-/nix/store/ych7mzi6rjvl82ywms60qgn898dgadpd-home-manager-files/.config/nvim/lua/plugins/lang/c.lua
+return {
+    { import = "lazyvim.plugins.extras.lang.clangd" },
+}

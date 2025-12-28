@@ -1,1 +1,17 @@
-/nix/store/ych7mzi6rjvl82ywms60qgn898dgadpd-home-manager-files/.config/nvim/lua/config/lazy.lua
+require("lazy").setup({
+    lockfile = vim.fn.stdpath("cache") .. "/lazy-lock.json",
+    spec = {
+        { "LazyVim/LazyVim", import = "lazyvim.plugins" },
+        { import = "plugins" },
+    },
+    defaults = {
+        version = false,
+    },
+    checker = {
+        enabled = true,
+        notify = false,
+    },
+    change_detection = {
+        enabled = false,
+    },
+})

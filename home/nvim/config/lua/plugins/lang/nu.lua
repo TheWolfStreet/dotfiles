@@ -1,1 +1,18 @@
-/nix/store/ych7mzi6rjvl82ywms60qgn898dgadpd-home-manager-files/.config/nvim/lua/plugins/lang/nu.lua
+return {
+    {
+        "folke/ts-comments.nvim",
+        opts = {
+            lang = {
+                typst = "# %s",
+            },
+        },
+    },
+    {
+        "neovim/nvim-lspconfig",
+        opts = { servers = { nushell = {} } },
+    },
+    {
+        "nvim-treesitter/nvim-treesitter",
+        opts = { ensure_installed = { "nu" } },
+    },
+}
