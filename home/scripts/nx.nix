@@ -1,18 +1,26 @@
-{pkgs, ...}: let
-  dotfiles = "$HOME/.dotfiles";
+{
+  pkgs,
+  dotfilesPath,
+  ...
+}: let
   nx-switch = pkgs.writeShellScriptBin "nx-switch" ''
-    sudo nixos-rebuild switch --flake "${dotfiles}" --impure $@
+    sudo nixos-rebuild switch --flake "${dotfilesPath}" --impure $@
+  '';
+  nx-update = pkgs.writeShellScriptBin "nx-update" ''
+    cd "${dotfilesPath}"
+    nix flake update $@
+    sudo nixos-rebuild switch --flake "${dotfilesPath}" --impure
   '';
   nx-boot = pkgs.writeShellScriptBin "nx-boot" ''
-    sudo nixos-rebuild boot --flake "${dotfiles}" --impure $@
+    sudo nixos-rebuild boot --flake "${dotfilesPath}" --impure $@
   '';
   nx-test = pkgs.writeShellScriptBin "nx-test" ''
-    sudo nixos-rebuild test --flake "${dotfiles}" --impure $@
+    sudo nixos-rebuild test --flake "${dotfilesPath}" --impure $@
   '';
   nx-vm = pkgs.writeShellScriptBin "nx-vm" ''
-    cd "${dotfiles}"
+    cd "${dotfilesPath}"
     nixos-rebuild build-vm --flake . --impure $@
-    ./result/bin/run-nixos-vm
+    "${dotfilesPath}/result/bin/run-$(hostname)-vm"
   '';
   nx-gc = pkgs.writeShellScriptBin "nx-gc" ''
     sudo nix-collect-garbage -d
@@ -21,5 +29,5 @@
     sudo nix-collect-garbage --delete-older-than 1d
   '';
 in {
-  home.packages = [nx-switch nx-boot nx-test nx-vm nx-gc];
+  home.packages = [nx-switch nx-update nx-boot nx-test nx-vm nx-gc];
 }

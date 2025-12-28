@@ -1,7 +1,9 @@
-{config, ...}: let
-  name = "TheWolfStreet";
-  email = "wolfthestreet@gmail.com";
-in {
+{
+  config,
+  gitName,
+  gitEmail,
+  ...
+}: {
   programs.git = {
     enable = true;
     settings = {
@@ -9,13 +11,13 @@ in {
 
       core.editor = config.home.sessionVariables.EDITOR;
       credential.helper = "store";
-      github.user = name;
+      github.user = gitName;
       init.defaultBranch = "main";
       push.autoSetupRemote = true;
 
       user = {
-        email = email;
-        name = name;
+        email = gitEmail;
+        name = gitName;
       };
     };
   };

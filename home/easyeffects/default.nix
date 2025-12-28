@@ -1,15 +1,13 @@
-{...}: {
-  services.easyeffects = {
-    enable = true;
-  };
-
+{
+  config,
+  dotfilesPath,
+  ...
+}: {
   xdg.configFile."easyeffects" = {
-    source = ./config;
-    recursive = true;
+    source = config.lib.file.mkOutOfStoreSymlink "${dotfilesPath}/home/easyeffects/config";
   };
 
   xdg.dataFile."easyeffects" = {
-    source = ./data;
-    recursive = true;
+    source = config.lib.file.mkOutOfStoreSymlink "${dotfilesPath}/home/easyeffects/presets";
   };
 }

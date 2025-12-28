@@ -19,27 +19,29 @@
     xxd
 
     # Development tools
+    distrobox
     lazydocker
     lazygit
     claude-code
+    crush
     nodejs
     ghidra
-
-    # Virtualization & containers
-    distrobox
-    steam
+    figma-linux
 
     # Mobile/Remote tools
     scrcpy
-  ] ++ lib.optionals stdenv.isLinux [
+
+    # ] ++ lib.optionals stdenv.isLinux [ NOTE: If darwin system to be used
+
     # Media applications
     (mpv.override {scripts = [mpvScripts.mpris];})
     audacity
     krita
     inkscape
-    blender-hip
+    blender
 
     # Gaming
+    steam
     (bottles.override {
       removeWarningPopup = true;
     })
@@ -49,11 +51,8 @@
 
     # Office & productivity
     libreoffice
-    evince
-    file-roller
     telegram-desktop
     vesktop
-    figma-linux
 
     # System utilities
     virtiofsd
@@ -63,6 +62,16 @@
     fragments
     easyeffects
     appimage-run
+    usbutils
+    pciutils
+    ethtool
+    iw
+    bridge-utils
+    lm_sensors
+    dmidecode
+    hdparm
+    smartmontools
+    iotop
 
     # Custom FreeCAD with proper graphics setup
     (symlinkJoin {

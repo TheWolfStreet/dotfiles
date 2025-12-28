@@ -29,6 +29,8 @@
     loupe
     nautilus
     baobab
+    evince
+    file-roller
     gnome-text-editor
     gnome-calendar
     gnome-boxes

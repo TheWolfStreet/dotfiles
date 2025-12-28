@@ -1,4 +1,9 @@
-{pkgs, ...}: {
+{
+  config,
+  dotfilesPath,
+  pkgs,
+  ...
+}: {
   home.sessionVariables = {
     EDITOR = "nvim";
     VISUAL = "nvim";
@@ -26,12 +31,10 @@
       fzf
       cargo
 
-      # For plugin rebuilds
       rustc
       luarocks
       lua5_1
 
-      # Render PDF, PNG, TEX, Mermaid
       ghostscript
       tectonic
       imagemagick
@@ -46,8 +49,7 @@
   };
 
   xdg.configFile."nvim" = {
-    source = ./config;
-    recursive = true;
+    source = config.lib.file.mkOutOfStoreSymlink "${dotfilesPath}/home/nvim/config";
   };
 }
 

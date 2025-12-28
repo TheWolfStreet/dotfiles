@@ -2,10 +2,12 @@
   inputs,
   username,
   stateVersion,
+  dotfilesPath,
+  gitName,
+  gitEmail,
   pkgs,
   ...
 }: {
-  # User setup
   users.users.${username} = {
     isNormalUser = true;
     initialPassword = username;
@@ -20,13 +22,12 @@
     ];
   };
 
-  # Home Manager integration
   home-manager = {
     backupFileExtension = "backup";
     useGlobalPkgs = true;
     useUserPackages = true;
     extraSpecialArgs = {
-      inherit inputs stateVersion;
+      inherit inputs stateVersion dotfilesPath gitName gitEmail;
     };
     users.${username} = {
       home.username = username;
@@ -57,19 +58,40 @@
       keep-derivations = true;
       experimental-features = "nix-command flakes";
       auto-optimise-store = true;
+      max-jobs = "auto";
+      cores = 0;
     };
   };
 
-  programs.droidcam.enable = true;
+  programs = {
+    kdeconnect.enable = true;
+    droidcam.enable = true;
+    virt-manager.enable = true;
+    dconf.enable = true;
+  };
 
-  programs.virt-manager.enable = true;
   virtualisation = {
     podman.enable = true;
     docker.enable = true;
-    libvirtd.enable = true;
-  };
+    libvirtd = {
+      enable = true;
+      onBoot = "ignore";
+      onShutdown = "shutdown";
+    };
 
-  programs.dconf.enable = true;
+    vmVariant = {
+      virtualisation = {
+        memorySize = 8192;
+        cores = 8;
+
+        qemu.options = [
+          "-vga virtio"
+          "-display gtk,gl=on"
+          "-device virtio-gpu-pci"
+        ];
+      };
+    };
+  };
 
   environment.systemPackages = with pkgs; [
     home-manager
@@ -88,6 +110,10 @@
     flatpak.enable = true;
     openssh.enable = true;
     fstrim.enable = true;
+    udev.extraRules = ''
+      ACTION=="add|change", KERNEL=="nvme[0-9]n[0-9]", ATTR{queue/scheduler}="mq-deadline"
+      ACTION=="add|change", KERNEL=="sd[a-z]", ATTR{queue/rotational}=="0", ATTR{queue/scheduler}="mq-deadline"
+    '';
   };
 
   services.logind.settings.Login = {
@@ -97,33 +123,19 @@
   };
   services.xserver.displayManager.lightdm.enable = false;
 
-  networking.firewall = rec {
-    allowedTCPPortRanges = [
-      {
-        from = 1714;
-        to = 1764;
-      }
-    ];
-    allowedTCPPorts = [27040];
-    allowedUDPPortRanges = allowedTCPPortRanges;
-  };
-
   security.pam.services = {
     hyprlock = {};
     astal-auth = {};
   };
 
-  networking.networkmanager.enable = true;
-  networking.enableIPv6 = false;
-  systemd.services.NetworkManager-wait-online.enable = false;
-
   hardware = {
     bluetooth = {
-      powerOnBoot = true;
       enable = true;
+      powerOnBoot = false;
       settings.General = {
         Experimental = true;
         Enable = "Source,Sink,Media,Socket";
+        AutoEnable = false;
       };
     };
     steam-hardware.enable = true;
@@ -141,29 +153,14 @@
       efi.canTouchEfiVariables = true;
     };
     kernelPackages = pkgs.linuxPackages_zen;
-
-    plymouth = {
-      enable = true;
-      theme = "rings";
-      themePackages = with pkgs; [
-        (adi1090x-plymouth-themes.override {
-          selected_themes = ["rings"];
-        })
-      ];
-    };
-
-    consoleLogLevel = 2;
-    initrd.verbose = false;
     kernelParams = [
-      "quiet"
-      "boot.shell_on_fail"
-      "rd.udev.log_level=2"
-      "udev.log_priority=2"
-      "rd.systemd.show_status=false"
-      "systemd.show_status=false"
       "libahci.ignore_sss=1"
       "threadirqs"
     ];
+    kernel.sysctl = {
+      "vm.swappiness" = 10;
+      "vm.vfs_cache_pressure" = 50;
+    };
   };
 
   system.stateVersion = stateVersion;

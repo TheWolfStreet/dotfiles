@@ -3,7 +3,10 @@
   config,
   ...
 }: let
-  theme = import ./theme.nix { inherit pkgs config; inputs = {}; };
+  theme = import ./theme.nix {
+    inherit pkgs config;
+    inputs = {};
+  };
   cursorTheme = theme.home.pointerCursor;
 
   playerctl = "${pkgs.playerctl}/bin/playerctl";
@@ -37,6 +40,7 @@ in {
       ];
       exec-once = [
         "ags run"
+        "easyeffects -w"
         "hyprctl setcursor ${cursorTheme.name} ${toString cursorTheme.size}"
       ];
 
@@ -92,47 +96,6 @@ in {
       gesture = [
         "3, horizontal, workspace"
         "2, swipe, mod: SUPER+SHIFT, resize"
-      ];
-
-      windowrule = let
-        f = regex: "float, class:^(${regex})$";
-      in [
-        (f "org.gnome.Calculator")
-        (f "org.gnome.Nautilus")
-        (f "pavucontrol")
-        (f "nm-connection-editor")
-        (f "blueberry.py")
-        (f "org.gnome.Settings")
-        (f "org.gnome.design.Palette")
-        (f "Color Picker")
-        (f "xdg-desktop-portal")
-        (f "xdg-desktop-portal-gnome")
-        (f "de.haeckerfelix.Fragments")
-        (f "io.Astal.ags2-shell")
-        "workspace special, title:Spotify"
-        "workspace special, title:Discord"
-
-        # Discord and xwayland video bridge
-        "opacity 0.0 override, class:^(xwaylandvideobridge)$"
-        "noanim, class:^(xwaylandvideobridge)$"
-        "noinitialfocus, class:^(xwaylandvideobridge)$"
-        "maxsize 1 1, class:^(xwaylandvideobridge)$"
-        "noblur, class:^(xwaylandvideobridge)$"
-        "allowsinput, class:^(discord|vesktop)$"
-
-        # KDE Connect
-        "opacity 1, class:^(org.kde.kdeconnect.daemon)"
-        "minsize 1920 1200, class:^(org.kde.kdeconnect.daemon)"
-        "noblur, class:^(org.kde.kdeconnect.daemon)"
-        "noborder, class:^(org.kde.kdeconnect.daemon)"
-        "noshadow, class:^(org.kde.kdeconnect.daemon)"
-        "noanim, class:^(org.kde.kdeconnect.daemon)"
-        "nofocus, class:^(org.kde.kdeconnect.daemon)"
-        "suppressevent fullscreen, class:^(org.kde.kdeconnect.daemon)"
-        "float, class:^(org.kde.kdeconnect.daemon)"
-        "pin, class:^(org.kde.kdeconnect.daemon)"
-        "center, class:^(org.kde.kdeconnect.daemon)"
-        "decorate 0, class:^(org.kde.kdeconnect.daemon)"
       ];
 
       bind = let
@@ -252,7 +215,133 @@ in {
           "workspaces, 1, 3.5, elasticSnap"
         ];
       };
+
+      layerrule = [
+        "blur on, match:namespace gtk4-layer-shell"
+        "blur_popups on, match:namespace gtk4-layer-shell"
+        "ignore_alpha 0.29, match:namespace gtk4-layer-shell"
+        "no_anim on, match:namespace gtk4-layer-shell"
+      ];
     };
+
+    extraConfig = ''
+      windowrule {
+        name = float_calculator
+        match:class = ^(org.gnome.Calculator)$
+        float = on
+        size = 400 616
+      }
+
+      windowrule {
+        name = float_nautilus
+        match:class = ^(org.gnome.Nautilus)$
+        float = on
+      }
+
+      windowrule {
+        name = float_pavucontrol
+        match:class = ^(pavucontrol)$
+        float = on
+      }
+
+      windowrule {
+        name = float_nmconnection
+        match:class = ^(nm-connection-editor)$
+        float = on
+      }
+
+      windowrule {
+        name = float_blueberry
+        match:class = ^(blueberry.py)$
+        float = on
+      }
+
+      windowrule {
+        name = float_settings
+        match:class = ^(org.gnome.Settings)$
+        float = on
+      }
+
+      windowrule {
+        name = float_palette
+        match:class = ^(org.gnome.design.Palette)$
+        float = on
+      }
+
+      windowrule {
+        name = float_colorpicker
+        match:class = ^(Color Picker)$
+        float = on
+      }
+
+      windowrule {
+        name = float_portal
+        match:class = ^(xdg-desktop-portal)$
+        float = on
+      }
+
+      windowrule {
+        name = float_portal_gnome
+        match:class = ^(xdg-desktop-portal-gnome)$
+        float = on
+      }
+
+      windowrule {
+        name = float_fragments
+        match:class = ^(de.haeckerfelix.Fragments)$
+        float = on
+      }
+
+      windowrule {
+        name = float_ags
+        match:class = ^(io.Astal.ags2-shell)$
+        float = on
+      }
+
+      windowrule {
+        name = spotify_special
+        match:title = Spotify
+        workspace = special
+      }
+
+      windowrule {
+        name = discord_special
+        match:title = Discord
+        workspace = special
+      }
+
+      windowrule {
+        name = xwaylandvideobridge
+        match:class = ^(xwaylandvideobridge)$
+        opacity = 0.0 0.0
+        no_anim = on
+        no_initial_focus = on
+        size = 1 1
+        no_blur = on
+      }
+
+      windowrule {
+        name = discord_input
+        match:class = ^(discord|vesktop)$
+        allows_input = on
+      }
+
+      windowrule {
+        name = kdeconnect
+        match:class = ^(org.kde.kdeconnect.daemon)$
+        opacity = 1.0 1.0
+        size = 1920 1200
+        no_blur = on
+        decorate = off
+        no_shadow = on
+        no_anim = on
+        no_focus = on
+        suppress_event = fullscreen
+        float = on
+        pin = on
+        center = on
+      }
+    '';
   };
   services.hypridle = {
     enable = true;

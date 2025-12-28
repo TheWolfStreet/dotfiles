@@ -6,6 +6,20 @@ with lib.hm.gvariant; {
       xkb-options = ["terminate:ctrl_alt_bksp"];
     };
 
+    "org/gnome/TextEditor" = {
+      keybindings = "vim";
+    };
+
+    "org/gnome/shell" = {
+      favorite-apps = [
+        "Steam"
+        "Spotify"
+        "Vesktop"
+        "Krita"
+        "Blender"
+      ];
+    };
+
     "org/gnome/desktop/interface" = {
       show-battery-percentage = true;
     };
@@ -34,14 +48,6 @@ with lib.hm.gvariant; {
       ];
     };
 
-    "org/gnome/shell" = {
-      favorite-apps = [
-        "FL Studio 21"
-        "Vesktop"
-        "Spotify"
-      ];
-    };
-
     "system/locale" = {
       region = "en_US.UTF-8";
     };
@@ -49,10 +55,6 @@ with lib.hm.gvariant; {
     "org/virt-manager/virt-manager/connections" = {
       autoconnect = ["qemu:///system"];
       uris = ["qemu:///system"];
-    };
-
-    "org/gnome/TextEditor" = {
-      keybindings = "vim";
     };
   };
 }

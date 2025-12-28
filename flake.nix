@@ -30,8 +30,13 @@
     nixpkgs,
     home-manager,
     ...
-  }:
-  let
+  }: let
+    username = "tws";
+    gitName = "TheWolfStreet";
+    gitEmail = "wolfthestreet@gmail.com";
+    stateVersion = "24.05";
+    dotfilesPath = "/home/${username}/.dotfiles";
+
     mkSystem = {
       hostname,
       extraModules ? [],
@@ -43,8 +48,12 @@
         specialArgs =
           {
             inherit inputs;
-            username = "tws";
-            stateVersion = "24.05";
+            inherit username;
+            inherit hostname;
+            inherit gitName;
+            inherit gitEmail;
+            inherit stateVersion;
+            inherit dotfilesPath;
           }
           // extraArgs;
 

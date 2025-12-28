@@ -29,6 +29,15 @@ in {
     enableZshIntegration = true;
   };
 
+  config.programs.bash = {
+    shellAliases = aliases // config.shellAliases;
+    enable = true;
+    enableCompletion = true;
+    initExtra = ''
+      SHELL=${pkgs.bash}/bin/bash
+    '';
+  };
+
   config.programs.zsh = {
     shellAliases = aliases // config.shellAliases;
     enable = true;
