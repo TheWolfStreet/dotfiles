@@ -1,0 +1,131 @@
+{
+    "input": {
+        "blocklist": [],
+        "deepfilternet#0": {
+            "attenuation-limit": 100.0,
+            "max-df-processing-threshold": 20.0,
+            "max-erb-processing-threshold": 30.0,
+            "min-processing-buffer": 0,
+            "min-processing-threshold": -10.0,
+            "post-filter-beta": 0.05
+        },
+        "equalizer#0": {
+            "balance": 0.0,
+            "bypass": false,
+            "input-gain": 0.0,
+            "left": {
+                "band0": {
+                    "frequency": 50.0,
+                    "gain": 10.5,
+                    "mode": "RLC (BT)",
+                    "mute": false,
+                    "q": 1.9999999999999998,
+                    "slope": "x1",
+                    "solo": false,
+                    "type": "Bell",
+                    "width": 4.0
+                },
+                "band1": {
+                    "frequency": 500.0,
+                    "gain": -13.0,
+                    "mode": "RLC (BT)",
+                    "mute": false,
+                    "q": 0.04999999999999981,
+                    "slope": "x4",
+                    "solo": false,
+                    "type": "Bell",
+                    "width": 4.0
+                },
+                "band2": {
+                    "frequency": 1500.0,
+                    "gain": -2.15,
+                    "mode": "RLC (BT)",
+                    "mute": false,
+                    "q": 1.0,
+                    "slope": "x1",
+                    "solo": false,
+                    "type": "Bell",
+                    "width": 4.0
+                },
+                "band3": {
+                    "frequency": 15000.0,
+                    "gain": 3.3,
+                    "mode": "RLC (BT)",
+                    "mute": false,
+                    "q": 0.61,
+                    "slope": "x1",
+                    "solo": false,
+                    "type": "Bell",
+                    "width": 4.0
+                }
+            },
+            "mode": "IIR",
+            "num-bands": 4,
+            "output-gain": 18.0,
+            "pitch-left": 0.0,
+            "pitch-right": 0.0,
+            "right": {
+                "band0": {
+                    "frequency": 50.0,
+                    "gain": 10.5,
+                    "mode": "RLC (BT)",
+                    "mute": false,
+                    "q": 1.9999999999999998,
+                    "slope": "x1",
+                    "solo": false,
+                    "type": "Bell",
+                    "width": 4.0
+                },
+                "band1": {
+                    "frequency": 500.0,
+                    "gain": -13.0,
+                    "mode": "RLC (BT)",
+                    "mute": false,
+                    "q": 0.04999999999999981,
+                    "slope": "x4",
+                    "solo": false,
+                    "type": "Bell",
+                    "width": 4.0
+                },
+                "band2": {
+                    "frequency": 1500.0,
+                    "gain": -2.15,
+                    "mode": "RLC (BT)",
+                    "mute": false,
+                    "q": 1.0,
+                    "slope": "x1",
+                    "solo": false,
+                    "type": "Bell",
+                    "width": 4.0
+                },
+                "band3": {
+                    "frequency": 15000.0,
+                    "gain": 3.3,
+                    "mode": "RLC (BT)",
+                    "mute": false,
+                    "q": 0.61,
+                    "slope": "x1",
+                    "solo": false,
+                    "type": "Bell",
+                    "width": 4.0
+                }
+            },
+            "split-channels": false
+        },
+        "plugins_order": [
+            "deepfilternet#0",
+            "rnnoise#0",
+            "equalizer#0"
+        ],
+        "rnnoise#0": {
+            "bypass": false,
+            "enable-vad": true,
+            "input-gain": 0.0,
+            "model-name": "",
+            "output-gain": 0.0,
+            "release": 20.0,
+            "vad-thres": 1.0,
+            "wet": 0.0
+        }
+    }
+}

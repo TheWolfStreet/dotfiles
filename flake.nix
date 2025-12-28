@@ -32,8 +32,6 @@
     ...
   }:
   let
-    constants = import ./nixos/constants.nix;
-
     mkSystem = {
       hostname,
       extraModules ? [],
@@ -45,17 +43,15 @@
         specialArgs =
           {
             inherit inputs;
-            username = constants.system.username;
+            username = "tws";
+            stateVersion = "24.05";
           }
           // extraArgs;
 
         modules =
           [
-            ./nixos/nixos.nix
+            ./hosts/${hostname}.nix
             home-manager.nixosModules.home-manager
-            {
-              networking.hostName = hostname;
-            }
           ]
           ++ extraModules;
       };
@@ -63,28 +59,10 @@
     nixosConfigurations = {
       nixos = mkSystem {
         hostname = "nixos";
-        extraModules = [
-          {
-            desktopPC.enable = true;
-            hardware.nvidia.desktop.enable = true;
-          }
-        ];
       };
 
       nixtop = mkSystem {
         hostname = "nixtop";
-        extraModules = [
-          {
-            asusLaptop.enable = true;
-            hardware.amd.laptop.enable = true;
-            swapDevices = [
-              {
-                device = "/var/lib/swapfile";
-                size = constants.system.swapSizeGB * 1024;
-              }
-            ];
-          }
-        ];
       };
     };
   };

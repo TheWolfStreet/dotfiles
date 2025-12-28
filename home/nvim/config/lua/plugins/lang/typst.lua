@@ -1,0 +1,1 @@
+/nix/store/ych7mzi6rjvl82ywms60qgn898dgadpd-home-manager-files/.config/nvim/lua/plugins/lang/typst.lua
