@@ -1,0 +1,11 @@
+[soe][Limiter#0]
+alr=true
+alrAttack=1
+alrKnee=7
+alrRelease=10
+attack=1
+lookahead=2
+mode=1
+release=20
+stereoLink=0
+threshold=-7
