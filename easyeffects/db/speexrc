@@ -1,0 +1,4 @@
+[sie][Speex#0]
+enableDenoise=false
+enableVad=true
+vadProbabilityContinue=95

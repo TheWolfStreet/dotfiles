@@ -12,8 +12,8 @@
     hardware = {
       graphics.extraPackages = with pkgs; [
         nvidia-vaapi-driver
+        libva-vdpau-driver
         egl-wayland
-        vaapiVdpau
       ];
       nvidia = {
         modesetting.enable = true;
@@ -38,3 +38,4 @@
     services.xserver.videoDrivers = ["nvidia"];
   };
 }
+

@@ -30,8 +30,8 @@
     nixpkgs,
     home-manager,
     ...
-  }: let
-    system = "x86_64-linux";
+  }:
+  let
     constants = import ./nixos/constants.nix;
 
     mkSystem = {
@@ -40,7 +40,7 @@
       extraArgs ? {},
     }:
       nixpkgs.lib.nixosSystem {
-        inherit system;
+        system = builtins.currentSystem;
 
         specialArgs =
           {

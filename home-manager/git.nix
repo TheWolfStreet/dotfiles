@@ -4,7 +4,7 @@
 in {
   programs.git = {
     enable = true;
-    extraConfig = {
+    settings = {
       color.ui = true;
 
       core.editor = config.home.sessionVariables.EDITOR;
@@ -12,9 +12,12 @@ in {
       github.user = name;
       init.defaultBranch = "main";
       push.autoSetupRemote = true;
+
+      user = {
+        email = email;
+        name = name;
+      };
     };
-    userEmail = email;
-    userName = name;
   };
   programs.ssh = {
     enable = true;

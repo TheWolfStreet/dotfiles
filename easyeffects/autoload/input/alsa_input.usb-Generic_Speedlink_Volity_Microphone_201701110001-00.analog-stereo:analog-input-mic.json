@@ -1,6 +1,0 @@
-{
-    "device": "alsa_input.usb-Generic_Speedlink_Volity_Microphone_201701110001-00.analog-stereo",
-    "device-description": "Speedlink Volity Microphone Analog Stereo",
-    "device-profile": "analog-input-mic",
-    "preset-name": "Main"
-}
