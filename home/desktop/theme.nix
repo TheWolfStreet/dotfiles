@@ -60,7 +60,6 @@ in {
       "file://${config.xdg.userDirs.videos}"
       "file://${config.xdg.userDirs.music}"
       "file://${config.xdg.userDirs.pictures}"
-      "file://${config.xdg.userDirs.publicShare}"
       "file://${home}/.config Config"
       "file://${home}/Software"
       "file://${home}/Projects"
