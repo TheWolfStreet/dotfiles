@@ -8,8 +8,17 @@
   pkgs,
   ...
 }: {
+  imports = [
+    ./virtualization.nix
+    ./services.nix
+    ./boot.nix
+    ./hardware.nix
+    ./security.nix
+  ];
   users.users.${username} = {
     isNormalUser = true;
+    # Initial password is set to username for first login convenience
+    # NOTE: Change this immediately after first login with 'passwd'
     initialPassword = username;
     extraGroups = [
       "nixosvmtest"
@@ -70,98 +79,12 @@
     dconf.enable = true;
   };
 
-  virtualisation = {
-    podman.enable = true;
-    docker.enable = true;
-    libvirtd = {
-      enable = true;
-      onBoot = "ignore";
-      onShutdown = "shutdown";
-    };
-
-    vmVariant = {
-      virtualisation = {
-        memorySize = 8192;
-        cores = 8;
-
-        qemu.options = [
-          "-vga virtio"
-          "-display gtk,gl=on"
-          "-device virtio-gpu-pci"
-        ];
-      };
-    };
-  };
-
   environment.systemPackages = with pkgs; [
     home-manager
     neovim
     git
     wget
   ];
-
-  services = {
-    xserver = {
-      enable = true;
-      excludePackages = [pkgs.xterm];
-    };
-    irqbalance.enable = true;
-    printing.enable = true;
-    flatpak.enable = true;
-    openssh.enable = true;
-    fstrim.enable = true;
-    udev.extraRules = ''
-      ACTION=="add|change", KERNEL=="nvme[0-9]n[0-9]", ATTR{queue/scheduler}="mq-deadline"
-      ACTION=="add|change", KERNEL=="sd[a-z]", ATTR{queue/rotational}=="0", ATTR{queue/scheduler}="mq-deadline"
-    '';
-  };
-
-  services.logind.settings.Login = {
-    HandleLidSwitch = "suspend";
-    HandlePowerKey = "ignore";
-    HandleLidSwitchExternalPower = "ignore";
-  };
-  services.xserver.displayManager.lightdm.enable = false;
-
-  security.pam.services = {
-    hyprlock = {};
-    astal-auth = {};
-  };
-
-  hardware = {
-    bluetooth = {
-      enable = true;
-      powerOnBoot = false;
-      settings.General = {
-        Experimental = true;
-        Enable = "Source,Sink,Media,Socket";
-        AutoEnable = false;
-      };
-    };
-    steam-hardware.enable = true;
-  };
-
-  boot = {
-    tmp.cleanOnBoot = true;
-    supportedFilesystems = ["ntfs"];
-    loader = {
-      timeout = 0;
-      systemd-boot = {
-        enable = true;
-        configurationLimit = 5;
-      };
-      efi.canTouchEfiVariables = true;
-    };
-    kernelPackages = pkgs.linuxPackages_zen;
-    kernelParams = [
-      "libahci.ignore_sss=1"
-      "threadirqs"
-    ];
-    kernel.sysctl = {
-      "vm.swappiness" = 10;
-      "vm.vfs_cache_pressure" = 50;
-    };
-  };
 
   system.stateVersion = stateVersion;
 }

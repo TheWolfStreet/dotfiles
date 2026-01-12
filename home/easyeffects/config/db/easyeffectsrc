@@ -2,8 +2,8 @@
 showNativePluginUi=true
 
 [Presets]
-lastLoadedInputPreset=Headphones
-lastLoadedOutputPreset=Headset EQ
+lastLoadedInputPreset=LaptopMain
+lastLoadedOutputPreset=Speakers
 
 [Spectrum]
 spectrumFpsCap=100
@@ -12,27 +12,26 @@ spectrumShape=lines
 [StreamInputs]
 inputDevice=alsa_input.pci-0000_07_00.6.analog-stereo
 mostUsedPresets=LaptopMain,Headphones,Main
-plugins=stereo_tools#0,deepfilternet#0,rnnoise#0,deesser#0,equalizer#0
-usedPresets=Headphones:13,LaptopMain:59,Main:5
+plugins=deepfilternet#0,stereo_tools#0,equalizer#0,speex#0,deesser#0,limiter#0
+usedPresets=Headphones:13,LaptopMain:60,Main:5
 visiblePage=pluginsPage
 visiblePlugin=equalizer#0
 
 [StreamOutputs]
-mostUsedPresets=Headset EQ,Speakers,Buds EQ
+mostUsedPresets=Speakers,Headset EQ,Buds EQ
 outputDevice=alsa_output.pci-0000_07_00.6.analog-stereo
-plugins=equalizer#1
-usedPresets=Speakers:115,Buds EQ:9,Headset EQ:124
-visiblePage=pluginsPage
+plugins=equalizer#1,bass_enhancer#0,limiter#0
+usedPresets=Speakers:128,Buds EQ:9,Headset EQ:124
 visiblePlugin=equalizer#1
 
 [Style]
 forceBreezeTheme=false
 
 [Window]
-height=1200
+height=1135
 presetsAutoloadInterval=0
 showTrayIcon=false
-visiblePipeWirePage=modulesPage
-width=1920
+visiblePage=pwPage
+width=1890
 xdgGlobalShortcuts=true
 xdgGlobalShortcutsBound=true

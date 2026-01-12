@@ -10,7 +10,7 @@
       color.ui = true;
 
       core.editor = config.home.sessionVariables.EDITOR;
-      credential.helper = "store";
+      credential.helper = "cache";
       github.user = gitName;
       init.defaultBranch = "main";
       push.autoSetupRemote = true;

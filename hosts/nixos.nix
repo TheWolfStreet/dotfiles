@@ -16,12 +16,12 @@
     enableAllFirmware = true;
     nvidia = {
       enable = true;
-      # container.enable = true;
+      persistence.enable = true;
     };
     amd.cpu.enable = true;
   };
 
-  power.enable = false;
+  power.enabled = false;
 
   home-manager.users.${username} = {
     wayland.windowManager.hyprland.settings.monitor = [

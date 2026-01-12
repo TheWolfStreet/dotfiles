@@ -59,15 +59,15 @@
         }
       ];
     })
-
-    (lib.mkIf config.hardware.nvidia.container.enable {
-      hardware.nvidia-container-toolkit.enable = true;
-
-      virtualisation.docker = {
-        daemon.settings = {
-          features.cdi = true;
-        };
-      };
-    })
+    #TODO: Rework
+    # (lib.mkIf config.hardware.nvidia.container.enable {
+    #   hardware.nvidia-container-toolkit.enable = true;
+    #
+    #   virtualisation.docker = {
+    #     daemon.settings = {
+    #       features.cdi = true;
+    #     };
+    #   };
+    # })
   ];
 }
