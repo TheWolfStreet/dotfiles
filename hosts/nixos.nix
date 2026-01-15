@@ -21,7 +21,7 @@
     amd.cpu.enable = true;
   };
 
-  power.enabled = false;
+  power.enable = false;
 
   home-manager.users.${username} = {
     wayland.windowManager.hyprland.settings.monitor = [
