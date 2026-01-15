@@ -12,16 +12,16 @@ spectrumShape=lines
 [StreamInputs]
 inputDevice=alsa_input.pci-0000_07_00.6.analog-stereo
 mostUsedPresets=Laptop Microphone,Standalone Microphone
-plugins=deepfilternet#0,stereo_tools#0,equalizer#0,speex#0,deesser#0,limiter#0
-usedPresets=Standalone Microphone:1,Laptop Microphone:1
+plugins=deepfilternet#0,rnnoise#0,equalizer#0
+usedPresets=Standalone Microphone:3,Laptop Microphone:4
 visiblePage=pluginsPage
 visiblePlugin=equalizer#0
 
 [StreamOutputs]
-mostUsedPresets=Studio Headset,Headset,Laptop Speakers,In-ear
+mostUsedPresets=Studio Headset,Laptop Speakers,Headset,In-ear
 outputDevice=alsa_output.pci-0000_07_00.6.analog-stereo
 plugins=equalizer#1
-usedPresets=Studio Headset:49,Laptop Speakers:20,In-ear:4,Headset:30
+usedPresets=Studio Headset:69,Laptop Speakers:40,In-ear:4,Headset:30
 visiblePage=pluginsPage
 visiblePlugin=equalizer#1
 
@@ -32,10 +32,11 @@ forceBreezeTheme=false
 frequency=20
 
 [Window]
-height=1136
+height=1132
 presetsAutoloadInterval=0
 showTrayIcon=false
+visiblePage=inputPage
 visiblePipeWirePage=testSignalsPage
-width=1890
+width=937
 xdgGlobalShortcuts=true
 xdgGlobalShortcutsBound=true
