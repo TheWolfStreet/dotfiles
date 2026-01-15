@@ -1,4 +1,4 @@
-{pkgs, ...}: {
+{pkgs, lib, ...}: {
   services = {
     xserver = {
       enable = true;
@@ -8,7 +8,14 @@
     irqbalance.enable = true;
     printing.enable = true;
     flatpak.enable = true;
-    openssh.enable = true;
+    openssh = {
+      enable = true;
+      settings = {
+        PermitRootLogin = lib.mkDefault "no";
+        PasswordAuthentication = lib.mkDefault false;
+        PubkeyAuthentication = lib.mkDefault true;
+      };
+    };
     fstrim.enable = true;
     udev.extraRules = ''
       ACTION=="add|change", KERNEL=="nvme[0-9]n[0-9]", ATTR{queue/scheduler}="mq-deadline"

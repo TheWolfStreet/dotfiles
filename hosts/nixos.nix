@@ -23,6 +23,8 @@
 
   power.enable = false;
 
+  services.openssh.settings.PasswordAuthentication = true;
+
   home-manager.users.${username} = {
     wayland.windowManager.hyprland.settings.monitor = [
       "HDMI-A-2,1920x1080@100,0x0,1"
