@@ -15,9 +15,5 @@
       "libahci.ignore_sss=1"
       "threadirqs"
     ];
-    kernel.sysctl = {
-      "vm.swappiness" = 10;
-      "vm.vfs_cache_pressure" = 50;
-    };
   };
 }

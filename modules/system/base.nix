@@ -14,6 +14,7 @@
     ./boot.nix
     ./hardware.nix
     ./security.nix
+    ./responsiveness.nix
   ];
   users.users.${username} = {
     isNormalUser = true;
