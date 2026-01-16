@@ -199,9 +199,12 @@ hyprctl monitors
 │   │   ├── services.nix
 │   │   │   daemons and background services
 │   │   │
-│   │   └── virtualization.nix
-│   │       vms, containers, kernel features
-│   │
+│   │   ├── virtualization.nix
+│   │   │   vms, containers, kernel features
+│   │   │
+│   │   └── responsiveness.nix
+│   │   │   responsiveness tuning
+│   │   │
 │   ├── hardware/
 │   │   ├── amd.nix
 │   │   │   amd cpu/gpu tuning, microcode, kernel flags
