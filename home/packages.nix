@@ -22,7 +22,7 @@
     lazydocker
     lazygit
     claude-code
-    crush
+    opencode
     nodejs
     ghidra
     figma-linux
