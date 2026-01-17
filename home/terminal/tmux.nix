@@ -121,9 +121,9 @@
   in "#(${script})";
 
   pwd = let
-    icon = "#[fg=${accent}]";
+    icon = "#[fg=${accent}] ";
     format = "#[fg=default]#{b:pane_current_path}";
-  in "  ${icon} ${format}";
+  in "  ${icon}${format}";
 
   git = let
     script =
@@ -131,11 +131,10 @@
       # nu
       ''
         def main [dir: string] {
-        let branch = git -C $dir rev-parse --abbrev-ref HEAD | complete
-        if ($branch.exit_code) == 0 {
-        	$"#[fg=magenta] ($branch.stdout | str trim)  "
-        }
-        else { "" }
+          let branch = git -C $dir rev-parse --abbrev-ref HEAD | complete
+          if ($branch.exit_code) == 0 {
+            $"  #[fg=magenta] ($branch.stdout | str trim)"
+          } else { "" }
         }
       '';
   in "#(${script} #{pane_current_path})";
