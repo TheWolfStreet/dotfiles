@@ -25,7 +25,7 @@
         [ 󱑖 󱑋 󱑌 󱑍 󱑎 󱑏 󱑐 󱑑 󱑒 󱑓 󱑔 󱑕 ]
         | get ((date now | into record | get hour) mod 12)
       '';
-  in " #[fg=${accent}]#(${icon}) #[bold,fg=default]%H:%M";
+  in "  #[fg=${accent}]#(${icon}) #[bold,fg=default]%H:%M";
 
   battery = let
     state =
@@ -92,48 +92,38 @@
         let percent = $state.percent
         let is_charging = $state.is_charging
 
-        let icons: list<string> = (
-            if $is_charging {
-                "󰢜 :󰂆 :󰂇 :󰂈 :󰢝 :󰂉 :󰢞 :󰂊 :󰂋 :󰂅 "
-            } else {
-                "󱃍 :󰁺 :󰁻 :󰁼 :󰁽 :󰁿 :󰁾 :󰂀 :󰂁 :󰂂 :󰁹 "
-            }
-            | split row ":"
-        )
+        if $percent < 0 { "" } else {
+          let icons: list<string> = (
+              if $is_charging {
+                  "󰢜 :󰂆 :󰂇 :󰂈 :󰢝 :󰂉 :󰢞 :󰂊 :󰂋 :󰂅 "
+              } else {
+                  "󱃍 :󰁺 :󰁻 :󰁼 :󰁽 :󰁿 :󰁾 :󰂀 :󰂁 :󰂂 :󰁹 "
+              }
+              | split row ":"
+          )
 
-        let icon: string = $icons | get (
-            ($percent) * (($icons | length) - 1)
-            | math floor
-        )
-
-        let icon_fg = (
-            if $is_charging {
-                "green"
-            } else if ($percent * 100) <= ($low_threshhold) {
-                "red"
-            } else {
-                "default"
-            }
-        )
-
-        let label = $"($percent * 100 | math floor)%"
-
-        let label_fg = (
-            if ($percent * 100) <= ($low_threshhold) {
-                "red"
-            } else {
-                "default"
-            }
-        )
-
-        $"#[fg=($icon_fg)]($icon)#[fg=($label_fg)]($label)"
+          let icon: string = $icons | get (
+              ($percent) * (($icons | length) - 1)
+              | math floor
+          )
+          let icon_fg = (
+              if $is_charging { "green" }
+              else if ($percent * 100) <= ($low_threshhold) { "red" }
+              else { "default" }
+          )
+          let label = $"($percent * 100 | math floor)%"
+          let label_fg = (
+              if ($percent * 100) <= ($low_threshhold) { "red" } else { "default" }
+          )
+          $"  #[fg=($icon_fg)]($icon)#[fg=($label_fg)]($label)"
+        }
       '';
   in "#(${script})";
 
   pwd = let
-    icon = "#[fg=${accent}] ";
+    icon = "#[fg=${accent}]";
     format = "#[fg=default]#{b:pane_current_path}";
-  in "${icon}${format}";
+  in "  ${icon} ${format}";
 
   git = let
     script =
@@ -141,10 +131,11 @@
       # nu
       ''
         def main [dir: string] {
-            let branch = git -C $dir rev-parse --abbrev-ref HEAD | complete
-            if ($branch.exit_code) == 0 {
-                $"#[fg=magenta] ($branch.stdout | str trim)"
-            }
+        let branch = git -C $dir rev-parse --abbrev-ref HEAD | complete
+        if ($branch.exit_code) == 0 {
+        	$"#[fg=magenta] ($branch.stdout | str trim)  "
+        }
+        else { "" }
         }
       '';
   in "#(${script} #{pane_current_path})";
@@ -173,13 +164,10 @@ in {
         bind '"' split-window -v -c "#{pane_current_path}"
         bind % split-window -h -c "#{pane_current_path}"
 
-        # Navigate windows with Alt-N
         bind-key -n M-1 select-window -t 1
         bind-key -n M-2 select-window -t 2
         bind-key -n M-3 select-window -t 3
         bind-key -n M-4 select-window -t 4
-
-        # Fallback where terminals use Alt-N for tab navigations
         bind-key -n M-F1 select-window -t 1
         bind-key -n M-F2 select-window -t 2
         bind-key -n M-F3 select-window -t 3
@@ -194,7 +182,9 @@ in {
         set-option -g pane-border-style fg=black
         set-option -g status-style "bg=default fg=default"
         set-option -g status-left "${client_prefix}"
-        set-option -g status-right "${git}  ${pwd}  ${battery} ${time}"
+
+        set-option -g status-right "${git}${pwd}${battery}${time}"
+
         set-option -g window-status-current-format "${current_window}"
         set-option -g window-status-format "${window_status}"
         set-option -g window-status-separator ""

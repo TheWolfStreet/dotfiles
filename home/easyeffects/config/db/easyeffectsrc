@@ -21,7 +21,7 @@ visiblePlugin=equalizer#0
 mostUsedPresets=Studio Headset,Laptop Speakers,Headset,In-ear
 outputDevice=alsa_output.pci-0000_07_00.6.analog-stereo
 plugins=equalizer#1
-usedPresets=Studio Headset:123,Laptop Speakers:94,In-ear:4,Headset:30
+usedPresets=Studio Headset:74,Laptop Speakers:41,In-ear:4,Headset:32
 visiblePage=pluginsPage
 visiblePlugin=equalizer#1
 
@@ -32,7 +32,7 @@ forceBreezeTheme=false
 frequency=20
 
 [Window]
-height=1132
+height=1014
 presetsAutoloadInterval=0
 showTrayIcon=false
 visiblePipeWirePage=testSignalsPage
