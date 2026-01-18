@@ -20,6 +20,15 @@
 
   power.enable = true;
 
+  # Fix for Realtek r8169 ethernet chipset
+  boot.extraModprobeConfig = ''
+    options r8169 disable_aspm=1 use_dac=1
+  '';
+
+  boot.kernelParams = [
+    "pcie_aspm=off"
+  ];
+
   services.asusd = {
     enable = true;
     enableUserService = true;

@@ -6,21 +6,19 @@
       ensureProfiles.profiles = {
         ethernet-default = {
           connection = {
-            id = "Wired connection";
+            id = "Ethernet";
             type = "ethernet";
+            interface-name = "eno1";
             autoconnect = true;
-            autoconnect-priority = 999;
           };
           ethernet = {
-            auto-negotiate = true;
+            auto-negotiate = false;
           };
           ipv4.method = "auto";
-          ipv6.method = "auto";
+          ipv6.method = "disabled";
         };
       };
     };
-
-    enableIPv6 = false;
 
     firewall = rec {
       allowedTCPPortRanges = [
