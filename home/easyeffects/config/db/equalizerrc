@@ -4,7 +4,7 @@ outputGain=18
 
 [sie][Equalizer#0#left]
 band0Frequency=50
-band0Gain=-36
+band0Gain=10.5
 band0Q=1.9999999999999998
 band10Frequency=8785.69091207187
 band10Gain=7.28
@@ -37,12 +37,12 @@ band27Type=0
 band28Type=0
 band29Type=0
 band2Frequency=1500
-band2Gain=-28.82
+band2Gain=-2.15
 band2Q=1
 band30Type=0
 band31Type=0
 band3Frequency=15000
-band3Gain=-18.02
+band3Gain=3.3
 band3Q=0.61
 band4Frequency=277.8279410038923
 band4Gain=-9.73
@@ -71,7 +71,7 @@ band9Type=0
 
 [sie][Equalizer#0#right]
 band0Frequency=50
-band0Gain=-36
+band0Gain=10.5
 band0Q=1.9999999999999998
 band10Frequency=8785.69091207187
 band10Gain=7.28
@@ -104,12 +104,12 @@ band27Type=0
 band28Type=0
 band29Type=0
 band2Frequency=1500
-band2Gain=-28.82
+band2Gain=-2.15
 band2Q=1
 band30Type=0
 band31Type=0
 band3Frequency=15000
-band3Gain=-18.02
+band3Gain=3.3
 band3Q=0.61
 band4Frequency=277.8279410038923
 band4Gain=-9.73

@@ -2,7 +2,7 @@
 showNativePluginUi=true
 
 [Presets]
-lastLoadedInputPreset=Laptop Microphone
+lastLoadedInputPreset=Standalone Microphone
 lastLoadedOutputPreset=Studio Headset
 
 [Spectrum]
@@ -10,18 +10,18 @@ spectrumFpsCap=100
 spectrumShape=lines
 
 [StreamInputs]
-inputDevice=alsa_input.pci-0000_07_00.6.analog-stereo
-mostUsedPresets=Laptop Microphone,Standalone Microphone
+inputDevice=alsa_input.usb-Generic_Speedlink_Volity_Microphone_201701110001-00.analog-stereo
+mostUsedPresets=Standalone Microphone,Laptop Microphone
 plugins=deepfilternet#0,rnnoise#0,equalizer#0
-usedPresets=Standalone Microphone:3,Laptop Microphone:4
+usedPresets=Standalone Microphone:19,Laptop Microphone:4
 visiblePage=pluginsPage
 visiblePlugin=equalizer#0
 
 [StreamOutputs]
 mostUsedPresets=Studio Headset,Laptop Speakers,Headset,In-ear
-outputDevice=alsa_output.pci-0000_07_00.6.analog-stereo
+outputDevice=alsa_output.pci-0000_0a_00.4.analog-stereo
 plugins=equalizer#1
-usedPresets=Studio Headset:74,Laptop Speakers:41,In-ear:4,Headset:32
+usedPresets=Studio Headset:93,Laptop Speakers:41,In-ear:4,Headset:33
 visiblePage=pluginsPage
 visiblePlugin=equalizer#1
 
@@ -32,10 +32,10 @@ forceBreezeTheme=false
 frequency=20
 
 [Window]
-height=1014
+height=499
 presetsAutoloadInterval=0
 showTrayIcon=false
 visiblePipeWirePage=testSignalsPage
-width=937
+width=1007
 xdgGlobalShortcuts=true
 xdgGlobalShortcutsBound=true
