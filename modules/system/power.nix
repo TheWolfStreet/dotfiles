@@ -41,10 +41,9 @@
         ''ACTION=="add", SUBSYSTEM=="pci", TEST=="power/control", ATTR{class}!="0x02*", ATTR{power/control}="auto"''
         ''ACTION=="add", SUBSYSTEM=="pci", DRIVER=="pcieport", ATTR{power/wakeup}="disabled"''
 
-        ''ACTION=="add", SUBSYSTEM=="scsi_host", KERNEL=="host*", ATTR{link_power_management_policy}="med_power_with_dipm"''
+        ''ACTION=="add", SUBSYSTEM=="pci", ATTR{class}=="0x0200*", ATTR{power/control}="on"''
 
-        ''ACTION=="add", SUBSYSTEM=="net", KERNEL=="wl*", RUN+="${pkgs.iw}/bin/iw dev $name set power_save on"''
-        ''ACTION=="add", SUBSYSTEM=="net", NAME=="enp*", RUN+="${pkgs.ethtool}/sbin/ethtool -s $name wol d"''
+        ''ACTION=="add", SUBSYSTEM=="scsi_host", KERNEL=="host*", ATTR{link_power_management_policy}="med_power_with_dipm"''
 
         ''ACTION=="add", SUBSYSTEM=="usb", TEST=="power/control", ATTR{bDeviceClass}!="03", ATTR{bInterfaceClass}!="01", ATTR{bInterfaceClass}!="03", ATTR{power/control}="auto"''
 
