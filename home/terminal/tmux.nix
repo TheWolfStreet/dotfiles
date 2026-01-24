@@ -151,17 +151,24 @@ in {
     keyMode = "vi";
     mouse = true;
     shell = "${pkgs.nushell}/bin/nu";
+    terminal = "screen-256color";
+    historyLimit = 10000;
+    focusEvents = true;
+
     extraConfig =
       # sh
       ''
         set-option -sa terminal-overrides ",xterm*:Tc"
+        set-option -g renumber-windows on
+
         bind v copy-mode
+        bind '"' split-window -v -c "#{pane_current_path}"
+        bind % split-window -h -c "#{pane_current_path}"
+
         bind-key -T copy-mode-vi v send-keys -X begin-selection
         bind-key -T copy-mode-vi C-v send-keys -X rectangle-toggle
         bind-key -T copy-mode-vi y send-keys -X copy-selection-and-cancel
         bind-key b set-option status
-        bind '"' split-window -v -c "#{pane_current_path}"
-        bind % split-window -h -c "#{pane_current_path}"
 
         bind-key -n M-1 select-window -t 1
         bind-key -n M-2 select-window -t 2
@@ -172,18 +179,13 @@ in {
         bind-key -n M-F3 select-window -t 3
         bind-key -n M-F4 select-window -t 4
 
-        set-option -g focus-events on
-        set-option -g default-terminal "screen-256color"
-
         set-option -g @main_accent "blue"
         set-option -g status-right-length 100
         set-option -g pane-active-border fg=black
         set-option -g pane-border-style fg=black
         set-option -g status-style "bg=default fg=default"
         set-option -g status-left "${client_prefix}"
-
         set-option -g status-right "${git}${pwd}${battery}${time}"
-
         set-option -g window-status-current-format "${current_window}"
         set-option -g window-status-format "${window_status}"
         set-option -g window-status-separator ""
