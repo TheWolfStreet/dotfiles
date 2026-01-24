@@ -1,4 +1,4 @@
-{...}: {
+{
   virtualisation = {
     podman.enable = true;
     docker.enable = true;

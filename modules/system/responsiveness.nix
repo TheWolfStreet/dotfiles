@@ -1,4 +1,4 @@
-{pkgs, ...}: {
+{
   boot = {
     kernelModules = ["tcp_bbr"];
     kernelParams = [

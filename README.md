@@ -87,11 +87,11 @@ hosts define hardware, monitors, and machine-specific settings.
     amd.cpu.enable = true;
   };
 
-  power.enable = false;  # disable for desktops
+  power.enable = true;  # enable for laptops
 
   home-manager.users.${username} = {
     wayland.windowManager.hyprland.settings = {
-      monitor = [ "DP-1,1920x1080@60,0x0,1" ];
+      monitor = [ "eDP-1,1920x1080@60,0x0,1" ];
       input.kb_layout = "us";
     };
   };

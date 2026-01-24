@@ -1,6 +1,7 @@
 {
   inputs,
   username,
+  hostname,
   stateVersion,
   dotfilesPath,
   gitName,
