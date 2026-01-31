@@ -1,53 +1,66 @@
-# nixos dotfiles
+# NixOS Dotfiles
+
+[![NixOS](https://img.shields.io/badge/NixOS-unstable-blue?logo=nixos)](https://nixos.org)
+[![Home Manager](https://img.shields.io/badge/Home_Manager-Nix-41439a)](https://github.com/nix-community/home-manager)
+[![Hyprland](https://img.shields.io/badge/Hyprland-Wayland-58e1ff?logo=wayland)](https://hyprland.org)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
+A fully declarative NixOS configuration featuring Hyprland, AGS shell, and Home Manager. Modular host management and dynamic theming with matugen.
 
 ![desktop preview](thumbnail.png)
 
-a personal nixos setup built around hyprland, ags, and home-manager.
+## Highlights
+
+- **Hyprland** - Tiling Wayland compositor with animations and blur
+- **AGS Shell** - GTK4 desktop shell with launcher, tray, workspace overview, notifications, and more
+- **Fully Declarative** - Entire system reproducible from flake
+- **Multi-Host** - Easy per-machine configuration (laptops, desktops)
+- **Dynamic Theming** - Wallpaper-based colorschemes via matugen
 
 ---
 
-## quick start
+## Quick Start
 
-**requirements:** nixos 24.05+, repo at `~/.dotfiles`
+**Requirements:** NixOS unstable, repo at `~/.dotfiles`
 
 ```bash
 cd ~
-git clone --recurse-submodules https://github.com/yourusername/dotfiles.git .dotfiles
+git clone --recurse-submodules https://github.com/TheWolfStreet/dotfiles.git .dotfiles
 cd .dotfiles
 ```
 
-**configure once:**
+**Configure once:**
 ```bash
 nvim flake.nix  # set username, gitName, gitEmail
 ```
 
-**on fresh installs:**
+**On fresh installs:**
 ```bash
 sudo nixos-generate-config --show-hardware-config \
   | sudo tee /etc/nixos/hardware-configuration.nix
 ```
 
-**create/edit host in `hosts/`:**
+**Create/edit host in `hosts/`:**
 - copy template (see [hosts](#hosts))
 - set gpu, cpu, monitors, keyboard, power
 - register in `flake.nix`
 
-**first build:**
+**First build:**
 ```bash
 sudo nixos-rebuild switch --flake .#<hostname> --impure
 sudo reboot
 ```
 
-**first login:**
+**First login:**
 - land in tty, login (password = username)
 - `passwd` to change it
 - `start-hyprland` to launch
 
 ---
 
-## daily workflow
+## Daily Workflow
 
-**never type the long command again:**
+**Never type the long command again:**
 
 ```bash
 nx-switch   # rebuild + switch
@@ -57,7 +70,7 @@ nx-update   # update inputs + rebuild
 nx-gc       # garbage collect
 ```
 
-**typical edit:**
+**Typical edit:**
 ```bash
 nvim ~/.dotfiles/home/packages.nix
 nx-switch
@@ -65,11 +78,11 @@ nx-switch
 
 ---
 
-## hosts
+## Hosts
 
-hosts define hardware, monitors, and machine-specific settings.
+Hosts define hardware, monitors, and machine-specific settings.
 
-**template:**
+**Template:**
 ```nix
 { username, hostname, ... }: {
   imports = [
@@ -100,7 +113,7 @@ hosts define hardware, monitors, and machine-specific settings.
 
 ---
 
-## structure
+## Structure
 
 ```
 ~/.dotfiles/
@@ -118,7 +131,7 @@ hosts define hardware, monitors, and machine-specific settings.
 ```
 
 <details>
-<summary><b>detailed breakdown</b></summary>
+<summary><b>Detailed breakdown</b></summary>
 
 ### modules/system/
 - `base.nix` - users, shells, home-manager
@@ -155,26 +168,26 @@ hosts define hardware, monitors, and machine-specific settings.
 
 ---
 
-## common tasks
+## Common Tasks
 
-**change settings:**
+**Change settings:**
 - username → `flake.nix`
 - packages → `home/packages.nix`
 - timezone/locale → `modules/system/locale.nix`
 - keyboard/monitors → `hosts/<hostname>.nix`
 - keybinds → `home/desktop/hyprland.nix`
 
-**find monitor names:**
+**Find monitor names:**
 ```bash
 hyprctl monitors
 ```
 
 ---
 
-## keybinds
+## Keybinds
 
 <details>
-<summary><b>core navigation</b></summary>
+<summary><b>Core navigation</b></summary>
 
 | keybind                | action                   |
 | ---------------------- | ------------------------ |
@@ -192,7 +205,7 @@ hyprctl monitors
 </details>
 
 <details>
-<summary><b>launcher & apps</b></summary>
+<summary><b>Launcher & apps</b></summary>
 
 | keybind             | action            |
 | ------------------- | ----------------- |
@@ -207,7 +220,7 @@ hyprctl monitors
 </details>
 
 <details>
-<summary><b>media & hardware</b></summary>
+<summary><b>Media & hardware</b></summary>
 
 | keybind                   | action              |
 | ------------------------- | ------------------- |
@@ -225,7 +238,7 @@ hyprctl monitors
 
 ---
 
-## notes
+## Notes
 
 - no display manager (tty → hyprland)
 - flakes required
@@ -233,6 +246,6 @@ hyprctl monitors
 
 ---
 
-## license
+## License
 
-mit. provided as-is.
+MIT. Provided as-is.
