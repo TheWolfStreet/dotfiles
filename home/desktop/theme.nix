@@ -19,8 +19,9 @@
     package = pkgs.qogir-icon-theme;
   };
   iconTheme = {
-    name = "WhiteSur";
-    package = pkgs.whitesur-icon-theme;
+    name = "MacTahoe";
+    package =
+      inputs.mactahoe-icon-theme.packages.${pkgs.stdenv.hostPlatform.system}.default;
   };
 in {
   home = {

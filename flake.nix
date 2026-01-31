@@ -9,6 +9,8 @@
 
     apple-fonts.url = "github:Lyndeno/apple-fonts.nix";
 
+    mactahoe-icon-theme.url = "github:TheWolfStreet/MacTahoe-icon-theme.nix";
+
     ags = {
       url = "github:Aylur/ags";
       inputs.nixpkgs.follows = "nixpkgs";
