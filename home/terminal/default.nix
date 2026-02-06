@@ -4,5 +4,6 @@
     ./tmux.nix
     ./starship.nix
     ./sh.nix
+    ./mail.nix
   ];
 }

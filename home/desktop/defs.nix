@@ -1,5 +1,11 @@
-{scheme ? "dark"}: let
-  schemes = {
+{
+  pkgs,
+  inputs,
+  scheme ? "dark",
+}: let
+  system = pkgs.stdenv.hostPlatform.system;
+
+  colorSchemes = {
     dark = {
       bg = "#151515";
       fg = "#b2b5b3";
@@ -73,28 +79,68 @@
     };
   };
 
-  colors = schemes.${scheme};
-in
-  colors
-  // {
-    ansi = with colors; [
-      black
-      red
-      green
-      yellow
-      blue
-      magenta
-      cyan
-      white
-    ];
-    bright_ansi = with colors; [
-      bright.black
-      bright.red
-      bright.green
-      bright.yellow
-      bright.blue
-      bright.magenta
-      bright.cyan
-      bright.white
-    ];
-  }
+  colors = colorSchemes.${scheme};
+in {
+  gtk = {
+    name = "adw-gtk3-dark";
+    package = pkgs.adw-gtk3;
+  };
+
+  font = {
+    name = "SF Pro Display Nerd Font";
+    size = 11;
+    package = inputs.apple-fonts.packages.${system}.sf-pro-nerd;
+  };
+
+  monospaceFont = {
+    name = "JetBrainsMono Nerd Font";
+    size = 10;
+    package = pkgs.nerd-fonts.jetbrains-mono;
+  };
+
+  cursor = {
+    name = "Qogir";
+    size = 24;
+    package = pkgs.qogir-icon-theme;
+  };
+
+  icon = {
+    name = "MacTahoe";
+    package = inputs.mactahoe-icon-theme.packages.${system}.default;
+  };
+
+  border = {
+    size = 2;
+    radius = 12;
+  };
+
+  gaps = {
+    inner = 6;
+    outer = 6;
+  };
+
+  colors =
+    colors
+    // {
+      ansi = with colors; [
+        black
+        red
+        green
+        yellow
+        blue
+        magenta
+        cyan
+        white
+      ];
+      bright_ansi = with colors; [
+        bright.black
+        bright.red
+        bright.green
+        bright.yellow
+        bright.blue
+        bright.magenta
+        bright.cyan
+        bright.white
+      ];
+    };
+}

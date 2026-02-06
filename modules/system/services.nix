@@ -3,7 +3,13 @@
   lib,
   ...
 }: {
+  systemd.services."getty@tty1" = {
+    enable = true;
+    wantedBy = ["getty.target"];
+  };
+
   services = {
+    dbus.implementation = "broker";
     xserver = {
       enable = true;
       excludePackages = [pkgs.xterm];

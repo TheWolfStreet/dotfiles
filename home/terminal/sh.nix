@@ -15,6 +15,13 @@
 
     "del" = "gio trash";
   };
+
+  zoxideAliases = ''
+    if command -v zoxide &>/dev/null; then
+      alias cd=z
+      alias cdi=zi
+    fi
+  '';
 in {
   options.shellAliases = with lib;
     mkOption {
@@ -35,6 +42,7 @@ in {
     enableCompletion = true;
     initExtra = ''
       SHELL=${pkgs.bash}/bin/bash
+      ${zoxideAliases}
     '';
   };
 
@@ -50,6 +58,7 @@ in {
       bindkey "^[[1;5C" forward-word
       bindkey "^[[1;5D" backward-word
       unsetopt BEEP
+      ${zoxideAliases}
     '';
   };
 
@@ -88,6 +97,10 @@ in {
           exit_code = false;
         };
 
+        history = {
+          file_format = "sqlite";
+        };
+
         menus = [
           {
             name = "completion_menu";
@@ -119,6 +132,13 @@ in {
       # nu
       ''
         $env.config = ${conf};
+
+        def purge-history [] {
+          open $nu.history-path | query db "DELETE FROM history WHERE exit_status != 0"
+        }
+
+        def q [] { purge-history; exit }
+
         ${completions ["git" "nix"]}
 
         source ${pkgs.nu_scripts}/share/nu_scripts/modules/formats/from-env.nu

@@ -7,7 +7,21 @@
     alsa.support32Bit = true;
     pulse.enable = true;
     jack.enable = true;
-    wireplumber.enable = true;
+    wireplumber = {
+      enable = true;
+      extraConfig."99-matisse-auto-switch" = {
+        # AMD desktop chipset audio defaults to no auto-switching
+        "monitor.alsa.rules" = [
+          {
+            matches = [{"device.product.name" = "Starship/Matisse HD Audio Controller";}];
+            actions.update-props = {
+              "api.acp.auto-port" = true;
+              "api.acp.auto-profile" = true;
+            };
+          }
+        ];
+      };
+    };
     extraConfig.pipewire."92-low-latency" = {
       "context.properties" = {
         "default.clock.rate" = 44100;

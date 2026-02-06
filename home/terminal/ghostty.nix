@@ -1,8 +1,11 @@
 {
   pkgs,
   lib,
+  inputs,
   ...
 }: let
+  themeDark = import ../desktop/defs.nix {inherit pkgs inputs; scheme = "dark";};
+  themeLight = import ../desktop/defs.nix {inherit pkgs inputs; scheme = "light";};
   inherit (lib.modules) mkIf;
   inherit (pkgs.stdenv) isLinux;
   inherit (lib.trivial) boolToString;
@@ -42,7 +45,7 @@ in {
   xdg.configFile = {
     "ghostty/config".text = ''
       command = ${pkgs.tmux}/bin/tmux
-      font-family = JetBrainsMono Nerd Font
+      font-family = ${themeDark.monospaceFont.name}
       font-size = 16
       font-feature = liga
       font-feature = calt
@@ -62,7 +65,7 @@ in {
       keybind = ctrl+shift+minus=decrease_font_size:1
     '';
 
-    "ghostty/themes/charmful-dark".text = colors (import ../desktop/colors.nix {scheme = "dark";});
-    "ghostty/themes/charmful-light".text = colors (import ../desktop/colors.nix {scheme = "light";});
+    "ghostty/themes/charmful-dark".text = colors themeDark.colors;
+    "ghostty/themes/charmful-light".text = colors themeLight.colors;
   };
 }

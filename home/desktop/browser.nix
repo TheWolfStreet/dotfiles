@@ -83,6 +83,7 @@ in {
 
   programs.chromium = {
     enable = true;
+    commandLineArgs = ["--disable-features=PasswordManager"];
     extensions = [
       "nngceckbapebfimnlniiiahkandclblb" # Bitwarden
       "jehmdpemhgfgjblpkilmeoafmkhbckhi" # Scroll Anywhere

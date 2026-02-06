@@ -1,6 +1,7 @@
 {
   imports = [
     ../modules/desktop/hyprland.nix
+    ../modules/desktop/greeter.nix
     ../modules/desktop/audio.nix
     ../modules/desktop/nautilus.nix
     ../modules/desktop/plymouth.nix

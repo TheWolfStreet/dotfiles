@@ -4,43 +4,25 @@
   inputs,
   ...
 }: let
-  theme = {
-    name = "adw-gtk3-dark";
-    package = pkgs.adw-gtk3;
-  };
-  font = {
-    name = "SF Pro Display Nerd Font";
-    size = 11;
-    package = inputs.apple-fonts.packages.${pkgs.stdenv.hostPlatform.system}.sf-pro-nerd;
-  };
-  cursorTheme = {
-    name = "Qogir";
-    size = 24;
-    package = pkgs.qogir-icon-theme;
-  };
-  iconTheme = {
-    name = "MacTahoe";
-    package =
-      inputs.mactahoe-icon-theme.packages.${pkgs.stdenv.hostPlatform.system}.default;
-  };
+  theme = import ./defs.nix {inherit pkgs inputs;};
 in {
   home = {
     packages = with pkgs; [
       font-awesome
-      theme.package
-      font.package
-      nerd-fonts.jetbrains-mono
-      cursorTheme.package
-      iconTheme.package
+      theme.gtk.package
+      theme.font.package
+      theme.monospaceFont.package
+      theme.cursor.package
+      theme.icon.package
       noto-fonts-cjk-serif
       noto-fonts-cjk-sans
     ];
     sessionVariables = {
-      XCURSOR_THEME = cursorTheme.name;
-      XCURSOR_SIZE = "${toString cursorTheme.size}";
+      XCURSOR_THEME = theme.cursor.name;
+      XCURSOR_SIZE = "${toString theme.cursor.size}";
     };
     pointerCursor =
-      cursorTheme
+      theme.cursor
       // {
         gtk.enable = true;
       };
@@ -49,8 +31,10 @@ in {
   fonts.fontconfig.enable = true;
 
   gtk = {
-    inherit font iconTheme cursorTheme;
-    theme.name = theme.name;
+    font = theme.font;
+    iconTheme = theme.icon;
+    cursorTheme = theme.cursor;
+    theme.name = theme.gtk.name;
     enable = true;
     gtk3.bookmarks = let
       home = config.home.homeDirectory;

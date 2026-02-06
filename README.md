@@ -52,9 +52,8 @@ sudo reboot
 ```
 
 **First login:**
-- land in tty, login (password = username)
-- `passwd` to change it
-- `start-hyprland` to launch
+- GDM greeter appears, login (password = username)
+- `passwd` in terminal to change it
 
 ---
 
@@ -151,6 +150,7 @@ Hosts define hardware, monitors, and machine-specific settings.
 
 ### modules/desktop/
 - `audio.nix` - pipewire, low-latency
+- `greeter.nix` - GDM display manager
 - `hyprland.nix` - compositor, portals, lockscreen
 - `nautilus.nix` - file manager
 - `plymouth.nix` - boot splash
@@ -162,7 +162,7 @@ Hosts define hardware, monitors, and machine-specific settings.
 - `spotify.nix` - spicetify theming
 - `dconf.nix` - gsettings
 - `theme.nix` - gtk/icons/cursors
-- `colors.nix` - shared colors
+- `defs.nix` - centralized theme definitions
 
 </details>
 
@@ -240,7 +240,7 @@ hyprctl monitors
 
 ## Notes
 
-- no display manager (tty → hyprland)
+- GDM display manager (Wayland)
 - flakes required
 - first rebuild needs `--impure`, rest are routine
 
