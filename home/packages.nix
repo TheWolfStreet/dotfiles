@@ -50,6 +50,7 @@
 
     # Office & productivity
     libreoffice
+    obsidian
     telegram-desktop
     vesktop
 
