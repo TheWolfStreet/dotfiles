@@ -5,7 +5,7 @@
   ];
 
   home.packages = with pkgs; [
-    # Core utilities
+    # Small, fast tools you end up reaching for constantly
     fastfetch
     bat
     eza
@@ -17,7 +17,7 @@
     fzf
     xxd
 
-    # Development tools
+    # Dev + reverse engineering + containers
     distrobox
     lazydocker
     lazygit
@@ -27,53 +27,60 @@
     ghidra
     figma-linux
 
-    # Mobile/Remote tools
+    # Hardware + pcb design
+    kicad
+
+    # Phone mirroring / adb screen + input
     scrcpy
 
-    # ] ++ lib.optionals stdenv.isLinux [ NOTE: If darwin system to be used
-
-    # Media applications
+    # Media + creation
     (mpv.override {scripts = [mpvScripts.mpris];})
     audacity
     krita
     inkscape
     blender
 
-    # Gaming
+    # Games + compatibility layer helpers
     steam
-    (bottles.override {
-      removeWarningPopup = true;
-    })
+    (bottles.override {removeWarningPopup = true;})
     gamescope
     gamemode
     steam-run
 
-    # Office & productivity
+    # Docs, notes, chat
     libreoffice
     obsidian
     telegram-desktop
     vesktop
 
-    # System utilities
+    # System plumbing + diagnostics
+    lsof
     virtiofsd
     cups-filters
-    krb5 # For wine
+    krb5
     xdg-desktop-portal-gtk
     fragments
     easyeffects
     appimage-run
+
+    # Hardware inventory + bus inspection
     usbutils
     pciutils
-    ethtool
-    iw
-    bridge-utils
-    lm_sensors
     dmidecode
     hdparm
     smartmontools
+    lm_sensors
+
+    # Networking utilities (brings ifconfig via net-tools)
+    ethtool
+    iw
+    bridge-utils
+    net-tools
+
+    # Live I/O monitoring
     iotop
 
-    # Custom FreeCAD with proper graphics setup
+    # Freecad wrapper: forces mesa gl/egl vendor selection to avoid weird driver picks
     (symlinkJoin {
       name = "FreeCAD";
       paths = [freecad-wayland];
