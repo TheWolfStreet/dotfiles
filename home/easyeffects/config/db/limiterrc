@@ -6,6 +6,7 @@ alrRelease=10
 attack=1
 lookahead=2
 mode=1
+oversampling=21
 release=20
 stereoLink=0
 threshold=-7

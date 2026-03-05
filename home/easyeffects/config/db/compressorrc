@@ -1,0 +1,6 @@
+[soe][Compressor#0]
+hpfFrequency=120
+hpfMode=1
+knee=-3
+release=30
+threshold=-20

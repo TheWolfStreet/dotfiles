@@ -1,7 +1,6 @@
 {
   inputs,
   username,
-  hostname,
   stateVersion,
   dotfilesPath,
   gitName,
@@ -34,7 +33,7 @@
   };
 
   home-manager = {
-    backupFileExtension = "backup";
+    backupFileExtension = "hm-bak";
     useGlobalPkgs = true;
     useUserPackages = true;
     extraSpecialArgs = {

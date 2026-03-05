@@ -1,0 +1,4 @@
+[soe][Maximizer#0]
+inputGain=6
+release=5
+threshold=-0.3

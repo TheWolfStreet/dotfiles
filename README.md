@@ -34,12 +34,6 @@ cd .dotfiles
 nvim flake.nix  # set username, gitName, gitEmail
 ```
 
-**On fresh installs:**
-```bash
-sudo nixos-generate-config --show-hardware-config \
-  | sudo tee /etc/nixos/hardware-configuration.nix
-```
-
 **Create/edit host in `hosts/`:**
 - copy template (see [hosts](#hosts))
 - set gpu, cpu, monitors, keyboard, power
@@ -47,7 +41,7 @@ sudo nixos-generate-config --show-hardware-config \
 
 **First build:**
 ```bash
-sudo nixos-rebuild switch --flake .#<hostname> --impure
+sudo nixos-rebuild boot --flake .#<hostname> --impure
 sudo reboot
 ```
 

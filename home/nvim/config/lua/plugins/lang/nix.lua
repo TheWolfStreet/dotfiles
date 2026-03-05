@@ -1,8 +1,5 @@
 return {
-    {
-        "nvim-treesitter/nvim-treesitter",
-        opts = { ensure_installed = { "nix" } },
-    },
+    { import = "lazyvim.plugins.extras.lang.nix" },
     {
         "neovim/nvim-lspconfig",
         opts = { servers = { nixd = {} } },

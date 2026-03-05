@@ -51,6 +51,8 @@ in {
     ];
   };
 
+  xdg.configFile."gtk-3.0/settings.ini".force = true;
+
   qt = {
     platformTheme.name = "gtk3";
   };

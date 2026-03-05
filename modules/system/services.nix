@@ -3,10 +3,7 @@
   lib,
   ...
 }: {
-  systemd.services."getty@tty1" = {
-    enable = true;
-    wantedBy = ["getty.target"];
-  };
+  systemd.services."getty@tty1".enable = lib.mkForce false;
 
   services = {
     dbus.implementation = "broker";

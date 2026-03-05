@@ -22,7 +22,6 @@
 
   services.asusd = {
     enable = true;
-    enableUserService = true;
   };
 
   swapDevices = [
@@ -39,6 +38,12 @@
     home.packages = with pkgs; [
       ollama-rocm
     ];
-    wayland.windowManager.hyprland.settings.input.kb_layout = "us, ru, il";
+    wayland.windowManager.hyprland.settings = {
+      input.kb_layout = "us, ru, il";
+      bindl = [
+        ", switch:on:Lid Switch, exec, hyprctl keyword monitor \"eDP-1, disable\""
+        ", switch:off:Lid Switch, exec, hyprctl keyword monitor \"eDP-1, preferred, auto,1\""
+      ];
+    };
   };
 }

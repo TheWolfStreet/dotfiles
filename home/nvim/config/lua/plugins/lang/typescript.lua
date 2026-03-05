@@ -4,7 +4,7 @@ return {
     { import = "lazyvim.plugins.extras.linting.eslint" },
     { import = "lazyvim.plugins.extras.lang.typescript" },
     { import = "lazyvim.plugins.extras.lang.tailwind" },
-    { import = "lazyvim.plugins.extras.lang.astro" },
+    -- { import = "lazyvim.plugins.extras.lang.astro" },
     { import = "lazyvim.plugins.extras.lang.svelte" },
     -- { import = "lazyvim.plugins.extras.lang.vue" },
     {
@@ -20,7 +20,7 @@ return {
                 css = { "prettier" },
                 scss = { "prettier" },
                 json = { "prettier" },
-                astro = { "prettier" },
+                -- astro = { "prettier" },
                 svelte = { "prettier" },
                 vue = { "prettier" },
                 graphql = { "prettier" },
