@@ -8,6 +8,7 @@
     enable = true;
     configDir = ../../ags2-shell;
     extraPackages = with pkgs; [
+      ddcutil
       brightnessctl
       swww
       which

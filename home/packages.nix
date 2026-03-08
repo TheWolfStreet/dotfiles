@@ -21,7 +21,6 @@
     distrobox
     lazydocker
     lazygit
-    claude-code
     opencode
     nodejs
     ghidra
@@ -72,6 +71,7 @@
     lm_sensors
 
     # Networking utilities (brings ifconfig via net-tools)
+    tcpdump
     ethtool
     iw
     bridge-utils

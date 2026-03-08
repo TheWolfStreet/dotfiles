@@ -29,6 +29,7 @@
       "video"
       "libvirtd"
       "docker"
+      "i2c"
     ];
   };
 

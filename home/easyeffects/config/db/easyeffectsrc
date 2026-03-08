@@ -3,7 +3,7 @@ showNativePluginUi=true
 
 [Presets]
 lastLoadedInputPreset=Laptop Microphone
-lastLoadedOutputPreset=Studio Headset
+lastLoadedOutputPreset=Laptop Speakers
 
 [Spectrum]
 spectrumFpsCap=100
@@ -13,15 +13,15 @@ spectrumShape=lines
 inputDevice=alsa_input.pci-0000_07_00.6.analog-stereo
 mostUsedPresets=Laptop Microphone,Standalone Microphone
 plugins=deepfilternet#0,rnnoise#0,equalizer#0
-usedPresets=Standalone Microphone:19,Laptop Microphone:20
+usedPresets=Standalone Microphone:19,Laptop Microphone:29
 visiblePage=pluginsPage
 visiblePlugin=equalizer#0
 
 [StreamOutputs]
-mostUsedPresets=Laptop Speakers,Studio Headset,Headset,In-ear
+mostUsedPresets=Laptop Speakers,Studio Headset,Headset,In-ear,Laptop Speakers Testing
 outputDevice=alsa_output.usb-Generic_HP_S101_Speaker_Bar-00.analog-stereo
-plugins=equalizer#1
-usedPresets=Studio Headset:146,Laptop Speakers:219,In-ear:4,Headset:32
+plugins=equalizer#1,bass_enhancer#0,limiter#0
+usedPresets=Studio Headset:152,Laptop Speakers:230,In-ear:5,Headset:33,Laptop Speakers Testing:2
 visiblePage=pluginsPage
 visiblePlugin=equalizer#1
 
@@ -32,10 +32,10 @@ forceBreezeTheme=false
 frequency=20
 
 [Window]
-height=1024
+height=1028
 presetsAutoloadInterval=0
 showTrayIcon=false
 visiblePipeWirePage=testSignalsPage
-width=1890
+width=937
 xdgGlobalShortcuts=true
 xdgGlobalShortcutsBound=true
