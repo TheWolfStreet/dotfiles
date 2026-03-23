@@ -1,6 +1,7 @@
 {pkgs, ...}: {
   imports = [
     ./scripts/nx.nix
+    ./scripts/revive.nix
     ./easyeffects
   ];
 

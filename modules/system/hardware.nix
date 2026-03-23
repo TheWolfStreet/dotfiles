@@ -12,7 +12,6 @@
     i2c.enable = true;
     steam-hardware.enable = true;
   };
-  boot.kernelModules = ["sh"];
   services.udev.extraRules = ''
     SUBSYSTEM=="i2c-dev", GROUP="i2c", MODE="0660"
   '';
