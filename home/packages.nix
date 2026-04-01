@@ -81,6 +81,7 @@
     # Live I/O monitoring
     iotop
 
+    sweethome3d.application
     # Freecad wrapper: forces mesa gl/egl vendor selection to avoid weird driver picks
     (symlinkJoin {
       name = "FreeCAD";
