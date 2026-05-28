@@ -1,9 +1,10 @@
-{pkgs, ...}: {
+{pkgs, lib, ...}: {
   nix.settings = {
-    substituters = [
+    # Keep default NixOS substituters/keys (eg cache.nixos.org), and add AGS.
+    substituters = lib.mkAfter [
       "https://ags.cachix.org"
     ];
-    trusted-public-keys = [
+    trusted-public-keys = lib.mkAfter [
       "ags.cachix.org-1:naAvMrz0CuYqeyGNyLgE010iUiuf/qx6kYrUv3NwAJ8="
     ];
   };

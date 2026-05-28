@@ -1,0 +1,49 @@
+{
+  "version": 1.1,
+  "atDirectives": [
+    {
+      "name": "@tailwind",
+      "description": "Inject Tailwind's base, components, and utilities layers."
+    },
+    {
+      "name": "@apply",
+      "description": "Inline existing utility classes into custom CSS rules."
+    },
+    {
+      "name": "@layer",
+      "description": "Register custom styles in Tailwind layers (base/components/utilities)."
+    },
+    {
+      "name": "@config",
+      "description": "Specify a Tailwind configuration file."
+    },
+    {
+      "name": "@theme",
+      "description": "Define Tailwind v4 design tokens directly in CSS."
+    },
+    {
+      "name": "@source",
+      "description": "Declare additional source paths for class detection in Tailwind v4."
+    },
+    {
+      "name": "@plugin",
+      "description": "Load a Tailwind plugin from CSS in Tailwind v4."
+    },
+    {
+      "name": "@utility",
+      "description": "Declare custom utilities in Tailwind v4."
+    },
+    {
+      "name": "@variant",
+      "description": "Wrap styles in a Tailwind variant context."
+    },
+    {
+      "name": "@custom-variant",
+      "description": "Create a custom Tailwind variant."
+    },
+    {
+      "name": "@screen",
+      "description": "Target a configured responsive breakpoint (legacy Tailwind directive)."
+    }
+  ]
+}

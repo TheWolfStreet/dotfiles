@@ -24,8 +24,8 @@
   programs.ssh = {
     enable = true;
     enableDefaultConfig = false;
-    matchBlocks."*" = {
-      addKeysToAgent = "yes";
+    settings."*" = {
+      AddKeysToAgent = "yes";
     };
   };
   services.ssh-agent.enable = true;

@@ -46,7 +46,7 @@ sudo reboot
 ```
 
 **First login:**
-- GDM greeter appears, login (password = username)
+- tuigreet appears in TTY, login (password = username)
 - `passwd` in terminal to change it
 
 ---
@@ -144,7 +144,7 @@ Hosts define hardware, monitors, and machine-specific settings.
 
 ### modules/desktop/
 - `audio.nix` - pipewire, low-latency
-- `greeter.nix` - GDM display manager
+- `greeter.nix` - tuigreet display manager
 - `hyprland.nix` - compositor, portals, lockscreen
 - `nautilus.nix` - file manager
 - `plymouth.nix` - boot splash
@@ -234,7 +234,7 @@ hyprctl monitors
 
 ## Notes
 
-- GDM display manager (Wayland)
+- tuigreet display manager (TTY)
 - flakes required
 - first rebuild needs `--impure`, rest are routine
 

@@ -35,6 +35,7 @@ in {
     iconTheme = theme.icon;
     cursorTheme = theme.cursor;
     theme.name = theme.gtk.name;
+    gtk4.theme = config.gtk.theme;
     enable = true;
     gtk3.bookmarks = let
       home = config.home.homeDirectory;

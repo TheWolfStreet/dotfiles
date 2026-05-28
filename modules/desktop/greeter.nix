@@ -1,32 +1,9 @@
-{
-  pkgs,
-  inputs,
-  ...
-}: let
-  theme = import ../../home/desktop/defs.nix {inherit pkgs inputs;};
-in {
-  services.displayManager.gdm = {
+{pkgs, ...}: {
+  services.greetd = {
     enable = true;
-    wayland = true;
+    settings.default_session = {
+      command = "${pkgs.tuigreet}/bin/tuigreet --time --cmd start-hyprland";
+      user = "greeter";
+    };
   };
-
-  fonts.packages = [theme.font.package];
-
-  environment.systemPackages = [
-    theme.icon.package
-    theme.cursor.package
-  ];
-
-  programs.dconf.profiles.gdm.databases = [
-    {
-      settings = {
-        "org/gnome/desktop/interface" = {
-          font-name = "${theme.font.name} ${toString theme.font.size}";
-          monospace-font-name = "${theme.monospaceFont.name} ${toString theme.monospaceFont.size}";
-          icon-theme = theme.icon.name;
-          cursor-theme = theme.cursor.name;
-        };
-      };
-    }
-  ];
 }

@@ -63,6 +63,18 @@
 
   documentation.nixos.enable = false;
   nixpkgs.config.allowUnfree = true;
+  nixpkgs.overlays = [
+    (final: prev: {
+      openldap = prev.openldap.overrideAttrs (old: {
+        preCheck =
+          (old.preCheck or "")
+          + ''
+            # Match upstream nixpkgs fix for flaky syncreplication tests
+            rm -f tests/scripts/test*-sync*
+          '';
+      });
+    })
+  ];
   nix = {
     settings = {
       keep-outputs = true;

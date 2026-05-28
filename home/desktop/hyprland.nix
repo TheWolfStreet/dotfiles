@@ -14,6 +14,13 @@
   pactl = "${pkgs.pulseaudio}/bin/pactl";
   hyprlock = "pidof hyprlock || hyprlock";
   touchpad_toggle = import ../scripts/touchpad.nix pkgs;
+  lid_close = pkgs.writeShellScript "lid-close" ''
+    hyprctl keyword monitor eDP-1,disable
+    grep -rq "1" /sys/class/power_supply/*/online 2>/dev/null || systemctl suspend
+  '';
+  lid_open = pkgs.writeShellScript "lid-open" ''
+    hyprctl keyword monitor eDP-1,preferred,0x0,1
+  '';
 in {
   xdg.desktopEntries."org.gnome.Settings" = {
     name = "Settings";
@@ -26,6 +33,7 @@ in {
 
   wayland.windowManager.hyprland = {
     enable = true;
+    configType = "hyprlang";
     systemd.enable = true;
     xwayland.enable = true;
 
@@ -63,7 +71,6 @@ in {
       };
 
       misc = {
-        vfr = true;
         disable_hyprland_logo = true;
         disable_splash_rendering = true;
         mouse_move_enables_dpms = true;
@@ -89,7 +96,6 @@ in {
       };
 
       dwindle = {
-        pseudotile = "yes";
         preserve_split = "yes";
       };
 
@@ -129,7 +135,7 @@ in {
           "SUPER, Q, killactive"
           "SUPER, F, fullscreen"
           "SUPER, SPACE, togglefloating"
-          "SUPER, P, togglesplit"
+          "SUPER, P, layoutmsg, togglesplit"
 
           "SUPER, grave, togglespecialworkspace"
           "SUPER SHIFT, grave, movetoworkspace, special"
@@ -168,6 +174,10 @@ in {
       ];
 
       bindl = [
+        ",switch:on:Lid Switch,  exec, ${lid_close}"
+        ",switch:off:Lid Switch, exec, ${lid_open}"
+
+        ",XF86Calculator,      exec, gnome-calculator"
         ",XF86AudioPlay,       exec, ${playerctl} play-pause"
         ",XF86AudioStop,       exec, ${playerctl} pause"
         ",XF86AudioPause,      exec, ${playerctl} pause"

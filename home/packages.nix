@@ -1,4 +1,8 @@
-{pkgs, ...}: {
+{
+  pkgs,
+  inputs,
+  ...
+}: {
   imports = [
     ./scripts/nx.nix
     ./scripts/revive.nix
@@ -22,7 +26,18 @@
     distrobox
     lazydocker
     lazygit
-    opencode
+    claude-code
+    (inputs.opencode.packages.${pkgs.stdenv.hostPlatform.system}.default.overrideAttrs (old: {
+      # nixpkgs currently ships bun 1.3.13, while OpenCode's repo declares bun@1.3.14.
+      # Until nixpkgs catches up, relax the build-time check by aligning packageManager.
+      postPatch =
+        (old.postPatch or "")
+        + ''
+          if [ -f package.json ]; then
+            substituteInPlace package.json --replace-fail 'bun@1.3.14' 'bun@${pkgs.bun.version}'
+          fi
+        '';
+    }))
     nodejs
     ghidra
     figma-linux

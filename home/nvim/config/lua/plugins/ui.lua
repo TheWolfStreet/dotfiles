@@ -9,22 +9,49 @@ return {
         "rebelot/kanagawa.nvim",
         name = "kanagawa",
         config = function()
-            local ok, scheme = pcall(
-                function()
-                    return vim.fn.system({
-                        "gsettings",
-                        "get",
-                        "org.gnome.desktop.interface",
-                        "color-scheme",
-                    })
-                end
-            )
+            local function find_gsettings()
+                local bin = vim.fn.exepath("gsettings")
+                if bin ~= "" then return bin end
 
-            if ok and vim.fn.trim(scheme, "") ~= "'prefer-dark'" then
-                vim.opt.background = "light"
-            else
-                vim.opt.background = "dark"
+                local fallback = "/run/current-system/sw/bin/gsettings"
+                if vim.fn.executable(fallback) == 1 then return fallback end
+
+                return nil
             end
+
+            local function gsettings_get(bin, key)
+                local value = vim.fn.system({
+                    bin,
+                    "get",
+                    "org.gnome.desktop.interface",
+                    key,
+                })
+
+                if vim.v.shell_error ~= 0 then return nil end
+
+                return vim.trim(value)
+            end
+
+            local function detect_background()
+                local gsettings = find_gsettings()
+                if not gsettings then return nil end
+
+                local color_scheme = gsettings_get(gsettings, "color-scheme")
+                if color_scheme == "'prefer-dark'" then return "dark" end
+                if color_scheme == "'prefer-light'" then return "light" end
+
+                local gtk_theme = gsettings_get(gsettings, "gtk-theme")
+                if gtk_theme then
+                    if gtk_theme:lower():find("dark", 1, true) then return "dark" end
+
+                    return "light"
+                end
+
+                return nil
+            end
+
+            local background = detect_background()
+            if background then vim.opt.background = background end
 
             require("kanagawa").setup({
                 background = {

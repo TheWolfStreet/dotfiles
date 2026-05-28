@@ -174,10 +174,22 @@ in {
         bind-key -n M-2 select-window -t 2
         bind-key -n M-3 select-window -t 3
         bind-key -n M-4 select-window -t 4
+        bind-key -n M-5 select-window -t 5
+        bind-key -n M-6 select-window -t 6
+        bind-key -n M-7 select-window -t 7
+        bind-key -n M-8 select-window -t 8
+        bind-key -n M-9 select-window -t 9
+        bind-key -n M-0 select-window -t 10
         bind-key -n M-F1 select-window -t 1
         bind-key -n M-F2 select-window -t 2
         bind-key -n M-F3 select-window -t 3
         bind-key -n M-F4 select-window -t 4
+        bind-key -n M-F5 select-window -t 5
+        bind-key -n M-F6 select-window -t 6
+        bind-key -n M-F7 select-window -t 7
+        bind-key -n M-F8 select-window -t 8
+        bind-key -n M-F9 select-window -t 9
+        bind-key -n M-F10 select-window -t 10
 
         set-option -g @main_accent "blue"
         set-option -g status-right-length 100

@@ -13,6 +13,7 @@
     enable = true;
     viAlias = true;
     vimAlias = true;
+    sideloadInitLua = true;
 
     withRuby = true;
     withNodeJs = true;
@@ -45,6 +46,7 @@
       bash-language-server
       stylua
       alejandra
+      statix
     ];
   };
 
@@ -52,4 +54,3 @@
     source = config.lib.file.mkOutOfStoreSymlink "${dotfilesPath}/home/nvim/config";
   };
 }
-

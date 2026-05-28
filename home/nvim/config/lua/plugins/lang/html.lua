@@ -1,6 +1,4 @@
 return {
-    -- LazyVim doesn't ship an `extras.lang.html` module.
-    -- Keep HTML/CSS support here explicitly.
     {
         "nvim-treesitter/nvim-treesitter",
         opts = {
@@ -14,10 +12,24 @@ return {
     {
         "neovim/nvim-lspconfig",
         opts = function(_, opts)
+            local custom_data = vim.fn.stdpath("config") .. "/tailwindcss-data.json"
+            local custom_data_uri = vim.uri_from_fname(custom_data)
+
             opts.servers = opts.servers or {}
-            -- These servers are typically provided by `vscode-langservers-extracted`.
             opts.servers.html = opts.servers.html or {}
-            opts.servers.cssls = opts.servers.cssls or {}
+            opts.servers.cssls = vim.tbl_deep_extend("force", opts.servers.cssls or {}, {
+                settings = {
+                    css = {
+                        customData = { custom_data, custom_data_uri },
+                    },
+                    scss = {
+                        customData = { custom_data, custom_data_uri },
+                    },
+                    less = {
+                        customData = { custom_data, custom_data_uri },
+                    },
+                },
+            })
         end,
     },
 }
