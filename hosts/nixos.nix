@@ -27,7 +27,7 @@
 
   home-manager.users.${username} = {
     wayland.windowManager.hyprland.settings.monitor = [
-      "HDMI-A-2,1920x1080@100,0x0,1"
+      "HDMI-A-1,1920x1080@100,0x0,1"
     ];
     wayland.windowManager.hyprland.settings.input.kb_layout = "us, ru";
   };
