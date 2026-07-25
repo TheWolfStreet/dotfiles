@@ -1,25 +1,119 @@
 {
   pkgs,
   config,
+  theme,
   ...
 }: let
-  theme = import ./theme.nix {
-    inherit pkgs config;
-    inputs = {};
-  };
-  cursorTheme = theme.home.pointerCursor;
+  cursorTheme = theme.cursor;
 
   playerctl = "${pkgs.playerctl}/bin/playerctl";
   brightnessctl = "${pkgs.brightnessctl}/bin/brightnessctl";
   pactl = "${pkgs.pulseaudio}/bin/pactl";
   hyprlock = "pidof hyprlock || hyprlock";
   touchpad_toggle = import ../scripts/touchpad.nix pkgs;
-  lid_close = pkgs.writeShellScript "lid-close" ''
-    hyprctl keyword monitor eDP-1,disable
-    grep -rq "1" /sys/class/power_supply/*/online 2>/dev/null || systemctl suspend
+  jq = "${pkgs.jq}/bin/jq";
+  select_monitor_modes = pkgs.writeShellScript "select-monitor-modes" ''
+    hyprctl monitors all -j | ${jq} -r '
+      .[] | select(.disabled == false) | . as $monitor
+      | ([.availableModes[]
+          | capture("^(?<width>[0-9]+)x(?<height>[0-9]+)@(?<refresh>[0-9.]+)Hz$")
+          | { width: (.width | tonumber), height: (.height | tonumber), refresh: (.refresh | tonumber) }
+          | . + { pixels: (.width * .height) }
+        ] | max_by([.pixels, .refresh])) as $mode
+      | [$monitor.name,
+         "\($mode.width)x\($mode.height)@\($mode.refresh)",
+         "\($monitor.x)x\($monitor.y)",
+         ($monitor.scale | tostring),
+         ($monitor.transform | tostring)]
+      | @tsv
+    ' | while IFS=$'\t' read -r name mode position scale transform; do
+      [ -n "$mode" ] || continue
+      hyprctl keyword monitor "$name,$mode,$position,$scale,transform,$transform" >/dev/null
+    done
   '';
-  lid_open = pkgs.writeShellScript "lid-open" ''
-    hyprctl keyword monitor eDP-1,preferred,0x0,1
+  monitor_mode_watcher = pkgs.writeShellScript "monitor-mode-watcher" ''
+    socket="''${XDG_RUNTIME_DIR}/hypr/''${HYPRLAND_INSTANCE_SIGNATURE}/.socket2.sock"
+    ${select_monitor_modes}
+
+    while true; do
+      while [ ! -S "$socket" ]; do
+        ${pkgs.coreutils}/bin/sleep 1
+      done
+      ${pkgs.socat}/bin/socat -U - "UNIX-CONNECT:$socket" | while IFS= read -r event; do
+        case "$event" in
+          monitoradded*)
+            ${pkgs.coreutils}/bin/sleep 1
+            ${select_monitor_modes}
+            ;;
+        esac
+      done
+      ${pkgs.coreutils}/bin/sleep 1
+    done
+  '';
+  ac_online = pkgs.writeShellScript "ac-online" ''
+    for p in /sys/class/power_supply/*; do
+      [ "$(cat "$p/type" 2>/dev/null)" = "Mains" ] || continue
+      [ "$(cat "$p/online" 2>/dev/null)" = "1" ] && exit 0
+    done
+    exit 1
+  '';
+  lid_close = pkgs.writeShellScript "lid-close" ''
+    state="''${XDG_RUNTIME_DIR:-/tmp}/hypr-internal-panel-$UID"
+    monitors=$(hyprctl monitors all -j)
+    if ! ${jq} -e 'any(.[]; (.name | test("^(eDP|LVDS)") | not) and .disabled == false)' <<< "$monitors" >/dev/null; then
+      ${ac_online} || ${pkgs.systemd}/bin/systemctl suspend
+      exit 0
+    fi
+
+    panel=$(${jq} -c '[.[] | select((.name | test("^(eDP|LVDS)")) and .disabled == false)] | first // empty' <<< "$monitors")
+    [ -n "$panel" ] || exit 0
+
+    name=$(${jq} -r '.name' <<< "$panel")
+    ${jq} -r '[.name, "\(.width)x\(.height)@\(.refreshRate)", "\(.x)x\(.y)", (.scale | tostring), "transform", (.transform | tostring)] | join(",")' \
+      <<< "$panel" > "$state"
+    hyprctl keyword monitor "$name,disable"
+  '';
+  restore_panel = pkgs.writeShellScript "restore-panel" ''
+    state="''${XDG_RUNTIME_DIR:-/tmp}/hypr-internal-panel-$UID"
+    if [ -s "$state" ]; then
+      IFS= read -r monitor_rule < "$state"
+      [ -n "$monitor_rule" ] || exit 1
+      name="''${monitor_rule%%,*}"
+
+      ${pkgs.coreutils}/bin/sleep 1
+      hyprctl reload >/dev/null
+      for _ in $(${pkgs.coreutils}/bin/seq 1 30); do
+        hyprctl keyword monitor "$monitor_rule" >/dev/null
+        hyprctl dispatch dpms on "$name" >/dev/null
+        if hyprctl monitors -j | ${jq} -e --arg name "$name" 'any(.[]; .name == $name and .dpmsStatus)' >/dev/null; then
+          ${pkgs.coreutils}/bin/sleep 1
+          hyprctl dispatch dpms on "$name" >/dev/null
+          ${pkgs.coreutils}/bin/rm -f "$state"
+          exit 0
+        fi
+        ${pkgs.coreutils}/bin/sleep 0.5
+      done
+    fi
+    exit 1
+  '';
+  wake_display = pkgs.writeShellScript "wake-display" ''
+    # amdgpu can fail to relight eDP after s2idle when the lid was closed during
+    # suspend. Nudge DPMS on, retrying until the panel reports on; if it never
+    # does, force a full modeset toggle as a last resort.
+    for _ in $(${pkgs.coreutils}/bin/seq 1 20); do
+      hyprctl dispatch dpms on >/dev/null 2>&1
+      if hyprctl monitors -j | ${jq} -e 'any(.[]; (.name | test("^eDP")) and .dpmsStatus)' >/dev/null 2>&1; then
+        exit 0
+      fi
+      ${pkgs.coreutils}/bin/sleep 0.25
+    done
+    hyprctl dispatch dpms off >/dev/null 2>&1
+    ${pkgs.coreutils}/bin/sleep 0.5
+    hyprctl dispatch dpms on >/dev/null 2>&1
+  '';
+  suspend_on_battery = pkgs.writeShellScript "suspend-on-battery" ''
+    ${ac_online} && exit 0
+    ${pkgs.systemd}/bin/systemctl suspend
   '';
 in {
   xdg.desktopEntries."org.gnome.Settings" = {
@@ -50,7 +144,10 @@ in {
         "ags run"
         "easyeffects -w"
         "hyprctl setcursor ${cursorTheme.name} ${toString cursorTheme.size}"
+        "${monitor_mode_watcher}"
       ];
+
+      exec = ["${select_monitor_modes}"];
 
       monitor = [
         ",preferred,auto,1"
@@ -175,7 +272,7 @@ in {
 
       bindl = [
         ",switch:on:Lid Switch,  exec, ${lid_close}"
-        ",switch:off:Lid Switch, exec, ${lid_open}"
+        ",switch:off:Lid Switch, exec, ${restore_panel}"
 
         ",XF86Calculator,      exec, gnome-calculator"
         ",XF86AudioPlay,       exec, ${playerctl} play-pause"
@@ -357,8 +454,8 @@ in {
     enable = true;
     settings = {
       general = {
-        after_sleep_cmd = "hyprctl dispatch dpms on";
-        before_sleep_cmd = "${hyprlock}";
+        after_sleep_cmd = "${wake_display}";
+        before_sleep_cmd = "hyprctl dispatch dpms on; ${restore_panel}; ${hyprlock}";
         ignore_dbus_inhibit = false;
         lock_cmd = "${hyprlock}";
       };
@@ -366,6 +463,15 @@ in {
         {
           timeout = 900;
           on-timeout = "${hyprlock}";
+        }
+        {
+          timeout = 1200;
+          on-timeout = "hyprctl dispatch dpms off";
+          on-resume = "hyprctl dispatch dpms on";
+        }
+        {
+          timeout = 1800;
+          on-timeout = "${suspend_on_battery}";
         }
       ];
     };

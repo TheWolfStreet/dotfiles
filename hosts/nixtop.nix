@@ -14,8 +14,11 @@
 
   hardware = {
     enableAllFirmware = true;
-    amd.cpu.enable = true;
-    amd.gpu.enable = true;
+    amd = {
+      cpu.enable = true;
+      gpu.enable = true;
+      gpu.disablePanelSelfRefresh = true;
+    };
   };
 
   power.enable = true;
@@ -40,10 +43,6 @@
     ];
     wayland.windowManager.hyprland.settings = {
       input.kb_layout = "us, ru, il";
-      bindl = [
-        ", switch:on:Lid Switch, exec, hyprctl keyword monitor \"eDP-1, disable\""
-        ", switch:off:Lid Switch, exec, hyprctl keyword monitor \"eDP-1, preferred, auto,1\""
-      ];
     };
   };
 }

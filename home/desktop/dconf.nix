@@ -1,4 +1,8 @@
-{lib, ...}:
+{
+  lib,
+  theme,
+  ...
+}:
 with lib.hm.gvariant; {
   dconf.settings = {
     "org/gnome/desktop/input-sources" = {
@@ -21,6 +25,8 @@ with lib.hm.gvariant; {
     };
 
     "org/gnome/desktop/interface" = {
+      gtk-theme = theme.gtk.name;
+      icon-theme = theme.icon.name;
       show-battery-percentage = true;
     };
 

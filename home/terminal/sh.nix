@@ -4,7 +4,7 @@
   lib,
   ...
 }: let
-  aliases = {
+  al = {
     "tree" = "eza --tree";
 
     ":q" = "exit";
@@ -16,12 +16,7 @@
     "del" = "gio trash";
   };
 
-  zoxideAliases = ''
-    if command -v zoxide &>/dev/null; then
-      alias cd=z
-      alias cdi=zi
-    fi
-  '';
+  aliases = al // config.shellAliases;
 in {
   options.shellAliases = with lib;
     mkOption {
@@ -29,131 +24,129 @@ in {
       default = {};
     };
 
-  config.programs.zoxide = {
-    enable = true;
-    enableBashIntegration = true;
-    enableNushellIntegration = true;
-    enableZshIntegration = true;
-  };
-
-  config.programs.bash = {
-    shellAliases = aliases // config.shellAliases;
-    enable = true;
-    enableCompletion = true;
-    initExtra = ''
-      SHELL=${pkgs.bash}/bin/bash
-      ${zoxideAliases}
-    '';
-  };
-
-  config.programs.zsh = {
-    shellAliases = aliases // config.shellAliases;
-    enable = true;
-    enableCompletion = true;
-    autosuggestion.enable = true;
-    syntaxHighlighting.enable = true;
-    initContent = ''
-      SHELL=${pkgs.zsh}/bin/zsh
-      zstyle ':completion:*' menu select
-      bindkey "^[[1;5C" forward-word
-      bindkey "^[[1;5D" backward-word
-      unsetopt BEEP
-      ${zoxideAliases}
-    '';
-  };
-
-  config.programs.nushell = {
-    shellAliases = aliases // config.shellAliases;
-    enable = true;
-    environmentVariables = {
-      PROMPT_INDICATOR_VI_INSERT = "  ";
-      PROMPT_INDICATOR_VI_NORMAL = "∙ ";
-      PROMPT_COMMAND = "";
-      PROMPT_COMMAND_RIGHT = "";
-      NIXPKGS_ALLOW_UNFREE = "1";
-      NIXPKGS_ALLOW_INSECURE = "1";
-      SHELL = "${pkgs.nushell}/bin/nu";
+  config.programs = {
+    zoxide = {
+      enable = true;
+      enableBashIntegration = true;
+      enableNushellIntegration = true;
+      enableZshIntegration = true;
     };
-    extraConfig = let
-      conf = builtins.toJSON {
-        show_banner = false;
-        edit_mode = "vi";
 
-        ls.clickable_links = true;
-        rm.always_trash = true;
+    bash = {
+      shellAliases = aliases;
+      enable = true;
+      enableCompletion = true;
+      initExtra = "SHELL=${pkgs.bash}/bin/bash";
+    };
 
-        table = {
-          mode = "compact";
-          index_mode = "always";
-          header_on_separator = false;
-        };
-
-        cursor_shape = {
-          vi_insert = "line";
-          vi_normal = "block";
-        };
-
-        display_errors = {
-          exit_code = false;
-        };
-
-        history = {
-          file_format = "sqlite";
-        };
-
-        menus = [
-          {
-            name = "completion_menu";
-            only_buffer_difference = false;
-            marker = "? ";
-            type = {
-              layout = "columnar";
-              columns = 4;
-              col_padding = 2;
-            };
-            style = {
-              text = "magenta";
-              selected_text = "blue_reverse";
-              description_text = "yellow";
-            };
-          }
-        ];
-      };
-      completions = let
-        completion = name: ''
-          source ${pkgs.nu_scripts}/share/nu_scripts/custom-completions/${name}/${name}-completions.nu
-        '';
-      in
-        names:
-          builtins.foldl'
-          (prev: str: "${prev}\n${str}") ""
-          (map completion names);
-    in
-      # nu
-      ''
-        $env.config = ${conf};
-
-        def purge-history [] {
-          open $nu.history-path | query db "DELETE FROM history WHERE exit_status != 0"
-        }
-
-        def q [] { purge-history; exit }
-
-        ${completions ["git" "nix"]}
-
-        source ${pkgs.nu_scripts}/share/nu_scripts/modules/formats/from-env.nu
-        source ${../scripts/blocks.nu}
-
-        const path = "~/.nushellrc.nu"
-        const null = "/dev/null"
-        source (if ($path | path exists) {
-            $path
-        } else {
-            $null
-        })
+    zsh = {
+      shellAliases = aliases;
+      enable = true;
+      enableCompletion = true;
+      autosuggestion.enable = true;
+      syntaxHighlighting.enable = true;
+      initContent = ''
+        SHELL=${pkgs.zsh}/bin/zsh
+        zstyle ':completion:*' menu select
+        bindkey "^[[1;5C" forward-word
+        bindkey "^[[1;5D" backward-word
+        unsetopt BEEP
       '';
-    extraEnv = ''
-      $env.PATH = ($env.PATH | append "${config.home.homeDirectory}/.local/bin")
-    '';
+    };
+
+    nushell = {
+      shellAliases = aliases;
+      enable = true;
+      environmentVariables = {
+        PROMPT_INDICATOR_VI_INSERT = "  ";
+        PROMPT_INDICATOR_VI_NORMAL = "∙ ";
+        PROMPT_COMMAND = "";
+        PROMPT_COMMAND_RIGHT = "";
+        NIXPKGS_ALLOW_UNFREE = "1";
+        NIXPKGS_ALLOW_INSECURE = "1";
+        SHELL = "${pkgs.nushell}/bin/nu";
+      };
+      extraConfig = let
+        conf = builtins.toJSON {
+          show_banner = false;
+          edit_mode = "vi";
+
+          ls.clickable_links = true;
+          rm.always_trash = true;
+
+          table = {
+            mode = "compact";
+            index_mode = "always";
+            header_on_separator = false;
+          };
+
+          cursor_shape = {
+            vi_insert = "line";
+            vi_normal = "block";
+          };
+
+          display_errors = {
+            exit_code = false;
+          };
+
+          history = {
+            file_format = "sqlite";
+          };
+
+          menus = [
+            {
+              name = "completion_menu";
+              only_buffer_difference = false;
+              marker = "? ";
+              type = {
+                layout = "columnar";
+                columns = 4;
+                col_padding = 2;
+              };
+              style = {
+                text = "magenta";
+                selected_text = "blue_reverse";
+                description_text = "yellow";
+              };
+            }
+          ];
+        };
+        completions = let
+          completion = name: ''
+            source ${pkgs.nu_scripts}/share/nu_scripts/custom-completions/${name}/${name}-completions.nu
+          '';
+        in
+          names:
+            builtins.foldl'
+            (prev: str: "${prev}\n${str}") ""
+            (map completion names);
+      in
+        # nu
+        ''
+          $env.config = ${conf};
+
+          def purge-history [] {
+            open $nu.history-path | query db "DELETE FROM history WHERE exit_status != 0"
+          }
+
+          def q [] { purge-history; exit }
+
+          ${completions ["git" "nix"]}
+
+          source ${pkgs.nu_scripts}/share/nu_scripts/modules/formats/from-env.nu
+          source ${../scripts/blocks.nu}
+
+          const path = "~/.nushellrc.nu"
+          const null = "/dev/null"
+          source (if ($path | path exists) {
+              $path
+          } else {
+              $null
+          })
+        '';
+      extraEnv = ''
+        $env.PATH = ($env.PATH | append "${config.home.homeDirectory}/.local/bin")
+      '';
+    };
   };
 }

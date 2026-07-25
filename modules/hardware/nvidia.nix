@@ -7,7 +7,6 @@
   options.hardware.nvidia = {
     enable = lib.mkEnableOption "NVIDIA GPU configuration";
     persistence.enable = lib.mkEnableOption "NVIDIA persistence daemon";
-    container.enable = lib.mkEnableOption "NVIDIA container toolkit for Docker";
   };
 
   config = lib.mkMerge [
@@ -59,15 +58,5 @@
         }
       ];
     })
-    #TODO: Rework
-    # (lib.mkIf config.hardware.nvidia.container.enable {
-    #   hardware.nvidia-container-toolkit.enable = true;
-    #
-    #   virtualisation.docker = {
-    #     daemon.settings = {
-    #       features.cdi = true;
-    #     };
-    #   };
-    # })
   ];
 }

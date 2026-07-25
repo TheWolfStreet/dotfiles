@@ -5,5 +5,6 @@
     ./starship.nix
     ./sh.nix
     ./mail.nix
+    ./gpg.nix
   ];
 }

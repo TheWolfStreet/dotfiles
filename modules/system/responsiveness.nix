@@ -13,7 +13,6 @@
       "vm.page-cluster" = 0;
 
       "kernel.sched_autogroup_enabled" = 1;
-      "kernel.sched_child_runs_first" = 1;
 
       "net.ipv4.tcp_fastopen" = 3;
       "net.ipv4.tcp_congestion_control" = "bbr";

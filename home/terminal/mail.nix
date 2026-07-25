@@ -5,49 +5,28 @@
   gitName,
   ...
 }: let
-  token_file = "${config.xdg.dataHome}/neomutt/gmail.token";
+  pass_file = "${config.xdg.dataHome}/neomutt/gmail.pass.gpg";
+  gpg = "${pkgs.gnupg}/bin/gpg";
 
-  oauth2_script = pkgs.writeShellScript "gmail-oauth2" ''
-    ${pkgs.python3}/bin/python3 ${pkgs.neomutt}/share/neomutt/oauth2/mutt_oauth2.py "$@"
-  '';
+  gmail_setup = pkgs.writeShellScriptBin "gmail-pass-setup" ''
+    set -e
+    mkdir -p "$(dirname "${pass_file}")"
 
-  gmail_setup = pkgs.writeShellScriptBin "gmail-oauth2-setup" ''
-      set -e
-      mkdir -p "$(dirname "${token_file}")"
+    cat <<'INSTRUCTIONS'
+    Gmail App Password setup for neomutt
 
-      cat << 'INSTRUCTIONS'
-    ╔══════════════════════════════════════════════════════════════════╗
-    ║                  Gmail OAuth2 Setup for Neomutt                  ║
-    ╚══════════════════════════════════════════════════════════════════╝
-
-    1. Open: https://console.cloud.google.com/apis/credentials/wizard
-    2. Select "Gmail API" and "User data"
-    3. Fill OAuth consent screen
-    4. Add scope: https://mail.google.com/
-    5. Create Desktop OAuth Client
-    6. Paste JSON credentials below
+    1. Turn on 2-Step Verification: https://myaccount.google.com/signinoptions/two-step-verification
+    2. Create an App Password:       https://myaccount.google.com/apppasswords
+       (name it "neomutt"; Google shows a 16-character password)
+    3. Paste it below (spaces are fine, they get stripped).
     INSTRUCTIONS
 
-      echo "Paste JSON credentials (single line):"
-      read -r JSON
+    printf 'App password: '
+    read -rs PW
+    echo
 
-      CLIENT_ID=$(echo "$JSON" | ${pkgs.jq}/bin/jq -r '.installed.client_id')
-      CLIENT_SECRET=$(echo "$JSON" | ${pkgs.jq}/bin/jq -r '.installed.client_secret')
-
-      echo ""
-      echo "Opening browser for Google authorization..."
-      echo ""
-
-      ${pkgs.python3}/bin/python3 ${pkgs.neomutt}/share/neomutt/oauth2/mutt_oauth2.py \
-        --authorize \
-        --provider google \
-        --client-id "$CLIENT_ID" \
-        --client-secret "$CLIENT_SECRET" \
-        "${token_file}"
-
-      echo ""
-      echo "Setup complete! Token stored at: ${token_file}"
-      echo "You can now run 'neomutt' normally."
+    printf '%s' "$PW" | tr -d '[:space:]' | ${gpg} --encrypt --default-recipient-self -o "${pass_file}"
+    echo "Saved (encrypted) to ${pass_file}. Run 'neomutt'."
   '';
 in {
   home.packages = with pkgs; [
@@ -65,8 +44,7 @@ in {
     set from = "${gitEmail}"
 
     set imap_user = "${gitEmail}"
-    set imap_authenticators = "oauthbearer:xoauth2"
-    set imap_oauth_refresh_command = "${oauth2_script} ${token_file}"
+    set imap_pass = "`${gpg} -q -d ${pass_file}`"
     set folder = "imaps://imap.gmail.com:993/"
     set spoolfile = "+INBOX"
     set postponed = "+[Gmail]/Drafts"
@@ -74,8 +52,7 @@ in {
     set record = "+[Gmail]/Sent Mail"
 
     set smtp_url = "smtps://${gitEmail}@smtp.gmail.com:465/"
-    set smtp_authenticators = "oauthbearer:xoauth2"
-    set smtp_oauth_refresh_command = "${oauth2_script} ${token_file}"
+    set smtp_pass = "`${gpg} -q -d ${pass_file}`"
 
     set header_cache = "${config.xdg.cacheHome}/neomutt/headers"
     set message_cachedir = "${config.xdg.cacheHome}/neomutt/messages"

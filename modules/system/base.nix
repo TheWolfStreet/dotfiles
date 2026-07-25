@@ -7,7 +7,9 @@
   gitEmail,
   pkgs,
   ...
-}: {
+}: let
+  mkTheme = scheme: import ../../home/desktop/defs.nix {inherit pkgs inputs scheme;};
+in {
   imports = [
     ./virtualization.nix
     ./services.nix
@@ -38,11 +40,10 @@
     useGlobalPkgs = true;
     useUserPackages = true;
     extraSpecialArgs = {
-      inherit inputs stateVersion dotfilesPath gitName gitEmail;
+      inherit inputs stateVersion dotfilesPath gitName gitEmail mkTheme;
+      theme = mkTheme "dark";
     };
     users.${username} = {
-      home.username = username;
-      home.homeDirectory = "/home/${username}";
       imports = [
         ../../home/terminal
         ../../home/nvim
@@ -53,7 +54,9 @@
 
       programs.home-manager.enable = true;
       home = {
-        stateVersion = stateVersion;
+        inherit username;
+        homeDirectory = "/home/${username}";
+        inherit stateVersion;
         sessionPath = [
           "$HOME/.local/bin"
         ];
@@ -63,18 +66,6 @@
 
   documentation.nixos.enable = false;
   nixpkgs.config.allowUnfree = true;
-  nixpkgs.overlays = [
-    (final: prev: {
-      openldap = prev.openldap.overrideAttrs (old: {
-        preCheck =
-          (old.preCheck or "")
-          + ''
-            # Match upstream nixpkgs fix for flaky syncreplication tests
-            rm -f tests/scripts/test*-sync*
-          '';
-      });
-    })
-  ];
   nix = {
     settings = {
       keep-outputs = true;

@@ -1,11 +1,9 @@
 {
   pkgs,
   config,
-  inputs,
+  theme,
   ...
-}: let
-  theme = import ./defs.nix {inherit pkgs inputs;};
-in {
+}: {
   home = {
     packages = with pkgs; [
       font-awesome
@@ -22,8 +20,9 @@ in {
       XCURSOR_SIZE = "${toString theme.cursor.size}";
     };
     pointerCursor =
-      theme.cursor
+      (theme.cursor or {})
       // {
+        enable = true;
         gtk.enable = true;
       };
   };
@@ -31,11 +30,11 @@ in {
   fonts.fontconfig.enable = true;
 
   gtk = {
-    font = theme.font;
+    inherit (theme) font;
     iconTheme = theme.icon;
     cursorTheme = theme.cursor;
-    theme.name = theme.gtk.name;
-    gtk4.theme = config.gtk.theme;
+    theme = theme.gtk;
+    gtk4.theme = null;
     enable = true;
     gtk3.bookmarks = let
       home = config.home.homeDirectory;

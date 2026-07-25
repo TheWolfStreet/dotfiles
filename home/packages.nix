@@ -1,8 +1,4 @@
-{
-  pkgs,
-  inputs,
-  ...
-}: {
+{pkgs, ...}: {
   imports = [
     ./scripts/nx.nix
     ./scripts/revive.nix
@@ -10,7 +6,7 @@
   ];
 
   home.packages = with pkgs; [
-    # Small, fast tools you end up reaching for constantly
+    # Useful tooling
     fastfetch
     bat
     eza
@@ -21,23 +17,14 @@
     powertop
     fzf
     xxd
+    jq
 
     # Dev + reverse engineering + containers
     distrobox
     lazydocker
     lazygit
     claude-code
-    (inputs.opencode.packages.${pkgs.stdenv.hostPlatform.system}.default.overrideAttrs (old: {
-      # nixpkgs currently ships bun 1.3.13, while OpenCode's repo declares bun@1.3.14.
-      # Until nixpkgs catches up, relax the build-time check by aligning packageManager.
-      postPatch =
-        (old.postPatch or "")
-        + ''
-          if [ -f package.json ]; then
-            substituteInPlace package.json --replace-fail 'bun@1.3.14' 'bun@${pkgs.bun.version}'
-          fi
-        '';
-    }))
+    opencode
     nodejs
     ghidra
     figma-linux
@@ -54,6 +41,7 @@
     krita
     inkscape
     blender
+    stremio-linux-shell
 
     # Games + compatibility layer helpers
     steam

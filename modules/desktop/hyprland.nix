@@ -1,4 +1,8 @@
-{pkgs, lib, ...}: {
+{
+  pkgs,
+  lib,
+  ...
+}: {
   nix.settings = {
     # Keep default NixOS substituters/keys (eg cache.nixos.org), and add AGS.
     substituters = lib.mkAfter [
@@ -13,7 +17,6 @@
     enable = true;
     xwayland.enable = true;
   };
-
 
   xdg.portal = {
     enable = true;

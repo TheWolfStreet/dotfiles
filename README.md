@@ -61,6 +61,7 @@ nx-boot     # apply on next boot
 nx-test     # test without commitment
 nx-update   # update inputs + rebuild
 nx-gc       # garbage collect
+hyprlock-revive # restart lockscreen if it crashes
 ```
 
 **Typical edit:**

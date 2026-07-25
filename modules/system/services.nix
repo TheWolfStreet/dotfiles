@@ -24,9 +24,7 @@
     };
     fstrim.enable = true;
     logind.settings.Login = {
-      HandleLidSwitch = "suspend";
       HandlePowerKey = "ignore";
-      HandleLidSwitchExternalPower = "ignore";
     };
   };
 }

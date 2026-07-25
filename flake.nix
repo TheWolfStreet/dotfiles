@@ -2,13 +2,6 @@
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
 
-    nixpkgs-opencode.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
-
-    opencode = {
-      url = "github:anomalyco/opencode";
-      inputs.nixpkgs.follows = "nixpkgs-opencode";
-    };
-
     home-manager = {
       url = "github:nix-community/home-manager/master";
       inputs.nixpkgs.follows = "nixpkgs";

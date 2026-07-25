@@ -24,7 +24,6 @@
       networkmanager
       gtk3
       # Font, icons and cursor are handled in theme.nix
-      matugen
       inputs.ags.packages.${pkgs.stdenv.hostPlatform.system}.apps
       inputs.ags.packages.${pkgs.stdenv.hostPlatform.system}.battery
       inputs.ags.packages.${pkgs.stdenv.hostPlatform.system}.hyprland

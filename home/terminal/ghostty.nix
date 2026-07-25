@@ -1,11 +1,11 @@
 {
   pkgs,
   lib,
-  inputs,
+  mkTheme,
   ...
 }: let
-  themeDark = import ../desktop/defs.nix {inherit pkgs inputs; scheme = "dark";};
-  themeLight = import ../desktop/defs.nix {inherit pkgs inputs; scheme = "light";};
+  themeDark = mkTheme "dark";
+  themeLight = mkTheme "light";
   inherit (lib.modules) mkIf;
   inherit (pkgs.stdenv) isLinux;
   inherit (lib.trivial) boolToString;
@@ -50,7 +50,7 @@ in {
       font-feature = liga
       font-feature = calt
       theme = light:charmful-light,dark:charmful-dark
-      background-opacity = 0.5
+      background-opacity = 1
       window-padding-x = 12
       window-padding-y = 6
       window-decoration = ${boolToString pkgs.stdenv.isDarwin}
