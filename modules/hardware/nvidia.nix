@@ -1,60 +1,58 @@
 {
   config,
   lib,
-  pkgs,
   ...
-}: {
+}: let
+  cfg = config.hardware.nvidia;
+in {
   options.hardware.nvidia = {
-    enable = lib.mkEnableOption "NVIDIA GPU configuration";
+    enable = lib.mkEnableOption "NVIDIA GPU support";
     persistence.enable = lib.mkEnableOption "NVIDIA persistence daemon";
   };
 
   config = lib.mkMerge [
-    (lib.mkIf config.hardware.nvidia.enable {
+    {
+      assertions = [
+        {
+          assertion = cfg.persistence.enable -> cfg.enable;
+          message = "hardware.nvidia.persistence.enable requires hardware.nvidia.enable";
+        }
+      ];
+    }
+
+    (lib.mkIf cfg.enable {
       hardware = {
         graphics = {
           enable = true;
           enable32Bit = true;
-          extraPackages = with pkgs; [
-            nvidia-vaapi-driver
-            libva-vdpau-driver
-            egl-wayland
-          ];
         };
         nvidia = {
-          modesetting.enable = true;
+          branch = "latest";
           open = true;
-          powerManagement.enable = false;
-          powerManagement.finegrained = false;
+          videoAcceleration = true;
           nvidiaSettings = false;
-          package = config.boot.kernelPackages.nvidiaPackages.latest;
+          nvidiaPersistenced = cfg.persistence.enable;
         };
       };
 
-      boot.kernelModules = ["nvidia"];
       services.xserver.videoDrivers = ["nvidia"];
-    })
-
-    (lib.mkIf config.hardware.nvidia.persistence.enable {
-      hardware.nvidia.nvidiaPersistenced = true;
-    })
-
-    (lib.mkIf config.hardware.nvidia.enable {
       home-manager.sharedModules = [
         {
-          wayland.windowManager.hyprland.settings.env = lib.mkMerge [
-            [
-              "NIXOS_OZONE_WL, 1"
-              "WLR_RENDERER_ALLOW_SOFTWARE, 1"
-            ]
-            (lib.mkIf (!config.hardware.nvidia.prime.offload.enable) [
-              "LIBVA_DRIVER_NAME, nvidia"
-              "VDPAU_DRIVER, nvidia"
-              "GBM_BACKEND, nvidia-drm"
-              "__GLX_VENDOR_LIBRARY_NAME, nvidia"
-              "NVD_BACKEND, direct"
-            ])
-          ];
+          wayland.windowManager.hyprland.settings = {
+            cursor.no_hardware_cursors = true;
+            env =
+              [
+                "NIXOS_OZONE_WL, 1"
+                "WLR_RENDERER_ALLOW_SOFTWARE, 1"
+              ]
+              ++ lib.optionals (!cfg.prime.offload.enable) [
+                "LIBVA_DRIVER_NAME, nvidia"
+                "VDPAU_DRIVER, nvidia"
+                "GBM_BACKEND, nvidia-drm"
+                "__GLX_VENDOR_LIBRARY_NAME, nvidia"
+                "NVD_BACKEND, direct"
+              ];
+          };
         }
       ];
     })

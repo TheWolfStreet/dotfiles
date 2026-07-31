@@ -1,4 +1,5 @@
 {
+  config,
   pkgs,
   lib,
   ...
@@ -15,51 +16,42 @@
 
   programs.hyprland = {
     enable = true;
-    xwayland.enable = true;
-  };
-
-  xdg.portal = {
-    enable = true;
-    extraPortals = with pkgs; [
-      xdg-desktop-portal-gtk
-    ];
   };
 
   security = {
     polkit.enable = true;
+    pam.services.hyprlock = {};
   };
 
-  environment.systemPackages = with pkgs; [
-    wl-clipboard
-    loupe
-    nautilus
-    baobab
-    evince
-    file-roller
-    gnome-text-editor
-    gnome-calendar
-    gnome-boxes
-    gnome-system-monitor
-    gnome-control-center
-    gnome-weather
-    gnome-calculator
-    gnome-clocks
-    gnome-software
-  ];
+  environment.systemPackages =
+    (with pkgs; [
+      wl-clipboard
+      loupe
+      baobab
+      evince
+      file-roller
+      gnome-text-editor
+      gnome-calendar
+      gnome-system-monitor
+      gnome-control-center
+      gnome-weather
+      gnome-calculator
+      gnome-clocks
+      gnome-software
+    ])
+    ++ lib.optional config.virtualisation.enable pkgs.gnome-boxes;
 
-  systemd = {
-    user.services.polkit-gnome-authentication-agent-1 = {
-      description = "polkit-gnome-authentication-agent-1";
-      wantedBy = ["graphical-session.target"];
-      wants = ["graphical-session.target"];
-      after = ["graphical-session.target"];
-      serviceConfig = {
-        Type = "simple";
-        ExecStart = "${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1";
-        Restart = "on-failure";
-        RestartSec = 1;
-        TimeoutStopSec = 10;
-      };
+  systemd.user.services.polkit-gnome-authentication-agent-1 = {
+    description = "GNOME polkit authentication agent";
+    wantedBy = ["graphical-session.target"];
+    partOf = ["graphical-session.target"];
+    after = ["graphical-session-pre.target"];
+    serviceConfig = {
+      Type = "simple";
+      ExecStart = "${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1";
+      Restart = "on-failure";
+      RestartSec = 1;
+      TimeoutStopSec = 10;
     };
   };
 

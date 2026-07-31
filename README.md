@@ -5,241 +5,243 @@
 [![Hyprland](https://img.shields.io/badge/Hyprland-Wayland-58e1ff?logo=wayland)](https://hyprland.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-A fully declarative NixOS configuration featuring Hyprland, AGS shell, and Home Manager. Modular host management and dynamic theming with matugen.
+A multi-host NixOS and Home Manager configuration built around Hyprland and the [ags2-shell](ags2-shell/README.md) desktop shell. Hardware support, user identity, laptop power management, virtualization, and specialized packages are selected per host.
 
-![desktop preview](thumbnail.png)
+![Desktop preview](thumbnail.png)
 
-## Highlights
+## Included
 
-- **Hyprland** - Tiling Wayland compositor with animations and blur
-- **AGS Shell** - GTK4 desktop shell with launcher, tray, workspace overview, notifications, and more
-- **Fully Declarative** - Entire system reproducible from flake
-- **Multi-Host** - Easy per-machine configuration (laptops, desktops)
-- **Dynamic Theming** - Wallpaper-based colorschemes via matugen
-
----
+- Hyprland desktop with tuigreet, Hyprlock, GTK/Qt theming, and GNOME desktop services
+- Packaged AGS v3/Astal shell with launcher, overview, dock, desktop icons, notifications, quick settings, and wallpaper theming
+- PipeWire and WirePlumber with a fixed 44.1 kHz rate and 512-sample quantum
+- NetworkManager, key-only SSH defaults, Flatpak, and declarative Flathub provisioning
+- AMD, Intel, and NVIDIA hardware modules with native and 32-bit graphics acceleration
+- Optional gaming, laptop power management, Docker, Podman, libvirt, SPICE USB redirection, and VM tooling
+- Home Manager configuration for terminal tools, Neovim, browsers, media applications, development tools, and system utilities
+- Optional security, reversing, forensics, wireless, and RF tooling through `home/pentest.nix`
 
 ## Quick Start
 
-**Requirements:** NixOS unstable, repo at `~/.dotfiles`
+### 1. Clone The Repository
+
+The AGS shell is a Git submodule, so clone recursively into the path expected by the rebuild helpers:
 
 ```bash
-cd ~
-git clone --recurse-submodules https://github.com/TheWolfStreet/dotfiles.git .dotfiles
-cd .dotfiles
+git clone --recurse-submodules https://github.com/TheWolfStreet/dotfiles.git ~/.dotfiles
+cd ~/.dotfiles
 ```
 
-**Configure once:**
+For an existing non-recursive clone:
+
 ```bash
-nvim flake.nix  # set username, gitName, gitEmail
+git submodule update --init --recursive
 ```
 
-**Create/edit host in `hosts/`:**
-- copy template (see [hosts](#hosts))
-- set gpu, cpu, monitors, keyboard, power
-- register in `flake.nix`
+### 2. Configure Identity And Hosts
 
-**First build:**
+Edit the shared values and host registry in `flake.nix`:
+
+```nix
+let
+  defaultUsername = "user";
+  gitName = "Your Name";
+  gitEmail = "you@example.com";
+
+  hosts = {
+    laptop = {};
+    desktop = {
+      username = "another-user";
+      hostname = "workstation";
+    };
+  };
+in
+# ...
+```
+
+Each attribute name is a flake configuration and selects `hosts/<configuration>.nix`. The username defaults to `defaultUsername`; the hostname defaults to the configuration name. Overrides affect the user account, Home Manager path, hostname, and generated rebuild commands together.
+
+### 3. Define The Host
+
+Create `hosts/<configuration>.nix` and import the shared modules plus the machine-generated hardware configuration:
+
+```nix
+{
+  username,
+  ...
+}: {
+  imports = [
+    ./common.nix
+    /etc/nixos/hardware-configuration.nix
+  ];
+
+  hardware.amd = {
+    cpu.enable = true;
+    gpu.enable = true;
+  };
+
+  gaming.enable = true;
+  power.enable = true;
+  virtualisation.enable = true;
+
+  home-manager.users.${username}.wayland.windowManager.hyprland.settings = {
+    monitor = ["eDP-1,1920x1080@60,0x0,1"];
+    input.kb_layout = "us";
+  };
+}
+```
+
+Keep `/etc/nixos/hardware-configuration.nix` outside this repository. Its absolute import is why rebuild commands use `--impure`.
+
+### 4. Build And Boot
+
 ```bash
-sudo nixos-rebuild boot --flake .#<hostname> --impure
+sudo nixos-rebuild boot --flake ~/.dotfiles#<configuration> --impure
 sudo reboot
 ```
 
-**First login:**
-- tuigreet appears in TTY, login (password = username)
-- `passwd` in terminal to change it
+Tuigreet starts after boot. The bootstrap password is the configured username; replace it immediately after the first login:
 
----
+```bash
+passwd
+```
+
+## Host Options
+
+Hosts compose the common desktop, hardware, and system modules and enable only machine-specific behavior.
+
+| Option | Purpose |
+| --- | --- |
+| `hardware.amd.cpu.enable` | AMD microcode, `amd_pstate`, and Zenpower |
+| `hardware.amd.gpu.enable` | AMDGPU and Mesa graphics support |
+| `hardware.amd.gpu.rocm.enable` | ROCm support; defaults to the AMD GPU setting |
+| `hardware.amd.gpu.disablePanelSelfRefresh` | Opt-in suspend/resume workaround for affected laptop panels |
+| `hardware.intel.cpu.enable` | Intel microcode |
+| `hardware.intel.gpu.enable` | Intel graphics and VA-API support |
+| `hardware.intel.gpu.vaapiDriver` | `modern` for Broadwell and newer, `legacy` for older GPUs |
+| `hardware.nvidia.enable` | NVIDIA driver, Wayland, and video acceleration |
+| `hardware.nvidia.persistence.enable` | NVIDIA persistence daemon |
+| `gaming.enable` | Steam, Gamescope, Gamemode, and local-transfer firewall support |
+| `power.enable` | Laptop power, lid, suspend, and device power policies |
+| `virtualisation.enable` | Docker, Podman, libvirt, virt-manager, Boxes, Distrobox, Lazydocker, SPICE USB, and `nx-vm` |
+
+Hardware-specific NixOS options can be added directly in a host. Examples in this repository include ASUS services, Intel legacy VA-API, RF hardware, Wireshark USB capture, and host-specific NetworkManager or WirePlumber rules.
+
+Import `../home/pentest.nix` into a host's Home Manager configuration only where the security toolkit is wanted:
+
+```nix
+home-manager.users.${username}.imports = [../home/pentest.nix];
+```
 
 ## Daily Workflow
 
-**Never type the long command again:**
+The installed helpers retain the current flake configuration name even when it differs from the machine hostname.
 
-```bash
-nx-switch   # rebuild + switch
-nx-boot     # apply on next boot
-nx-test     # test without commitment
-nx-update   # update inputs + rebuild
-nx-gc       # garbage collect
-hyprlock-revive # restart lockscreen if it crashes
-```
+| Command | Action |
+| --- | --- |
+| `nx-switch` | Build and switch immediately |
+| `nx-boot` | Build and select the generation for the next boot |
+| `nx-test` | Activate temporarily without adding a boot entry |
+| `nx-update` | Update flake inputs and switch |
+| `nx-gc` | Expire old Home Manager generations, collect old Nix generations, and optimize the store |
+| `nx-vm` | Build and run the host VM; installed only when virtualization is enabled |
+| `hyprlock-revive` | Restore and relaunch Hyprlock after a lock failure |
 
-**Typical edit:**
+A typical change is:
+
 ```bash
 nvim ~/.dotfiles/home/packages.nix
 nx-switch
 ```
 
----
+Useful direct checks:
 
-## Hosts
-
-Hosts define hardware, monitors, and machine-specific settings.
-
-**Template:**
-```nix
-{ username, hostname, ... }: {
-  imports = [
-    ./common.nix
-    /etc/nixos/hardware-configuration.nix
-    ../modules/hardware/amd.nix
-  ];
-
-  networking.hostName = hostname;
-
-  hardware = {
-    enableAllFirmware = true;
-    nvidia.enable = true;
-    nvidia.persistence.enable = true;
-    amd.cpu.enable = true;
-  };
-
-  power.enable = true;  # enable for laptops
-
-  home-manager.users.${username} = {
-    wayland.windowManager.hyprland.settings = {
-      monitor = [ "eDP-1,1920x1080@60,0x0,1" ];
-      input.kb_layout = "us";
-    };
-  };
-}
-```
-
----
-
-## Structure
-
-```
-~/.dotfiles/
-├── hosts/              # machine-specific configs
-├── modules/
-│   ├── system/         # base OS layer
-│   ├── hardware/       # cpu/gpu tuning
-│   └── desktop/        # compositor + desktop services
-└── home/
-    ├── packages.nix    # user packages
-    ├── terminal/       # shell, prompt, tmux
-    ├── desktop/        # hyprland, ags, browser, theme
-    ├── dev/            # git, lf
-    └── scripts/        # helpers
-```
-
-<details>
-<summary><b>Detailed breakdown</b></summary>
-
-### modules/system/
-- `base.nix` - users, shells, home-manager
-- `boot.nix` - bootloader, kernel params
-- `hardware.nix` - bluetooth, firmware
-- `locale.nix` - timezone, language
-- `network.nix` - networking, firewall
-- `power.nix` - suspend, power profiles
-- `security.nix` - sudo, polkit
-- `services.nix` - background daemons
-- `virtualization.nix` - vms, containers
-- `responsiveness.nix` - tuning
-
-### modules/hardware/
-- `amd.nix` - amd cpu/gpu, microcode
-- `nvidia.nix` - nvidia driver, wayland
-
-### modules/desktop/
-- `audio.nix` - pipewire, low-latency
-- `greeter.nix` - tuigreet display manager
-- `hyprland.nix` - compositor, portals, lockscreen
-- `nautilus.nix` - file manager
-- `plymouth.nix` - boot splash
-
-### home/desktop/
-- `hyprland.nix` - user config, keybinds
-- `ags.nix` - ags2-shell dependencies
-- `browser.nix` - browser policies
-- `spotify.nix` - spicetify theming
-- `dconf.nix` - gsettings
-- `theme.nix` - gtk/icons/cursors
-- `defs.nix` - centralized theme definitions
-
-</details>
-
----
-
-## Common Tasks
-
-**Change settings:**
-- username → `flake.nix`
-- packages → `home/packages.nix`
-- timezone/locale → `modules/system/locale.nix`
-- keyboard/monitors → `hosts/<hostname>.nix`
-- keybinds → `home/desktop/hyprland.nix`
-
-**Find monitor names:**
 ```bash
+nix flake check --impure
 hyprctl monitors
+journalctl --user -u ags.service -b
 ```
 
----
+## AGS Shell
 
-## Keybinds
+The root flake builds `ags2-shell` from the submodule and installs the matching AGS CLI. Home Manager runs the packaged shell as `ags.service`; the source checkout is not needed at runtime. The desktop configuration also installs the GTK portal backend so Flatpak and portal clients receive the shell's light or dark preference.
 
-<details>
-<summary><b>Core navigation</b></summary>
+Use the submodule development environment for shell changes:
 
-| keybind                | action                   |
-| ---------------------- | ------------------------ |
-| super + 1..7           | workspace 1–7            |
-| super + shift + 1..7   | move to workspace        |
-| super + grave          | special workspace        |
-| super + q              | close window             |
-| super + f              | fullscreen               |
-| super + space          | float/tile               |
-| super + arrows         | move window              |
-| super + shift + arrows | resize window            |
-| alt + tab              | cycle windows            |
-| super + left/right mouse | move/resize window     |
+```bash
+cd ~/.dotfiles/ags2-shell
+systemctl --user stop ags.service
+nix develop -c ./dev.sh
+systemctl --user start ags.service
+```
 
-</details>
+The development process and packaged service use the same `ags2-shell` instance name and must not run together. Build and usage details, including native installation on other Linux distributions, are documented in [`ags2-shell/README.md`](ags2-shell/README.md).
 
-<details>
-<summary><b>Launcher & apps</b></summary>
+## Repository Layout
 
-| keybind             | action            |
-| ------------------- | ----------------- |
-| super + r           | launcher          |
-| super + tab         | overview          |
-| super + x           | terminal          |
-| super + b           | browser           |
-| super + e           | file manager      |
-| super + l           | lock              |
-| ctrl + alt + delete | restart ags shell |
+```text
+~/.dotfiles/
+|-- ags2-shell/       # Standalone AGS shell submodule
+|-- hosts/            # Machine-specific hardware and desktop settings
+|-- modules/
+|   |-- desktop/      # Hyprland, audio, greeter, Chromium policy, gaming, and desktop services
+|   |-- hardware/     # Devices plus AMD, Intel, and NVIDIA options
+|   `-- system/       # Base OS, boot, network, power, services, and virtualization
+|-- home/
+|   |-- desktop/      # AGS service, Hyprland bindings, themes, browser, and Spotify
+|   |-- terminal/     # Shell, Ghostty, tmux, mail, GPG, and prompt
+|   |-- nvim/         # Neovim package and configuration
+|   |-- dev/          # Git and development tools
+|   |-- easyeffects/  # EasyEffects configuration and presets
+|   |-- scripts/      # Rebuild, lock recovery, and touchpad helpers
+|   |-- packages.nix  # Shared user applications and utilities
+|   `-- pentest.nix   # Optional security toolkit
+|-- flake.nix         # Inputs, identities, host registry, and system constructor
+`-- flake.lock
+```
 
-</details>
+## Keybindings
 
-<details>
-<summary><b>Media & hardware</b></summary>
+### Navigation And Applications
 
-| keybind                   | action              |
-| ------------------------- | ------------------- |
-| print                     | screenshot (area)   |
-| shift + print             | screenshot (full)   |
-| super + print             | record area         |
-| super + shift + print     | record screen       |
-| xf86audio play/pause/next | media controls      |
-| xf86audio mute            | toggle mute         |
-| shift + xf86audiomute     | toggle mic          |
-| xf86monbrightness up/down | brightness          |
-| xf86touchpadtoggle        | toggle touchpad     |
+| Binding | Action |
+| --- | --- |
+| `Super + 1..7` | Select workspace |
+| `Super + Shift + 1..7` | Move window to workspace |
+| `Super + grave` | Select special workspace |
+| `Super + Q` | Close window |
+| `Super + F` | Toggle fullscreen |
+| `Super + Space` | Toggle floating |
+| `Super + arrows` | Move window |
+| `Super + Shift + arrows` | Resize window |
+| `Alt + Tab` | Cycle windows |
+| `Super + R` | Open launcher |
+| `Super + Tab` | Open workspace overview |
+| `Super + X` | Open terminal |
+| `Super + B` | Open browser |
+| `Super + E` | Open file manager |
+| `Super + L` | Lock session |
+| `Ctrl + Alt + Delete` | Restart AGS shell |
 
-</details>
+### Capture And Hardware
 
----
+| Binding | Action |
+| --- | --- |
+| `Print` | Select screenshot area |
+| `Shift + Print` | Capture focused monitor |
+| `Super + Print` | Select recording area |
+| `Super + Shift + Print` | Record focused monitor |
+| `XF86Audio*` | Media and volume controls |
+| `Shift + XF86AudioMute` | Toggle microphone mute |
+| `XF86MonBrightness*` | Change display brightness |
+| `XF86TouchpadToggle` | Toggle touchpad |
 
-## Notes
+## Operational Notes
 
-- tuigreet display manager (TTY)
-- flakes required
-- first rebuild needs `--impure`, rest are routine
-
----
+- This configuration tracks unstable inputs and is currently constructed for `x86_64-linux`.
+- `/etc/nixos/hardware-configuration.nix` remains machine-local, so evaluation and rebuild commands require `--impure`.
+- SSH permits public-key authentication by default, denies root login, and disables password authentication unless a host explicitly overrides it.
+- Flatpak is enabled system-wide and Flathub provisioning retries until networking becomes available.
+- Home Manager conflict backups use the `.hm-bak` extension and are ignored by Git.
 
 ## License
 

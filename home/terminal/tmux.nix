@@ -29,65 +29,26 @@
 
   battery = let
     state =
-      if pkgs.stdenv.isDarwin
-      then
-        pkgs.writers.writeNu "battery"
-        # nu
-        ''
-          let info = pmset -g batt | lines
-
-          let is_charging = (
-              $info
-              | first
-              | parse "{pre} '{from}'"
-              | get 0
-              | do { $in.from == "AC Power" }
-          )
-
-          let percent = (
-              $info
-              | last
-              | parse "{head}\t{percent}%; {tail}"
-              | get 0
-              | do { ($in.percent | into int) / 100 }
-          )
-
-          { percent:$percent is_charging:$is_charging }
-          | to json
-        ''
-      else
-        pkgs.writers.writeNu "battery"
-        # nu
-        ''
-          let percent = (
-              open /sys/class/power_supply/*/capacity
-              | match ($in | describe) {
-                  "string" => $in,
-                  "list<string>" => ($in | get 0),
-                  _ => "-1",
-              }
-              | ($in | into int) / 100
-          )
-
-          let is_charging = (
-              open /sys/class/power_supply/*/status
-              | match ($in | describe) {
-                  "string" => $in,
-                  "list<string>" => ($in | get 0),
-                  _ => "Unknown",
-              }
-              | str trim
-              | do { ($in == "Charging") or ($in == "Full" and $percent == 1) }
-          )
-
-          { percent:$percent is_charging:$is_charging }
-          | to json
-        '';
+      pkgs.writers.writeNu "battery-state"
+      # nu
+      ''
+        let batteries = glob /sys/class/power_supply/BAT*
+        let state = if ($batteries | is-empty) {
+          { percent: -1, is_charging: false }
+        } else {
+          let battery = $batteries | first
+          let percent = (open ($battery | path join capacity) | into int) / 100
+          let status = open ($battery | path join status) | str trim
+          let is_charging = ($status == "Charging") or ($status == "Full" and $percent == 1)
+          { percent: $percent, is_charging: $is_charging }
+        }
+        $state | to json
+      '';
     script =
       pkgs.writers.writeNu "battery"
       # nu
       ''
-        let low_threshhold = 25
+        let low_threshold = 25
         let state = ${state} | from json
         let percent = $state.percent
         let is_charging = $state.is_charging
@@ -108,12 +69,12 @@
           )
           let icon_fg = (
               if $is_charging { "green" }
-              else if ($percent * 100) <= ($low_threshhold) { "red" }
+              else if ($percent * 100) <= $low_threshold { "red" }
               else { "default" }
           )
           let label = $"($percent * 100 | math floor)%"
           let label_fg = (
-              if ($percent * 100) <= ($low_threshhold) { "red" } else { "default" }
+              if ($percent * 100) <= $low_threshold { "red" } else { "default" }
           )
           $"  #[fg=($icon_fg)]($icon)#[fg=($label_fg)]($label)"
         }
@@ -137,7 +98,7 @@
           } else { "" }
         }
       '';
-  in "#(${script} #{pane_current_path})";
+  in "#(${script} #{q:pane_current_path})";
 in {
   programs.tmux = {
     enable = true;

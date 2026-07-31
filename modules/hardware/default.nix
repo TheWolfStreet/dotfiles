@@ -1,4 +1,10 @@
 {
+  imports = [
+    ./amd.nix
+    ./intel.nix
+    ./nvidia.nix
+  ];
+
   hardware = {
     bluetooth = {
       enable = true;
@@ -9,9 +15,10 @@
         AutoEnable = false;
       };
     };
+    enableAllFirmware = true;
     i2c.enable = true;
-    steam-hardware.enable = true;
   };
+
   services.udev.extraRules = ''
     SUBSYSTEM=="i2c-dev", GROUP="i2c", MODE="0660"
   '';

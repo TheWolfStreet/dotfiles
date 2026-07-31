@@ -17,10 +17,10 @@ in {
     "inode/directory" = ["org.gnome.Nautilus.desktop"];
   };
   environment = {
-    systemPackages = [nautEnv pkgs.libheif pkgs.libheif.out];
+    systemPackages = [nautEnv pkgs.libheif];
     pathsToLink = [
       "/share/nautilus-python/extensions"
-      "share/thumbnailers"
+      "/share/thumbnailers"
     ];
     sessionVariables = {
       NAUTILUS_4_EXTENSION_DIR = lib.mkDefault "${nautEnv}/lib/nautilus/extensions-4";

@@ -8,6 +8,29 @@
   pass_file = "${config.xdg.dataHome}/neomutt/gmail.pass.gpg";
   gpg = "${pkgs.gnupg}/bin/gpg";
 
+  neomutt =
+    (pkgs.neomutt.override {
+      enableSmimeKeys = false;
+      withContrib = false;
+      withNotmuch = false;
+    }).overrideAttrs (old: {
+      configureFlags =
+        builtins.filter (flag:
+          !builtins.elem flag [
+            "--enable-autocrypt"
+            "--gpgme"
+            "--gss"
+            "--with-homespool=mailbox"
+          ])
+        old.configureFlags
+        ++ [
+          "--disable-homespool"
+          "--disable-inotify"
+          "--disable-pgp"
+          "--disable-smime"
+        ];
+    });
+
   gmail_setup = pkgs.writeShellScriptBin "gmail-pass-setup" ''
     set -e
     mkdir -p "$(dirname "${pass_file}")"
@@ -29,13 +52,9 @@
     echo "Saved (encrypted) to ${pass_file}. Run 'neomutt'."
   '';
 in {
-  home.packages = with pkgs; [
+  home.packages = [
     neomutt
-    isync
-    msmtp
-    notmuch
-    w3m
-    urlscan
+    pkgs.w3m
     gmail_setup
   ];
 
@@ -120,6 +139,4 @@ in {
 
     mailboxes =INBOX =[Gmail]/Drafts =[Gmail]/Sent\ Mail =[Gmail]/Starred =[Gmail]/Trash
   '';
-
-  xdg.dataFile."neomutt/.keep".text = "";
 }

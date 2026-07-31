@@ -7,12 +7,24 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    apple-fonts.url = "github:Lyndeno/apple-fonts.nix";
+    apple-fonts = {
+      url = "github:Lyndeno/apple-fonts.nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
-    mactahoe-icon-theme.url = "github:TheWolfStreet/MacTahoe-icon-theme.nix";
+    mactahoe-icon-theme = {
+      url = "github:TheWolfStreet/MacTahoe-icon-theme.nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     ags = {
       url = "github:Aylur/ags";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    ags2-shell = {
+      url = "path:./ags2-shell";
+      inputs.ags.follows = "ags";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -21,10 +33,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    lf-icons = {
-      url = "github:gokcehan/lf";
-      flake = false;
-    };
     self.submodules = true;
   };
 
@@ -33,48 +41,36 @@
     home-manager,
     ...
   }: let
-    username = "tws";
+    defaultUsername = "tws";
     gitName = "TheWolfStreet";
     gitEmail = "wolfthestreet@gmail.com";
     stateVersion = "24.05";
-    dotfilesPath = "/home/${username}/.dotfiles";
 
-    mkSystem = {
-      hostname,
-      extraModules ? [],
-      extraArgs ? {},
-    }:
+    hosts = {
+      ironmaiden.username = "ghost";
+      nixos = {};
+      nixtop = {};
+    };
+
+    mkSystem = configurationName: {
+      username ? defaultUsername,
+      hostname ? configurationName,
+    }: let
+      dotfilesPath = "/home/${username}/.dotfiles";
+    in
       nixpkgs.lib.nixosSystem {
-        system = builtins.currentSystem;
+        system = "x86_64-linux";
 
-        specialArgs =
-          {
-            inherit inputs;
-            inherit username;
-            inherit hostname;
-            inherit gitName;
-            inherit gitEmail;
-            inherit stateVersion;
-            inherit dotfilesPath;
-          }
-          // extraArgs;
+        specialArgs = {
+          inherit inputs configurationName username hostname gitName gitEmail stateVersion dotfilesPath;
+        };
 
-        modules =
-          [
-            ./hosts/${hostname}.nix
-            home-manager.nixosModules.home-manager
-          ]
-          ++ extraModules;
+        modules = [
+          ./hosts/${configurationName}.nix
+          home-manager.nixosModules.home-manager
+        ];
       };
   in {
-    nixosConfigurations = {
-      nixos = mkSystem {
-        hostname = "nixos";
-      };
-
-      nixtop = mkSystem {
-        hostname = "nixtop";
-      };
-    };
+    nixosConfigurations = nixpkgs.lib.mapAttrs mkSystem hosts;
   };
 }

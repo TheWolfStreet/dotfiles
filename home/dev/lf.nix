@@ -1,14 +1,7 @@
-{
-  inputs,
-  pkgs,
-  lib,
-  ...
-}: {
-  xdg.desktopEntries = lib.mkIf pkgs.stdenv.isLinux {
-    "lf" = {
-      name = "lf";
-      noDisplay = true;
-    };
+{pkgs, ...}: {
+  xdg.desktopEntries.lf = {
+    name = "lf";
+    noDisplay = true;
   };
 
   home.packages = with pkgs; [
@@ -16,8 +9,7 @@
     fzf
     bat
     zip
-    unzip
-    gnutar
+    unar
   ];
 
   programs.lf = {
@@ -61,24 +53,15 @@
       unzip = ''
         ''${{
           set -f
-          case $f in
-              *.tar.bz|*.tar.bz2|*.tbz|*.tbz2) tar xjvf $f;;
-              *.tar.gz|*.tgz) tar xzvf $f;;
-              *.tar.xz|*.txz) tar xJvf $f;;
-              *.zip) unzip $f;;
-              *.rar) unzip x $f;;
-              *.7z) 7z x $f;;
-          esac
+          unar -- "$f"
         }}
       '';
 
       zip = ''
         ''${{
           set -f
-          mkdir $1
-          cp -r $fx $1
-          zip -r $1.zip $1
-          rm -rf $1
+          [ -n "$1" ] || exit 1
+          zip -r "$1.zip" -- $fx
         }}
       '';
 
@@ -116,5 +99,5 @@
     };
   };
 
-  xdg.configFile."lf/icons".source = "${inputs.lf-icons}/etc/icons.example";
+  xdg.configFile."lf/icons".source = "${pkgs.lf.src}/etc/icons.example";
 }

@@ -1,28 +1,17 @@
-pkgs:
-pkgs.writeShellScript "touchpad" ''
-  hyprctl keyword device:a true > /dev/null 2>&1
+pkgs: let
+  hyprctl = "${pkgs.hyprland}/bin/hyprctl";
+in
+  pkgs.writeShellScript "touchpad" ''
+    set -euo pipefail
+    device="$(${hyprctl} devices -j | ${pkgs.jq}/bin/jq -r '[.mice[].name | select(test("touchpad"; "i"))][0] // empty')"
+    [ -n "$device" ] || exit 0
 
-  dev_name="$(hyprctl devices | grep touchpad | sed '/2-synaptics-touchpad/d; s/.*	//')"
-  dev_state_field="device[''${dev_name}]:enabled"
-  dev_state="hyprctl keyword device:''${dev_name}:enabled"
-
-  if [ -z "$XDG_RUNTIME_DIR" ]; then
-    export XDG_RUNTIME_DIR=/run/user/$(id -u)
-  fi
-
-  STATUS_FILE="$XDG_RUNTIME_DIR/touchpad.status"
-
-  if [ -f "$STATUS_FILE" ]; then
-    dev_state="$(cat "$STATUS_FILE")"
-  fi
-
-  if [ "$dev_state" != "false" ]; then
-    dev_state="false"
-    hyprctl --batch -r -- keyword "$dev_state_field" $dev_state || export dev_state="true"
-  else
-    dev_state="true"
-    hyprctl --batch -r -- keyword "$dev_state_field" $dev_state || export dev_state="false"
-  fi
-
-  echo "$dev_state" > "$STATUS_FILE"
-''
+    state_file="''${XDG_RUNTIME_DIR:-/run/user/$UID}/touchpad-disabled"
+    if [ -e "$state_file" ]; then
+      ${hyprctl} keyword "device[$device]:enabled" true
+      ${pkgs.coreutils}/bin/rm -f "$state_file"
+    else
+      ${hyprctl} keyword "device[$device]:enabled" false
+      : > "$state_file"
+    fi
+  ''

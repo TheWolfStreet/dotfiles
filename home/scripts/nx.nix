@@ -1,33 +1,40 @@
 {
+  lib,
   pkgs,
+  configurationName,
+  hostname,
   dotfilesPath,
+  virtualisationEnabled,
   ...
 }: let
-  nx-switch = pkgs.writeShellScriptBin "nx-switch" ''
-    sudo nixos-rebuild switch --flake "${dotfilesPath}" --impure $@
-  '';
+  rebuild = action:
+    pkgs.writeShellScriptBin "nx-${action}" ''
+      set -euo pipefail
+      exec sudo nixos-rebuild ${action} --flake "${dotfilesPath}#${configurationName}" --impure "$@"
+    '';
+
+  nx-switch = rebuild "switch";
+  nx-boot = rebuild "boot";
+  nx-test = rebuild "test";
+
   nx-update = pkgs.writeShellScriptBin "nx-update" ''
+    set -euo pipefail
     cd "${dotfilesPath}"
-    nix flake update $@
-    sudo nixos-rebuild switch --flake "${dotfilesPath}" --impure
-  '';
-  nx-boot = pkgs.writeShellScriptBin "nx-boot" ''
-    sudo nixos-rebuild boot --flake "${dotfilesPath}" --impure $@
-  '';
-  nx-test = pkgs.writeShellScriptBin "nx-test" ''
-    sudo nixos-rebuild test --flake "${dotfilesPath}" --impure $@
+    nix flake update "$@"
+    exec sudo nixos-rebuild switch --flake "${dotfilesPath}#${configurationName}" --impure
   '';
   nx-vm = pkgs.writeShellScriptBin "nx-vm" ''
+    set -euo pipefail
     cd "${dotfilesPath}"
-    nixos-rebuild build-vm --flake . --impure $@
-    "${dotfilesPath}/result/bin/run-$(hostname)-vm"
+    nixos-rebuild build-vm --flake ".#${configurationName}" --impure "$@"
+    exec "${dotfilesPath}/result/bin/run-${hostname}-vm"
   '';
   nx-gc = pkgs.writeShellScriptBin "nx-gc" ''
-    sudo nix-collect-garbage -d
+    set -euo pipefail
     home-manager expire-generations "-1 days"
+    sudo nix-collect-garbage -d
     sudo nix-store --optimize
-    sudo nix-collect-garbage --delete-older-than 1d
   '';
 in {
-  home.packages = [nx-switch nx-update nx-boot nx-test nx-vm nx-gc];
+  home.packages = [nx-switch nx-update nx-boot nx-test nx-gc] ++ lib.optional virtualisationEnabled nx-vm;
 }

@@ -5,7 +5,7 @@
       "transparent_hugepage=madvise"
     ];
     kernel.sysctl = {
-      "vm.swappiness" = 1;
+      "vm.swappiness" = 180;
       "vm.vfs_cache_pressure" = 50;
       "vm.dirty_ratio" = 10;
       "vm.dirty_background_ratio" = 5;
@@ -21,20 +21,7 @@
     };
   };
 
-  services = {
-    irqbalance.enable = true;
-    udev.extraRules = ''
-      ACTION=="add|change", KERNEL=="nvme[0-9]n[0-9]", ATTR{queue/scheduler}="bfq"
-      ACTION=="add|change", KERNEL=="nvme[0-9]n[0-9]", ATTR{queue/iosched/slice_idle}="0"
-      ACTION=="add|change", KERNEL=="nvme[0-9]n[0-9]", ATTR{queue/nr_requests}="256"
-      ACTION=="add|change", KERNEL=="nvme[0-9]n[0-9]", ATTR{queue/rq_affinity}="2"
-      ACTION=="add|change", KERNEL=="sd[a-z]", ATTR{queue/rotational}=="0", ATTR{queue/scheduler}="bfq"
-    '';
-  };
+  services.irqbalance.enable = true;
 
-  zramSwap = {
-    enable = true;
-    algorithm = "zstd";
-    memoryPercent = 50;
-  };
+  zramSwap.enable = true;
 }

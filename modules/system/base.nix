@@ -1,6 +1,9 @@
 {
+  config,
   inputs,
+  configurationName,
   username,
+  hostname,
   stateVersion,
   dotfilesPath,
   gitName,
@@ -10,27 +13,14 @@
 }: let
   mkTheme = scheme: import ../../home/desktop/defs.nix {inherit pkgs inputs scheme;};
 in {
-  imports = [
-    ./virtualization.nix
-    ./services.nix
-    ./boot.nix
-    ./hardware.nix
-    ./security.nix
-    ./responsiveness.nix
-  ];
   users.users.${username} = {
     isNormalUser = true;
-    # Initial password is set to username for first login convenience
-    # NOTE: Change this immediately after first login with 'passwd'
+    # NOTE: Bootstrap credential; replace it with `passwd` after the first login.
     initialPassword = username;
     extraGroups = [
-      "nixosvmtest"
       "networkmanager"
       "wheel"
-      "audio"
       "video"
-      "libvirtd"
-      "docker"
       "i2c"
     ];
   };
@@ -40,7 +30,8 @@ in {
     useGlobalPkgs = true;
     useUserPackages = true;
     extraSpecialArgs = {
-      inherit inputs stateVersion dotfilesPath gitName gitEmail mkTheme;
+      inherit inputs configurationName hostname stateVersion dotfilesPath gitName gitEmail mkTheme;
+      virtualisationEnabled = config.virtualisation.enable;
       theme = mkTheme "dark";
     };
     users.${username} = {
@@ -54,9 +45,8 @@ in {
 
       programs.home-manager.enable = true;
       home = {
-        inherit username;
+        inherit username stateVersion;
         homeDirectory = "/home/${username}";
-        inherit stateVersion;
         sessionPath = [
           "$HOME/.local/bin"
         ];
@@ -72,21 +62,16 @@ in {
       keep-derivations = true;
       experimental-features = "nix-command flakes";
       auto-optimise-store = true;
-      max-jobs = "auto";
-      cores = 0;
     };
   };
 
   programs = {
     kdeconnect.enable = true;
     droidcam.enable = true;
-    virt-manager.enable = true;
     dconf.enable = true;
   };
 
   environment.systemPackages = with pkgs; [
-    home-manager
-    neovim
     git
     wget
   ];

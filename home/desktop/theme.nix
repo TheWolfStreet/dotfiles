@@ -7,20 +7,12 @@
   home = {
     packages = with pkgs; [
       font-awesome
-      theme.gtk.package
-      theme.font.package
       theme.monospaceFont.package
-      theme.cursor.package
-      theme.icon.package
       noto-fonts-cjk-serif
       noto-fonts-cjk-sans
     ];
-    sessionVariables = {
-      XCURSOR_THEME = theme.cursor.name;
-      XCURSOR_SIZE = "${toString theme.cursor.size}";
-    };
     pointerCursor =
-      (theme.cursor or {})
+      theme.cursor
       // {
         enable = true;
         gtk.enable = true;
@@ -53,11 +45,9 @@
 
   xdg.configFile."gtk-3.0/settings.ini".force = true;
 
-  qt = {
-    platformTheme.name = "gtk3";
-  };
+  qt.platformTheme.name = "gtk3";
 
-  home.file.".local/share/flatpak/overrides/global".text = let
+  xdg.dataFile."flatpak/overrides/global".text = let
     dirs = [
       "/nix/store:ro"
       "/run/current-system/sw/share/X11/fonts:ro"

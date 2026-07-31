@@ -27,7 +27,6 @@
       blue = "#50a4e7";
       magenta = "#9076e7";
       cyan = "#50e6e6";
-      pink = "#e781d6";
       white = "#e7e7e7";
 
       bright = {
@@ -38,7 +37,6 @@
         blue = "#4886c8";
         magenta = "#8861dd";
         cyan = "#43c3c3";
-        pink = "#d76dc5";
         white = "#c1c4c2";
       };
     };
@@ -82,7 +80,11 @@
   colors = colorSchemes.${scheme};
 in {
   gtk = {
-    name = "adw-gtk3-dark";
+    name = "adw-gtk3${
+      if scheme == "dark"
+      then "-dark"
+      else ""
+    }";
     package = pkgs.adw-gtk3;
   };
 
@@ -109,38 +111,5 @@ in {
     package = inputs.mactahoe-icon-theme.packages.${system}.default;
   };
 
-  border = {
-    size = 2;
-    radius = 12;
-  };
-
-  gaps = {
-    inner = 6;
-    outer = 6;
-  };
-
-  colors =
-    colors
-    // {
-      ansi = with colors; [
-        black
-        red
-        green
-        yellow
-        blue
-        magenta
-        cyan
-        white
-      ];
-      bright_ansi = with colors; [
-        bright.black
-        bright.red
-        bright.green
-        bright.yellow
-        bright.blue
-        bright.magenta
-        bright.cyan
-        bright.white
-      ];
-    };
+  inherit colors;
 }

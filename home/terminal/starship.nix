@@ -1,20 +1,20 @@
-{
-  config,
-  pkgs,
-  ...
-}: {
-  xdg.configFile."starship.toml" = let
-    lang = icon: color: {
-      symbol = icon;
-      format = "[$symbol ](${color})";
-    };
-    os = icon: fg: "[${icon} ](fg:${fg})";
-    pad = {
-      left = "";
-      right = "";
-    };
-  in {
-    source = (pkgs.formats.toml {}).generate "starship-config" {
+_: {
+  programs.starship = {
+    enable = true;
+    enableBashIntegration = true;
+    enableNushellIntegration = true;
+    enableZshIntegration = true;
+    settings = let
+      lang = icon: color: {
+        symbol = icon;
+        format = "[$symbol ](${color})";
+      };
+      os = icon: fg: "[${icon} ](fg:${fg})";
+      pad = {
+        left = "";
+        right = "";
+      };
+    in {
       add_newline = true;
       format = builtins.concatStringsSep "" [
         "$nix_shell"
@@ -87,7 +87,7 @@
         symbols = {
           Arch = os "" "bright-blue";
           Alpine = os "" "bright-blue";
-          Debian = os "" "red)";
+          Debian = os "" "red";
           EndeavourOS = os "" "purple";
           Fedora = os "" "blue";
           NixOS = os "" "blue";
@@ -99,27 +99,11 @@
       };
       python = lang "" "yellow";
       nodejs = lang "󰛦" "bright-blue";
-      bun = lang "󰛦" "blue";
-      deno = lang "󰛦" "blue";
       lua = lang "󰢱" "blue";
       rust = lang "" "red";
       java = lang "" "red";
       c = lang "" "blue";
       golang = lang "" "blue";
-      dart = lang "" "blue";
-      elixir = lang "" "purple";
-    };
-  };
-
-  programs = let
-    init = "${pkgs.starship}/bin/starship init";
-    dir = "${config.xdg.cacheHome}/starship";
-  in {
-    bash.initExtra = ''eval "$(${init} bash)"'';
-    zsh.initContent = ''eval "$(${init} zsh)"'';
-    nushell = {
-      extraEnv = "mkdir ${dir} ; ${init} nu | save -f ${dir}/init.nu";
-      extraConfig = "use ${dir}/init.nu";
     };
   };
 }

@@ -1,12 +1,7 @@
-{
-  lib,
-  theme,
-  ...
-}:
-with lib.hm.gvariant; {
+{lib, ...}: {
   dconf.settings = {
     "org/gnome/desktop/input-sources" = {
-      sources = [(mkTuple ["xkb" "us"])];
+      sources = [(lib.hm.gvariant.mkTuple ["xkb" "us"])];
       xkb-options = ["terminate:ctrl_alt_bksp"];
     };
 
@@ -25,8 +20,6 @@ with lib.hm.gvariant; {
     };
 
     "org/gnome/desktop/interface" = {
-      gtk-theme = theme.gtk.name;
-      icon-theme = theme.icon.name;
       show-battery-percentage = true;
     };
 
@@ -56,11 +49,6 @@ with lib.hm.gvariant; {
 
     "system/locale" = {
       region = "en_US.UTF-8";
-    };
-
-    "org/virt-manager/virt-manager/connections" = {
-      autoconnect = ["qemu:///system"];
-      uris = ["qemu:///system"];
     };
   };
 }

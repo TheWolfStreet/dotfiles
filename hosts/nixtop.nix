@@ -1,31 +1,26 @@
 {
   username,
-  hostname,
   pkgs,
   ...
 }: {
+  # ASUS TUF Gaming A16 laptop.
   imports = [
     ./common.nix
     /etc/nixos/hardware-configuration.nix
-    ../modules/hardware/amd.nix
   ];
 
-  networking.hostName = hostname;
-
-  hardware = {
-    enableAllFirmware = true;
-    amd = {
-      cpu.enable = true;
-      gpu.enable = true;
-      gpu.disablePanelSelfRefresh = true;
+  hardware.amd = {
+    cpu.enable = true;
+    gpu = {
+      enable = true;
+      disablePanelSelfRefresh = true;
     };
   };
 
+  gaming.enable = true;
   power.enable = true;
-
-  services.asusd = {
-    enable = true;
-  };
+  virtualisation.enable = true;
+  services.asusd.enable = true;
 
   swapDevices = [
     {
@@ -35,13 +30,11 @@
   ];
 
   home-manager.users.${username} = {
-    wayland.windowManager.hyprland.settings.monitor = [
-      "eDP-1,1920x1200@144,0x0,1"
-    ];
-    home.packages = with pkgs; [
-      ollama-rocm
-    ];
+    home.packages = [pkgs.ollama-rocm];
     wayland.windowManager.hyprland.settings = {
+      monitor = [
+        "eDP-1,1920x1200@144,0x0,1"
+      ];
       input.kb_layout = "us, ru, il";
     };
   };

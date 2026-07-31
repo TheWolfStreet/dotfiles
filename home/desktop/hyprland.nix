@@ -12,50 +12,19 @@
   hyprlock = "pidof hyprlock || hyprlock";
   touchpad_toggle = import ../scripts/touchpad.nix pkgs;
   jq = "${pkgs.jq}/bin/jq";
-  select_monitor_modes = pkgs.writeShellScript "select-monitor-modes" ''
-    hyprctl monitors all -j | ${jq} -r '
-      .[] | select(.disabled == false) | . as $monitor
-      | ([.availableModes[]
-          | capture("^(?<width>[0-9]+)x(?<height>[0-9]+)@(?<refresh>[0-9.]+)Hz$")
-          | { width: (.width | tonumber), height: (.height | tonumber), refresh: (.refresh | tonumber) }
-          | . + { pixels: (.width * .height) }
-        ] | max_by([.pixels, .refresh])) as $mode
-      | [$monitor.name,
-         "\($mode.width)x\($mode.height)@\($mode.refresh)",
-         "\($monitor.x)x\($monitor.y)",
-         ($monitor.scale | tostring),
-         ($monitor.transform | tostring)]
-      | @tsv
-    ' | while IFS=$'\t' read -r name mode position scale transform; do
-      [ -n "$mode" ] || continue
-      hyprctl keyword monitor "$name,$mode,$position,$scale,transform,$transform" >/dev/null
-    done
-  '';
-  monitor_mode_watcher = pkgs.writeShellScript "monitor-mode-watcher" ''
-    socket="''${XDG_RUNTIME_DIR}/hypr/''${HYPRLAND_INSTANCE_SIGNATURE}/.socket2.sock"
-    ${select_monitor_modes}
-
-    while true; do
-      while [ ! -S "$socket" ]; do
-        ${pkgs.coreutils}/bin/sleep 1
-      done
-      ${pkgs.socat}/bin/socat -U - "UNIX-CONNECT:$socket" | while IFS= read -r event; do
-        case "$event" in
-          monitoradded*)
-            ${pkgs.coreutils}/bin/sleep 1
-            ${select_monitor_modes}
-            ;;
-        esac
-      done
-      ${pkgs.coreutils}/bin/sleep 1
-    done
-  '';
   ac_online = pkgs.writeShellScript "ac-online" ''
+    has_battery=false
     for p in /sys/class/power_supply/*; do
-      [ "$(cat "$p/type" 2>/dev/null)" = "Mains" ] || continue
-      [ "$(cat "$p/online" 2>/dev/null)" = "1" ] && exit 0
+      case "$(${pkgs.coreutils}/bin/cat "$p/type" 2>/dev/null)" in
+        Mains)
+          [ "$(${pkgs.coreutils}/bin/cat "$p/online" 2>/dev/null)" = "1" ] && exit 0
+          ;;
+        Battery)
+          has_battery=true
+          ;;
+      esac
     done
-    exit 1
+    [ "$has_battery" = false ]
   '';
   lid_close = pkgs.writeShellScript "lid-close" ''
     state="''${XDG_RUNTIME_DIR:-/tmp}/hypr-internal-panel-$UID"
@@ -97,12 +66,17 @@
     exit 1
   '';
   wake_display = pkgs.writeShellScript "wake-display" ''
-    # amdgpu can fail to relight eDP after s2idle when the lid was closed during
+    # amdgpu can fail to relight the internal panel after s2idle when the lid was closed during
     # suspend. Nudge DPMS on, retrying until the panel reports on; if it never
     # does, force a full modeset toggle as a last resort.
+    if ! hyprctl monitors all -j | ${jq} -e 'any(.[]; .name | test("^(eDP|LVDS)"))' >/dev/null 2>&1; then
+      hyprctl dispatch dpms on >/dev/null 2>&1
+      exit 0
+    fi
+
     for _ in $(${pkgs.coreutils}/bin/seq 1 20); do
       hyprctl dispatch dpms on >/dev/null 2>&1
-      if hyprctl monitors -j | ${jq} -e 'any(.[]; (.name | test("^eDP")) and .dpmsStatus)' >/dev/null 2>&1; then
+      if hyprctl monitors all -j | ${jq} -e 'any(.[]; (.name | test("^(eDP|LVDS)")) and .dpmsStatus)' >/dev/null 2>&1; then
         exit 0
       fi
       ${pkgs.coreutils}/bin/sleep 0.25
@@ -116,6 +90,8 @@
     ${pkgs.systemd}/bin/systemctl suspend
   '';
 in {
+  xdg.portal.extraPortals = [pkgs.xdg-desktop-portal-gtk];
+
   xdg.desktopEntries."org.gnome.Settings" = {
     name = "Settings";
     comment = "Gnome Control Center";
@@ -141,13 +117,8 @@ in {
         ''QT_QPA_PLATFORMTHEME, gtk3''
       ];
       exec-once = [
-        "ags run"
-        "easyeffects -w"
         "hyprctl setcursor ${cursorTheme.name} ${toString cursorTheme.size}"
-        "${monitor_mode_watcher}"
       ];
-
-      exec = ["${select_monitor_modes}"];
 
       monitor = [
         ",preferred,auto,1"
@@ -161,10 +132,6 @@ in {
 
       render = {
         direct_scanout = false;
-      };
-
-      cursor = {
-        no_hardware_cursors = true;
       };
 
       misc = {
@@ -209,7 +176,7 @@ in {
         arr = [1 2 3 4 5 6 7];
       in
         [
-          "CTRL ALT, Delete, ${e} quit; ags run"
+          "CTRL ALT, Delete, exec, ${pkgs.systemd}/bin/systemctl --user restart ags.service"
           "SUPER, R,         ${e} toggle launcher"
           "SUPER, Tab,       ${e} toggle overview"
           "SUPER, L,         exec, ${hyprlock}"
@@ -437,7 +404,6 @@ in {
         name = kdeconnect
         match:class = ^(org.kde.kdeconnect.daemon)$
         opacity = 1.0 1.0
-        size = 1920 1200
         no_blur = on
         decorate = off
         no_shadow = on
@@ -454,8 +420,8 @@ in {
     enable = true;
     settings = {
       general = {
-        after_sleep_cmd = "${wake_display}";
-        before_sleep_cmd = "hyprctl dispatch dpms on; ${restore_panel}; ${hyprlock}";
+        after_sleep_cmd = "${restore_panel}; ${wake_display}";
+        before_sleep_cmd = "${pkgs.systemd}/bin/loginctl lock-session";
         ignore_dbus_inhibit = false;
         lock_cmd = "${hyprlock}";
       };

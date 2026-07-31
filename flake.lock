@@ -21,10 +21,31 @@
         "type": "github"
       }
     },
+    "ags2-shell": {
+      "inputs": {
+        "ags": [
+          "ags"
+        ],
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "path": "./ags2-shell",
+        "type": "path"
+      },
+      "original": {
+        "path": "./ags2-shell",
+        "type": "path"
+      },
+      "parent": []
+    },
     "apple-fonts": {
       "inputs": {
         "ci": "ci",
-        "nixpkgs": "nixpkgs",
+        "nixpkgs": [
+          "nixpkgs"
+        ],
         "ny": "ny",
         "sf-arabic": "sf-arabic",
         "sf-armenian": "sf-armenian",
@@ -138,25 +159,11 @@
         "type": "github"
       }
     },
-    "lf-icons": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1783649296,
-        "narHash": "sha256-K3wdbW0OLNDvsaxLGPX/TBSp5gjqcCMpM7lByUXu7SY=",
-        "owner": "gokcehan",
-        "repo": "lf",
-        "rev": "6fcec86740a69c2f7ff7ce2cce8e8105c6578b4d",
-        "type": "github"
-      },
-      "original": {
-        "owner": "gokcehan",
-        "repo": "lf",
-        "type": "github"
-      }
-    },
     "mactahoe-icon-theme": {
       "inputs": {
-        "nixpkgs": "nixpkgs_2"
+        "nixpkgs": [
+          "nixpkgs"
+        ]
       },
       "locked": {
         "lastModified": 1784922450,
@@ -173,37 +180,6 @@
       }
     },
     "nixpkgs": {
-      "locked": {
-        "lastModified": 1771848320,
-        "narHash": "sha256-0MAd+0mun3K/Ns8JATeHT1sX28faLII5hVLq0L3BdZU=",
-        "owner": "nixos",
-        "repo": "nixpkgs",
-        "rev": "2fc6539b481e1d2569f25f8799236694180c0993",
-        "type": "github"
-      },
-      "original": {
-        "owner": "nixos",
-        "ref": "nixos-unstable",
-        "repo": "nixpkgs",
-        "type": "github"
-      }
-    },
-    "nixpkgs_2": {
-      "locked": {
-        "lastModified": 1784976518,
-        "narHash": "sha256-+xhVel50WB5GK/xnhOGKFXyf5b9pClvITmE6KrOqKMo=",
-        "owner": "NixOS",
-        "repo": "nixpkgs",
-        "rev": "f9eab6eaf1fc003c8cf997f881670697cabb2edd",
-        "type": "github"
-      },
-      "original": {
-        "owner": "NixOS",
-        "repo": "nixpkgs",
-        "type": "github"
-      }
-    },
-    "nixpkgs_3": {
       "locked": {
         "lastModified": 1784796856,
         "narHash": "sha256-wWFrV5/Qbm+lyt5x20E/bSbfJiGKMo4RCxZV8cl/WZI=",
@@ -234,11 +210,11 @@
     "root": {
       "inputs": {
         "ags": "ags",
+        "ags2-shell": "ags2-shell",
         "apple-fonts": "apple-fonts",
         "home-manager": "home-manager",
-        "lf-icons": "lf-icons",
         "mactahoe-icon-theme": "mactahoe-icon-theme",
-        "nixpkgs": "nixpkgs_3",
+        "nixpkgs": "nixpkgs",
         "spicetify-nix": "spicetify-nix"
       }
     },

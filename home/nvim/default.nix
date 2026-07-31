@@ -1,9 +1,4 @@
-{
-  config,
-  dotfilesPath,
-  pkgs,
-  ...
-}: {
+{pkgs, ...}: {
   home.sessionVariables = {
     EDITOR = "nvim";
     VISUAL = "nvim";
@@ -51,6 +46,6 @@
   };
 
   xdg.configFile."nvim" = {
-    source = config.lib.file.mkOutOfStoreSymlink "${dotfilesPath}/home/nvim/config";
+    source = ./config;
   };
 }

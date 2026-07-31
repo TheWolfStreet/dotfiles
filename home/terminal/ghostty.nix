@@ -1,14 +1,10 @@
 {
   pkgs,
-  lib,
   mkTheme,
   ...
 }: let
   themeDark = mkTheme "dark";
   themeLight = mkTheme "light";
-  inherit (lib.modules) mkIf;
-  inherit (pkgs.stdenv) isLinux;
-  inherit (lib.trivial) boolToString;
 
   colors = scheme: ''
     background = ${scheme.bg}
@@ -35,7 +31,7 @@
     palette = 15=${scheme.bright.white}
   '';
 in {
-  home.packages = mkIf isLinux [
+  home.packages = [
     pkgs.ghostty
     (pkgs.writeShellScriptBin "xterm" ''${pkgs.ghostty}/bin/ghostty "$@"'')
   ];
@@ -53,7 +49,7 @@ in {
       background-opacity = 1
       window-padding-x = 12
       window-padding-y = 6
-      window-decoration = ${boolToString pkgs.stdenv.isDarwin}
+      window-decoration = false
       window-theme = system
       window-height = 26
       window-width = 90

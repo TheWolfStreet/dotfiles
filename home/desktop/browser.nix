@@ -29,8 +29,6 @@ in {
       DisablePocket = true;
       DisableAccounts = true;
       DisableFirefoxStudies = true;
-      DisableFirefoxAccounts = true;
-      DisableFirefoxScreenshots = true;
       OverrideFirstRunPage = "";
       OverridePostUpdatePage = "";
       DontCheckDefaultBrowser = true;
@@ -61,7 +59,7 @@ in {
         "browser.newtabpage.activity-stream.system.showSponsored" = lock-false;
         "browser.newtabpage.activity-stream.showSponsoredTopSites" = lock-false;
       };
-      ExtensionSettings = with builtins; let
+      ExtensionSettings = let
         extension = shortId: uuid: {
           name = uuid;
           value = {
@@ -70,7 +68,7 @@ in {
           };
         };
       in
-        listToAttrs [
+        builtins.listToAttrs [
           (extension "ublock-origin" "uBlock0@raymondhill.net")
           (extension "bitwarden-password-manager" "{446900e4-71c2-419f-a6a7-df9c091e268b}")
           (extension "scroll_anywhere" "juraj.masiar@gmail.com_ScrollAnywhere")
@@ -83,7 +81,6 @@ in {
 
   programs.chromium = {
     enable = true;
-    commandLineArgs = ["--disable-features=PasswordManager"];
     extensions = [
       "nngceckbapebfimnlniiiahkandclblb" # Bitwarden
       "jehmdpemhgfgjblpkilmeoafmkhbckhi" # Scroll Anywhere
