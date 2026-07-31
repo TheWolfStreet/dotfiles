@@ -5,7 +5,7 @@
 [![Hyprland](https://img.shields.io/badge/Hyprland-Wayland-58e1ff?logo=wayland)](https://hyprland.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-A multi-host NixOS and Home Manager configuration built around Hyprland and the [ags2-shell](ags2-shell/README.md) desktop shell. Hardware support, user identity, laptop power management, virtualization, and specialized packages are selected per host.
+A multi-host NixOS and Home Manager configuration built around Hyprland and the [ags2-shell](https://github.com/TheWolfStreet/ags2-shell) desktop shell. Hardware support, user identity, laptop power management, virtualization, and specialized packages are selected per host.
 
 ![Desktop preview](thumbnail.png)
 
@@ -174,7 +174,7 @@ nix develop -c ./dev.sh
 systemctl --user start ags.service
 ```
 
-The development process and packaged service use the same `ags2-shell` instance name and must not run together. Build and usage details, including native installation on other Linux distributions, are documented in [`ags2-shell/README.md`](ags2-shell/README.md).
+The development process and packaged service use the same `ags2-shell` instance name and must not run together. Build and usage details, including native installation on other Linux distributions, are documented in the [ags2-shell repository](https://github.com/TheWolfStreet/ags2-shell).
 
 ## Repository Layout
 
