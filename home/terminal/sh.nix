@@ -45,6 +45,15 @@ in {
       '';
     };
 
+    carapace = {
+      enable = true;
+      enableBashIntegration = false;
+      enableFishIntegration = false;
+      enableNushellIntegration = true;
+      enableZshIntegration = false;
+      ignoreCase = true;
+    };
+
     nushell = {
       enable = true;
       shellAliases = commonAliases;
@@ -69,6 +78,18 @@ in {
         cursor_shape = {
           vi_insert = "line";
           vi_normal = "block";
+        };
+        completions = {
+          sort = "smart";
+          case_sensitive = false;
+          quick = true;
+          partial = true;
+          algorithm = "fuzzy";
+          external = {
+            enable = true;
+            max_results = 100;
+          };
+          use_ls_colors = true;
         };
         display_errors.exit_code = false;
         history.file_format = "sqlite";

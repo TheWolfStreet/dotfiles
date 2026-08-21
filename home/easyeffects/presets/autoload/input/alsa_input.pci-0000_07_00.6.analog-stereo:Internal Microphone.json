@@ -1,6 +1,1 @@
-{
-    "device": "alsa_input.pci-0000_07_00.6.analog-stereo",
-    "device-description": "Family 17h/19h/1ah HD Audio Controller Analog Stereo",
-    "device-profile": "Internal Microphone",
-    "preset-name": "Laptop Microphone"
-}
+/nix/store/ybxyd2wim483cf34a41dw6d8cv4147pj-home-manager-files/.local/share/easyeffects/autoload/input/alsa_input.pci-0000_07_00.6.analog-stereo:Internal Microphone.json

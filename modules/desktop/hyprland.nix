@@ -55,6 +55,31 @@
     };
   };
 
+  systemd.user.services.gnome-keyring-daemon = {
+    description = "GNOME Keyring daemon";
+    wantedBy = ["graphical-session.target"];
+    partOf = ["graphical-session.target"];
+    after = ["graphical-session-pre.target"];
+    serviceConfig = {
+      Type = "simple";
+      ExecStart = "/run/wrappers/bin/gnome-keyring-daemon --start --foreground --components=secrets";
+      Restart = "on-failure";
+    };
+  };
+
+  systemd.user.services.gnome-settings-daemon-rfkill = {
+    description = "GNOME rfkill service";
+    wantedBy = ["graphical-session.target"];
+    partOf = ["graphical-session.target"];
+    after = ["graphical-session-pre.target"];
+    serviceConfig = {
+      Type = "dbus";
+      BusName = "org.gnome.SettingsDaemon.Rfkill";
+      ExecStart = "${pkgs.gnome-settings-daemon}/libexec/gsd-rfkill";
+      Restart = "on-failure";
+    };
+  };
+
   services = {
     gvfs.enable = true;
     devmon.enable = true;

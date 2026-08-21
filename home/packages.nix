@@ -27,7 +27,7 @@
 
       # Dev + reverse engineering
       lazygit
-      claude-code
+      pi-coding-agent
       opencode
       nodejs
       ghidra
@@ -58,6 +58,7 @@
       vesktop
 
       # System plumbing + diagnostics
+      alsa-utils
       lsof
       krb5
       fragments

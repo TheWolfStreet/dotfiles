@@ -1,7 +1,1 @@
-[soe][BassEnhancer#0]
-amount=5
-blend=3
-floor=100
-floorActive=true
-harmonics=10
-scope=140
+/nix/store/ybxyd2wim483cf34a41dw6d8cv4147pj-home-manager-files/.config/easyeffects/db/bassEnhancerrc

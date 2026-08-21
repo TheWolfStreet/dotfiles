@@ -18,9 +18,22 @@
   };
 
   gaming.enable = true;
+  hermes.enable = true;
   power.enable = true;
   virtualisation.enable = true;
   services.asusd.enable = true;
+
+  networking.networkmanager.ensureProfiles.profiles.ethernet-default = {
+    connection = {
+      id = "Ethernet";
+      type = "ethernet";
+      interface-name = "eno1";
+      autoconnect = true;
+      autoconnect-priority = 100;
+    };
+    ipv4.method = "auto";
+    ipv6.method = "disabled";
+  };
 
   swapDevices = [
     {

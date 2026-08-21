@@ -1,8 +1,1 @@
-[sie][Deesser#0]
-detection=1
-f2Freq=8500
-f2Level=8.000000000000016
-laxity=100
-outputGain=16.5
-ratio=20
-threshold=-40
+/nix/store/ybxyd2wim483cf34a41dw6d8cv4147pj-home-manager-files/.config/easyeffects/db/deesserrc

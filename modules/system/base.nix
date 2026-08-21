@@ -40,6 +40,7 @@ in {
         ../../home/nvim
         ../../home/desktop
         ../../home/dev
+        ../../home/music.nix
         ../../home/packages.nix
       ];
 

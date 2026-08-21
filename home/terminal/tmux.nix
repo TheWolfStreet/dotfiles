@@ -120,6 +120,8 @@ in {
       # sh
       ''
         set-option -sa terminal-overrides ",xterm*:Tc"
+        set -g extended-keys on
+        set -g extended-keys-format csi-u
         set-option -g renumber-windows on
 
         bind v copy-mode
