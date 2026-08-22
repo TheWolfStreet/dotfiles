@@ -295,6 +295,9 @@ in {
         "blur_popups on, match:namespace gtk4-layer-shell"
         "ignore_alpha 0.29, match:namespace gtk4-layer-shell"
         "no_anim on, match:namespace gtk4-layer-shell"
+        "blur on, match:namespace screen-corner"
+        "ignore_alpha 0.35, match:namespace screen-corner"
+        "no_anim on, match:namespace screen-corner"
       ];
     };
 
