@@ -11,20 +11,29 @@ A multi-host NixOS and Home Manager configuration built around Hyprland and the 
 
 ## Included
 
-- Hyprland desktop with tuigreet, Hyprlock, GTK/Qt theming, and GNOME desktop services
-- Packaged AGS v3/Astal shell with launcher, overview, dock, desktop icons, notifications, quick settings, and wallpaper theming
-- PipeWire and WirePlumber with a fixed 44.1 kHz rate and 512-sample quantum
+- Hyprland desktop with tuigreet, Hyprlock, GTK/Qt theming, GNOME services, and the packaged AGS shell
+- PipeWire and WirePlumber fixed at 44.1 kHz with a 512-sample quantum, plus declarative EasyEffects presets and MIDI hotplug bridging
 - NetworkManager, key-only SSH defaults, Flatpak, and declarative Flathub provisioning
 - AMD, Intel, and NVIDIA hardware modules with native and 32-bit graphics acceleration
-- Optional gaming, laptop power management, Docker, Podman, libvirt, SPICE USB redirection, and VM tooling
-- Home Manager configuration for terminal tools, Neovim, browsers, media applications, development tools, and system utilities
-- Optional security, reversing, forensics, wireless, and RF tooling through `home/pentest.nix`
+- Optional gaming, laptop power management, containers, libvirt/VM tooling, and Hermes Agent integration
+- Home Manager configuration for terminal tools, Neovim, browsers, media and creation applications, development tools, and system utilities
+- FL Studio/Bottles integration and optional security, forensics, wireless, and RF tooling
+
+## Current Hosts
+
+| Selector | Machine | Notable configuration |
+| --- | --- | --- |
+| `ironmaiden` | Lenovo ThinkPad T420, user `ghost` | Legacy Intel VA-API, laptop power, RF/security tooling, no virtualization |
+| `nixos` | AMD/NVIDIA desktop, user `tws` | Gaming, virtualization, NVIDIA persistence, host-specific audio and network rules |
+| `nixtop` | ASUS TUF Gaming A16, user `tws` | AMD graphics, laptop power, gaming, virtualization, ASUS services, Hermes Agent |
+
+All bundled host files contain machine-specific hardware, monitor, network, or service assumptions. New machines should get a new host selector rather than reusing one of these unchanged.
 
 ## Quick Start
 
 ### 1. Clone The Repository
 
-The AGS shell is a Git submodule, so clone recursively into the path expected by the rebuild helpers:
+The AGS shell is a Git submodule. Clone recursively to `~/.dotfiles`; generated rebuild helpers use that exact path under the configured user's home directory.
 
 ```bash
 git clone --recurse-submodules https://github.com/TheWolfStreet/dotfiles.git ~/.dotfiles
@@ -39,7 +48,7 @@ git submodule update --init --recursive
 
 ### 2. Configure Identity And Hosts
 
-Edit the shared values and host registry in `flake.nix`:
+Edit the shared identity values and host registry in `flake.nix`. This example shows how to replace or add selectors; it is not the repository's current host list:
 
 ```nix
 let
@@ -123,8 +132,9 @@ Hosts compose the common desktop, hardware, and system modules and enable only m
 | `gaming.enable` | Steam, Gamescope, Gamemode, and local-transfer firewall support |
 | `power.enable` | Laptop power, lid, suspend, and device power policies |
 | `virtualisation.enable` | Docker, Podman, libvirt, virt-manager, Boxes, Distrobox, Lazydocker, SPICE USB, and `nx-vm` |
+| `hermes.enable` | Hermes Agent; imports `~/.hermes/nixos/hermes.nix` when present, otherwise installs the generic flake package |
 
-Hardware-specific NixOS options can be added directly in a host. Examples in this repository include ASUS services, Intel legacy VA-API, RF hardware, Wireshark USB capture, and host-specific NetworkManager or WirePlumber rules.
+Hardware-specific NixOS options can be added directly in a host. Examples include ASUS services, Intel legacy VA-API, RF hardware, Wireshark USB capture, and host-specific NetworkManager or WirePlumber rules. The optional Hermes implementation path is another impure, machine-local input.
 
 Import `../home/pentest.nix` into a host's Home Manager configuration only where the security toolkit is wanted:
 
@@ -163,43 +173,40 @@ journalctl --user -u ags.service -b
 
 ## AGS Shell
 
-The root flake builds `ags2-shell` from the submodule and installs the matching AGS CLI. Home Manager runs the packaged shell as `ags.service`; the source checkout is not needed at runtime. The desktop configuration also installs the GTK portal backend so Flatpak and portal clients receive the shell's light or dark preference.
+The root flake builds `ags2-shell` from the submodule, installs the matching AGS CLI, and runs the packaged shell as `ags.service`. The GTK portal backend provides portal settings such as the desktop color-scheme preference. Development, controls, packaging, and native installation are documented in the [submodule README](ags2-shell/README.md).
 
-Use the submodule development environment for shell changes:
+## Managed User Configuration
 
-```bash
-cd ~/.dotfiles/ags2-shell
-systemctl --user stop ags.service
-nix develop -c ./dev.sh
-systemctl --user start ags.service
-```
-
-The development process and packaged service use the same `ags2-shell` instance name and must not run together. Build and usage details, including native installation on other Linux distributions, are documented in the [ags2-shell repository](https://github.com/TheWolfStreet/ags2-shell).
+- EasyEffects is enabled on every host. Home Manager force-replaces `~/.config/easyeffects` and `~/.local/share/easyeffects` with `home/easyeffects/`; device-specific autoload filenames may need adjustment on another machine.
+- `home/music.nix` runs a MIDI hotplug bridge that connects hardware sequencer ports to `Midi Through:0`. The FL Studio Hyprland watcher is also installed globally; Bottles setup and restart requirements are documented in [docs/fl-studio-bottles.md](docs/fl-studio-bottles.md).
+- `hermes.enable` is host-gated. It imports `~/.hermes/nixos/hermes.nix` when available and otherwise installs the generic Hermes package with an evaluation warning.
 
 ## Repository Layout
 
 ```text
 ~/.dotfiles/
 |-- ags2-shell/       # Standalone AGS shell submodule
+|-- docs/             # Specialized operational guides
 |-- hosts/            # Machine-specific hardware and desktop settings
 |-- modules/
 |   |-- desktop/      # Hyprland, audio, greeter, Chromium policy, gaming, and desktop services
 |   |-- hardware/     # Devices plus AMD, Intel, and NVIDIA options
 |   `-- system/       # Base OS, boot, network, power, services, and virtualization
 |-- home/
-|   |-- desktop/      # AGS service, Hyprland bindings, themes, browser, and Spotify
+|   |-- desktop/      # AGS, Hyprland, themes, applications, and FL Studio integration
 |   |-- terminal/     # Shell, Ghostty, tmux, mail, GPG, and prompt
 |   |-- nvim/         # Neovim package and configuration
 |   |-- dev/          # Git and development tools
 |   |-- easyeffects/  # EasyEffects configuration and presets
 |   |-- scripts/      # Rebuild, lock recovery, and touchpad helpers
+|   |-- music.nix     # MIDI hotplug bridge
 |   |-- packages.nix  # Shared user applications and utilities
 |   `-- pentest.nix   # Optional security toolkit
 |-- flake.nix         # Inputs, identities, host registry, and system constructor
 `-- flake.lock
 ```
 
-## Keybindings
+## Common Keybindings
 
 ### Navigation And Applications
 
@@ -208,9 +215,11 @@ The development process and packaged service use the same `ags2-shell` instance 
 | `Super + 1..7` | Select workspace |
 | `Super + Shift + 1..7` | Move window to workspace |
 | `Super + grave` | Select special workspace |
+| `Super + Shift + grave` | Move window to special workspace |
 | `Super + Q` | Close window |
 | `Super + F` | Toggle fullscreen |
 | `Super + Space` | Toggle floating |
+| `Super + P` | Toggle the dwindle split direction |
 | `Super + arrows` | Move window |
 | `Super + Shift + arrows` | Resize window |
 | `Alt + Tab` | Cycle windows |
@@ -221,6 +230,7 @@ The development process and packaged service use the same `ags2-shell` instance 
 | `Super + E` | Open file manager |
 | `Super + L` | Lock session |
 | `Ctrl + Alt + Delete` | Restart AGS shell |
+| `Super + mouse left/right` | Move or resize a window |
 
 ### Capture And Hardware
 
@@ -230,15 +240,18 @@ The development process and packaged service use the same `ags2-shell` instance 
 | `Shift + Print` | Capture focused monitor |
 | `Super + Print` | Select recording area |
 | `Super + Shift + Print` | Record focused monitor |
+| `XF86PowerOff` | Open shutdown confirmation |
 | `XF86Audio*` | Media and volume controls |
 | `Shift + XF86AudioMute` | Toggle microphone mute |
 | `XF86MonBrightness*` | Change display brightness |
+| `XF86KbdBrightness*` | Change ASUS keyboard-backlight brightness |
 | `XF86TouchpadToggle` | Toggle touchpad |
+| `mouse:276` | Push to talk while held |
 
 ## Operational Notes
 
 - This configuration tracks unstable inputs and is currently constructed for `x86_64-linux`.
-- `/etc/nixos/hardware-configuration.nix` remains machine-local, so evaluation and rebuild commands require `--impure`.
+- `/etc/nixos/hardware-configuration.nix` remains machine-local, and enabled Hermes configurations may import `~/.hermes/nixos/hermes.nix`; evaluation and rebuild commands therefore use `--impure`.
 - SSH permits public-key authentication by default, denies root login, and disables password authentication unless a host explicitly overrides it.
 - Flatpak is enabled system-wide and Flathub provisioning retries until networking becomes available.
 - Home Manager conflict backups use the `.hm-bak` extension and are ignored by Git.
