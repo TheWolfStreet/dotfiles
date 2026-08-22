@@ -1,1 +1,6 @@
-/nix/store/ybxyd2wim483cf34a41dw6d8cv4147pj-home-manager-files/.local/share/easyeffects/autoload/output/bluez_output.54_84_50_0B_99_F5.1:Headphones.json
+{
+    "device": "bluez_output.54_84_50_0B_99_F5.1",
+    "device-description": "Redmi Buds 6 Pro",
+    "device-profile": "Headphones",
+    "preset-name": "In-ear"
+}

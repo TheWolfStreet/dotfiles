@@ -1,1 +1,40 @@
-/nix/store/ybxyd2wim483cf34a41dw6d8cv4147pj-home-manager-files/.config/easyeffects/db/easyeffectsrc
+[NativePluginWindow]
+showNativePluginUi=true
+
+[Presets]
+lastLoadedInputPreset=Laptop Microphone
+lastLoadedOutputPreset=Laptop Speakers
+
+[Spectrum]
+spectrumFpsCap=100
+spectrumShape=lines
+
+[StreamInputs]
+inputDevice=alsa_input.pci-0000_07_00.6.analog-stereo
+mostUsedPresets=Laptop Microphone,Standalone Microphone
+plugins=deepfilternet#0,rnnoise#0,equalizer#0
+usedPresets=Standalone Microphone:19,Laptop Microphone:67
+visiblePage=pluginsPage
+visiblePlugin=equalizer#0
+
+[StreamOutputs]
+mostUsedPresets=Laptop Speakers,Studio Headset,Headset,In-ear,Laptop Speakers Testing
+outputDevice=alsa_output.pci-0000_07_00.6.analog-stereo
+plugins=equalizer#1,bass_enhancer#0,limiter#0
+usedPresets=Studio Headset:210,Laptop Speakers:313,Headset:45,Laptop Speakers Testing:12,In-ear:14
+visiblePlugin=equalizer#1
+
+[Style]
+forceBreezeTheme=false
+
+[TestSignals]
+frequency=20
+
+[Window]
+height=1031
+presetsAutoloadInterval=0
+showTrayIcon=false
+visiblePage=inputPage
+width=937
+xdgGlobalShortcuts=true
+xdgGlobalShortcutsBound=true

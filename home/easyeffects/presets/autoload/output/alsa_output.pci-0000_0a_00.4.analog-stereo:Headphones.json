@@ -1,1 +1,6 @@
-/nix/store/ybxyd2wim483cf34a41dw6d8cv4147pj-home-manager-files/.local/share/easyeffects/autoload/output/alsa_output.pci-0000_0a_00.4.analog-stereo:Headphones.json
+{
+    "device": "alsa_output.pci-0000_0a_00.4.analog-stereo",
+    "device-description": "Starship/Matisse HD Audio Controller Analog Stereo",
+    "device-profile": "Headphones",
+    "preset-name": "Studio Headset"
+}

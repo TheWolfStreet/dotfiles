@@ -1,1 +1,4 @@
-/nix/store/ybxyd2wim483cf34a41dw6d8cv4147pj-home-manager-files/.config/easyeffects/db/maximizerrc
+[soe][Maximizer#0]
+inputGain=6
+release=5
+threshold=-0.3

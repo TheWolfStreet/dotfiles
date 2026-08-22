@@ -1,1 +1,2 @@
-/nix/store/ybxyd2wim483cf34a41dw6d8cv4147pj-home-manager-files/.config/easyeffects/db/deepfilternetrc
+[sie][DeepFilterNet#0]
+postFilterBeta=0.05

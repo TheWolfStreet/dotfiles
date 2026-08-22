@@ -1,1 +1,6 @@
-/nix/store/ybxyd2wim483cf34a41dw6d8cv4147pj-home-manager-files/.local/share/easyeffects/autoload/output/alsa_output.pci-0000_07_00.6.analog-stereo:Headphones.json
+{
+    "device": "alsa_output.pci-0000_07_00.6.analog-stereo",
+    "device-description": "Family 17h/19h/1ah HD Audio Controller Analog Stereo",
+    "device-profile": "Headphones",
+    "preset-name": "Studio Headset"
+}
