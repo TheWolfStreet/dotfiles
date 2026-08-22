@@ -27,6 +27,7 @@
 
       # Dev + reverse engineering
       lazygit
+      gh
       pi-coding-agent
       opencode
       nodejs
