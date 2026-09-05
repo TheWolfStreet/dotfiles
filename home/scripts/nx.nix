@@ -1,4 +1,5 @@
 {
+  config,
   lib,
   pkgs,
   configurationName,
@@ -31,7 +32,7 @@
   '';
   nx-gc = pkgs.writeShellScriptBin "nx-gc" ''
     set -euo pipefail
-    home-manager expire-generations "-1 days"
+    ${config.programs.home-manager.package}/bin/home-manager expire-generations "-1 days"
     sudo nix-collect-garbage -d
     sudo nix-store --optimize
   '';
