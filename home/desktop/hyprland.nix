@@ -90,7 +90,7 @@
     ${pkgs.systemd}/bin/systemctl suspend
   '';
 in {
-  xdg.portal.extraPortals = [pkgs.xdg-desktop-portal-gtk];
+  xdg.portal.extraPortals = [pkgs.xdg-desktop-portal-hyprland];
 
   xdg.desktopEntries."org.gnome.Settings" = {
     name = "Settings";
