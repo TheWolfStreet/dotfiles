@@ -28,7 +28,7 @@
       # Dev + reverse engineering
       lazygit
       gh
-      pi-coding-agent
+      claude-code
       opencode
       nodejs
       ghidra
