@@ -3,7 +3,7 @@
 in {
   home.packages = with pkgs; [
     pi-coding-agent
-    rtk
+    (rtk.overrideAttrs {doCheck = false;}) # tests fail under -D warnings (dead code)
   ];
 
   home.file = {
