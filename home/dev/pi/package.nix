@@ -9,7 +9,6 @@
   pi-coding-agent,
   fd,
   ripgrep,
-  ast-grep,
   rtk,
 }: let
   pi = "${pi-coding-agent}/lib/node_modules/pi-monorepo";
@@ -26,10 +25,11 @@
       export HOME=$TMPDIR
       bun install --frozen-lockfile --omit=peer --ignore-scripts --no-progress
     '';
-    installPhase = "cp -r node_modules $out";
+    # Keep a real node_modules dir so runtime resolution (require.resolve, hoisted deps) works
+    installPhase = "mkdir $out && cp -r node_modules $out/";
     dontFixup = true;
     outputHashMode = "recursive";
-    outputHash = "sha256-AM9V0dmDxXbGuGSxiyKowIVCSGLcw/dJ8vuHdjkvWkM=";
+    outputHash = "sha256-TJpICLDj5amxMRfjO925GXXhTFR3/kLaQfdV00gi5NI=";
   };
 in
   stdenvNoCC.mkDerivation {
@@ -41,7 +41,7 @@ in
 
     buildPhase = ''
       export HOME=$TMPDIR
-      cp -r ${deps} node_modules
+      cp -r ${deps}/node_modules node_modules
       chmod -R u+w node_modules
 
       # Bundled code would see /$bunfs paths; point file-relative lookups (rules, grammars, workers) at the store copy
@@ -49,9 +49,13 @@ in
         ! -name '*.d.ts' ! -name '*.d.mts' -print0 |
         while IFS= read -r -d "" f; do
           grep -q 'import\.meta\.\(url\|dirname\|filename\)' "$f" || continue
-          r=${deps}/''${f#node_modules/}
+          r=${deps}/$f
           sed -i "s#import\.meta\.url#'file://$r'#g; s#import\.meta\.dirname#'$(dirname "$r")'#g; s#import\.meta\.filename#'$r'#g" "$f"
         done
+
+      # pi-rtk-optimizer lazy-loads via import(variable), which bun can't bundle; make the imports static
+      sed -i 's#createLazyModuleLoader<typeof import("\([^"]*\)")>("\1")#(() => import("\1"))#' \
+        node_modules/pi-rtk-optimizer/src/*.ts
       mkdir -p node_modules/@earendil-works
       ln -s ${pi} node_modules/@earendil-works/pi-coding-agent
       for p in pi-ai pi-tui pi-agent-core; do
@@ -68,7 +72,8 @@ in
         echo "import { restoreSandboxEnv } from '$d/bun/restore-sandbox-env.js';"
         i=0
         for p in $(jq -r '.dependencies | keys[]' $src); do
-          e=$(jq -r '.pi.extensions[0]' node_modules/$p/package.json)
+          e=$(jq -r '.pi.extensions[0] // ""' node_modules/$p/package.json)
+          [ -n "$e" ] || continue # plain libraries (peer deps declared here) have no extension entry
           [ -d node_modules/$p/$e ] && e=$e/index.js
           echo "import e$i from './node_modules/$p/''${e#./}';"
           i=$((i + 1))
@@ -96,7 +101,7 @@ in
       cp ${pi}/node_modules/@silvia-odwyer/photon-node/photon_rs_bg.wasm $l/
       cp -r ${pi}/node_modules/@mariozechner/clipboard* $l/node_modules/@mariozechner/
       makeWrapper $l/pi $out/bin/pi \
-        --prefix PATH : ${lib.makeBinPath [fd ripgrep ast-grep rtk]} \
+        --prefix PATH : ${lib.makeBinPath [fd ripgrep rtk]} \
         --set-default PI_SKIP_VERSION_CHECK 1 \
         --set-default PI_TELEMETRY 0
     '';

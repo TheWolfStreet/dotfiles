@@ -23,6 +23,15 @@
   virtualisation.enable = true;
   services.asusd.enable = true;
 
+  # The BOE panel's overdrive overshoots at 144 Hz: bright/dark fringes trail moving edges
+  systemd.services.panel-overdrive-off = {
+    after = ["asusd.service"];
+    requires = ["asusd.service"];
+    wantedBy = ["multi-user.target"];
+    serviceConfig.Type = "oneshot";
+    script = "${pkgs.asusctl}/bin/asusctl armoury set panel_overdrive 0";
+  };
+
   networking.networkmanager.ensureProfiles.profiles.ethernet-default = {
     connection = {
       id = "Ethernet";

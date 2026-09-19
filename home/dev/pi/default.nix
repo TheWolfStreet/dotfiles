@@ -1,4 +1,11 @@
-{pkgs, ...}: let
+{
+  config,
+  pkgs,
+  dotfilesPath,
+  ...
+}: let
+  # Live links into the repo so pi can edit its own rules and skills; changes show in git
+  live = f: config.lib.file.mkOutOfStoreSymlink "${dotfilesPath}/home/dev/pi/${f}";
   json = builtins.toJSON;
 
   # rtk's tests fail under -D warnings (dead code)
@@ -10,13 +17,15 @@ in {
   ];
 
   home.file = {
-    ".pi/agent/AGENTS.md".source = ./AGENTS.md;
+    ".pi/agent/AGENTS.md".source = live "AGENTS.md";
+    ".pi/agent/skills".source = live "skills";
 
     ".pi/agent/settings.json".text = json {
       theme = "dark";
       defaultProvider = "anthropic";
       defaultModel = "claude-opus-5";
       defaultThinkingLevel = "medium";
+      enabledModels = ["claude-*" "gpt-6-astra"];
       hideThinkingBlock = false;
       warnings.anthropicExtraUsage = false;
     };

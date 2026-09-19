@@ -2,11 +2,12 @@
   "private": true,
   "dependencies": {
     "@juicesharp/rpiv-ask-user-question": "*",
+    "@narumitw/pi-lsp": "*",
     "@juicesharp/rpiv-todo": "*",
     "@zgltyq/pi-provider-claude": "*",
-    "pi-lens": "*",
     "pi-rtk-optimizer": "*",
     "pi-subagents": "*",
-    "pi-web-access": "*"
+    "pi-web-access": "*",
+    "typebox": "*"
   }
 }
