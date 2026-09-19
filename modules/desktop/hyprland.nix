@@ -41,45 +41,46 @@
     ])
     ++ lib.optional config.virtualisation.enable pkgs.gnome-boxes;
 
-  systemd.user.services.polkit-gnome-authentication-agent-1 = {
-    description = "GNOME polkit authentication agent";
-    wantedBy = ["graphical-session.target"];
-    partOf = ["graphical-session.target"];
-    after = ["graphical-session-pre.target"];
-    serviceConfig = {
-      Type = "simple";
-      ExecStart = "${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1";
-      Restart = "on-failure";
-      RestartSec = 1;
-      TimeoutStopSec = 10;
+  systemd.user.services = {
+    polkit-gnome-authentication-agent-1 = {
+      description = "GNOME polkit authentication agent";
+      wantedBy = ["graphical-session.target"];
+      partOf = ["graphical-session.target"];
+      after = ["graphical-session-pre.target"];
+      serviceConfig = {
+        Type = "simple";
+        ExecStart = "${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1";
+        Restart = "on-failure";
+        RestartSec = 1;
+        TimeoutStopSec = 10;
+      };
+    };
+
+    gnome-keyring-daemon = {
+      description = "GNOME Keyring daemon";
+      wantedBy = ["graphical-session.target"];
+      partOf = ["graphical-session.target"];
+      after = ["graphical-session-pre.target"];
+      serviceConfig = {
+        Type = "simple";
+        ExecStart = "/run/wrappers/bin/gnome-keyring-daemon --start --foreground --components=secrets";
+        Restart = "on-failure";
+      };
+    };
+
+    gnome-settings-daemon-rfkill = {
+      description = "GNOME rfkill service";
+      wantedBy = ["graphical-session.target"];
+      partOf = ["graphical-session.target"];
+      after = ["graphical-session-pre.target"];
+      serviceConfig = {
+        Type = "dbus";
+        BusName = "org.gnome.SettingsDaemon.Rfkill";
+        ExecStart = "${pkgs.gnome-settings-daemon}/libexec/gsd-rfkill";
+        Restart = "on-failure";
+      };
     };
   };
-
-  systemd.user.services.gnome-keyring-daemon = {
-    description = "GNOME Keyring daemon";
-    wantedBy = ["graphical-session.target"];
-    partOf = ["graphical-session.target"];
-    after = ["graphical-session-pre.target"];
-    serviceConfig = {
-      Type = "simple";
-      ExecStart = "/run/wrappers/bin/gnome-keyring-daemon --start --foreground --components=secrets";
-      Restart = "on-failure";
-    };
-  };
-
-  systemd.user.services.gnome-settings-daemon-rfkill = {
-    description = "GNOME rfkill service";
-    wantedBy = ["graphical-session.target"];
-    partOf = ["graphical-session.target"];
-    after = ["graphical-session-pre.target"];
-    serviceConfig = {
-      Type = "dbus";
-      BusName = "org.gnome.SettingsDaemon.Rfkill";
-      ExecStart = "${pkgs.gnome-settings-daemon}/libexec/gsd-rfkill";
-      Restart = "on-failure";
-    };
-  };
-
   services = {
     gvfs.enable = true;
     devmon.enable = true;
