@@ -20,6 +20,7 @@ in {
         "npm:pi-web-access"
         "npm:pi-lens"
         "npm:pi-rtk-optimizer"
+        "npm:@zgltyq/pi-provider-claude"
         "npm:@juicesharp/rpiv-todo"
         "npm:@juicesharp/rpiv-ask-user-question"
       ];
