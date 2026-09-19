@@ -2,5 +2,6 @@ result/
 result
 *.qcow2
 *.lock
+!home/dev/pi/bun.lock
 *.rmlock
 *.hm-bak

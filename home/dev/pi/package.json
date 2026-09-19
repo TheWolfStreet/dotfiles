@@ -1,0 +1,12 @@
+{
+  "private": true,
+  "dependencies": {
+    "@juicesharp/rpiv-ask-user-question": "*",
+    "@juicesharp/rpiv-todo": "*",
+    "@zgltyq/pi-provider-claude": "*",
+    "pi-lens": "*",
+    "pi-rtk-optimizer": "*",
+    "pi-subagents": "*",
+    "pi-web-access": "*"
+  }
+}
