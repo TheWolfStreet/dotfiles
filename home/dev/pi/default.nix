@@ -1,5 +1,18 @@
 {pkgs, ...}: let
   json = builtins.toJSON;
+
+  # Pi checks updates with `npm view`; bun's equivalent `info` needs a package.json in cwd
+  bun = pkgs.writeShellScriptBin "bun" ''
+    b=${pkgs.bun}/bin/bun
+    case "$1" in
+      view) shift; cd ~/.pi/agent/npm && exec $b info "$@" ;;
+      # Bun blocks postinstalls by default; pi-lens needs @ast-grep/cli's binary
+      install) $b "$@" || exit
+        while [ $# -gt 0 ]; do [ "$1" = --cwd ] && cd "$2"; shift; done
+        exec $b pm trust --all ;;
+    esac
+    exec $b "$@"
+  '';
 in {
   home.packages = with pkgs; [
     pi-coding-agent
@@ -15,6 +28,8 @@ in {
       defaultModel = "claude-opus-5";
       defaultThinkingLevel = "medium";
       hideThinkingBlock = false;
+      warnings.anthropicExtraUsage = false;
+      npmCommand = ["${bun}/bin/bun"];
       packages = [
         "npm:pi-subagents"
         "npm:pi-web-access"
