@@ -66,6 +66,8 @@ in
       d=./node_modules/@earendil-works/pi-coding-agent/dist
       {
         echo "import { registerBunOAuthFlows } from '@earendil-works/pi-ai/bun-oauth';"
+        echo "import { bedrockProviderModule } from '@earendil-works/pi-ai/bedrock-provider';"
+        echo "import { setBedrockProviderModule } from '@earendil-works/pi-ai/compat';"
         echo "import { APP_NAME } from '$d/config.js';"
         echo "import { configureHttpDispatcher } from '$d/core/http-dispatcher.js';"
         echo "import { main } from '$d/main.js';"
@@ -83,7 +85,7 @@ in
         echo "process.emitWarning = () => {};"
         echo "registerBunOAuthFlows();"
         echo "restoreSandboxEnv();"
-        echo "await import('$d/bun/register-bedrock.js');"
+        echo "setBedrockProviderModule(bedrockProviderModule);"
         echo "configureHttpDispatcher();"
         echo "main(process.argv.slice(2), { extensionFactories: [$(seq -s, -f 'e%g' 0 $((i - 1)))] });"
       } > entry.ts
@@ -99,7 +101,10 @@ in
       cp -r ${pi}/docs ${pi}/examples $l/
       cp -r ${pi}/dist/modes/interactive/theme ${pi}/dist/modes/interactive/assets ${pi}/dist/core/export-html $l/
       cp ${pi}/node_modules/@silvia-odwyer/photon-node/photon_rs_bg.wasm $l/
-      cp -r ${pi}/node_modules/@mariozechner/clipboard* $l/node_modules/@mariozechner/
+      # @mariozechner/clipboard only exists on pi versions that still depend on it
+      for c in ${pi}/node_modules/@mariozechner/clipboard*; do
+        [ -e "$c" ] && cp -r "$c" $l/node_modules/@mariozechner/
+      done
       makeWrapper $l/pi $out/bin/pi \
         --prefix PATH : ${lib.makeBinPath [fd ripgrep rtk]} \
         --set-default PI_SKIP_VERSION_CHECK 1 \

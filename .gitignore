@@ -3,5 +3,6 @@ result
 *.qcow2
 *.lock
 !home/dev/pi/bun.lock
+!home/dev/pi/pi-coding-agent.bun.lock
 *.rmlock
 *.hm-bak
