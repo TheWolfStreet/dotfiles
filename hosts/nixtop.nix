@@ -23,6 +23,16 @@
   virtualisation.enable = true;
   services.asusd.enable = true;
 
+  # ASUS TUF A16 FA617NSR PixArt touchpad (ASUP1205:00 093A:2008) freezes with
+  # "i2c_hid_get_input: incomplete report (18/65535)" until a suspend/resume
+  # cycle resets the bus. Poll instead of relying on the racy GPIO IRQ.
+  boot.kernelParams = ["i2c_hid.polling_mode=1"];
+
+  # Keep the touchpad's I2C link powered; runtime autosuspend can also wedge it.
+  services.udev.extraRules = ''
+    ACTION=="add", SUBSYSTEM=="i2c", KERNEL=="i2c-ASUP1205:00", ATTR{power/control}="on"
+  '';
+
   # The BOE panel's overdrive overshoots at 144 Hz: bright/dark fringes trail moving edges
   systemd.services.panel-overdrive-off = {
     after = ["asusd.service"];
