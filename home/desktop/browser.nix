@@ -82,6 +82,7 @@ in {
           (extension "localcdn-fork-of-decentraleyes" "{b86e4813-687a-43e6-ab65-0bde4ab75758}")
           (extension "privacy-badger17" "jid1-MnnxcxisBPnSXQ@jetpack")
           (extension "simple-translate" "simple-translate@sienori")
+          (extension "sponsorblock" "sponsorBlocker@ajay.app")
         ];
     };
   };
@@ -95,6 +96,7 @@ in {
       "njdfdhgcmkocbgbhcioffdbicglldapd" # LocalCDN
       "pkehgijcmpdhfbdbbnkijodmdjhbjlgp" # Privacy Badger
       "ibplnjkanclpjokhdolnendpplpjiace" # Simple Translate
+      "mnjggcdmjocbbbhaepdhchncahnbgone" # SponsorBlock
     ];
   };
 }
