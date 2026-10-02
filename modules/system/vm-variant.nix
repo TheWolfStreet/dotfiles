@@ -23,6 +23,7 @@ in {
     gaming.enable = forceDisabled;
     power.enable = forceDisabled;
     services = {
+      openssh.enable = forceDisabled;
       asusd.enable = forceDisabled;
       power-profiles-daemon.enable = forceDisabled;
     };

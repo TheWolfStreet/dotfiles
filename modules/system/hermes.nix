@@ -1,4 +1,4 @@
-{
+{implementation ? null}: {
   config,
   inputs,
   lib,
@@ -6,20 +6,19 @@
   username,
   ...
 }: let
-  implPath = /home/${username}/.hermes/nixos/hermes.nix;
-  implExists = builtins.pathExists implPath;
   hermesPkg = inputs.hermes-agent.packages.${pkgs.stdenv.hostPlatform.system}.default;
 in {
-  imports = lib.optional implExists implPath;
+  imports = lib.optional (implementation != null) implementation;
 
   options.hermes.enable = lib.mkEnableOption "Hermes Agent";
 
-  config = lib.mkIf config.hermes.enable {
-    warnings = lib.optional (!implExists) ''
-      Hermes: no NixOS implementation was detected at ${toString implPath}; using generic Hermes only.
-    '';
+  config = lib.mkIf (config.hermes.enable && implementation == null) {
+    warnings = [
+      ''
+        Hermes: using the generic package without a local NixOS implementation.
+      ''
+    ];
 
-    home-manager.users.${username}.home.packages =
-      lib.optional (!implExists) hermesPkg;
+    home-manager.users.${username}.home.packages = [hermesPkg];
   };
 }

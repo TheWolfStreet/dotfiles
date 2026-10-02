@@ -70,9 +70,9 @@ return {
                 overrides = function(colors)
                     local theme = colors.theme
                     return {
-                        NormalFloat = { bg = "none" },
-                        FloatBorder = { bg = "none" },
-                        FloatTitle = { bg = "none" },
+                        NormalFloat = { fg = theme.ui.fg, bg = theme.ui.bg_p1 },
+                        FloatBorder = { fg = theme.ui.special, bg = theme.ui.bg_p1 },
+                        FloatTitle = { fg = theme.ui.special, bg = theme.ui.bg_p1 },
 
                         NormalDark = { fg = theme.ui.fg_dim, bg = theme.ui.bg_m3 },
                         LazyNormal = { bg = theme.ui.bg_m3, fg = theme.ui.fg_dim },
@@ -119,9 +119,8 @@ return {
         lazy = false,
         config = function()
             local transparent = require("transparent")
-            transparent.clear_prefix("NeoTree")
-            transparent.clear_prefix("lualine_c")
-            return {
+            transparent.setup({
+                on_clear = function() transparent.clear_prefix("lualine_c") end,
                 extra_groups = {
                     "NormalFloat",
                     "FloatBorder",
@@ -137,11 +136,8 @@ return {
                     "PmenuSbar",
                     "PmenuThumb",
                     "PmenuSel",
-                    "WFFloatBorder",
-                    "WFFloatBorderFocus",
-                    "WFTheme",
                 },
-            }
+            })
         end,
     },
 }

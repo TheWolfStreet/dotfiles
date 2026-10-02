@@ -1,5 +1,3 @@
-vim.g.lazyvim_check_order = false
-
 return {
     {
         "mason-org/mason.nvim",
@@ -13,10 +11,22 @@ return {
     { import = "plugins.lang" },
 
     {
+        "saghen/blink.cmp",
+        opts = {
+            keymap = {
+                ["<C-space>"] = false,
+                ["<C-x><C-o>"] = { "show", "show_documentation", "hide_documentation" },
+            },
+        },
+    },
+
+    {
         "stevearc/conform.nvim",
         opts = {
             formatters_by_ft = {
-                xml = { "xmllint --format" },
+                c = { "clang_format" },
+                cpp = { "clang_format" },
+                xml = { "xmllint" },
             },
         },
     },

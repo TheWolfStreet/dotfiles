@@ -102,10 +102,7 @@
 in {
   programs.tmux = {
     enable = true;
-    plugins = with pkgs.tmuxPlugins; [
-      vim-tmux-navigator
-      yank
-    ];
+    plugins = with pkgs.tmuxPlugins; [yank];
     prefix = "C-Space";
     baseIndex = 1;
     escapeTime = 0;
@@ -127,6 +124,11 @@ in {
         bind v copy-mode
         bind '"' split-window -v -c "#{pane_current_path}"
         bind % split-window -h -c "#{pane_current_path}"
+        bind c new-window -c "#{pane_current_path}"
+        bind h select-pane -L
+        bind j select-pane -D
+        bind k select-pane -U
+        bind l select-pane -R
 
         bind-key -T copy-mode-vi v send-keys -X begin-selection
         bind-key -T copy-mode-vi C-v send-keys -X rectangle-toggle
@@ -155,11 +157,12 @@ in {
         bind-key -n M-F10 select-window -t 10
 
         set-option -g @main_accent "blue"
+        set-option -g status-left-length 30
         set-option -g status-right-length 100
-        set-option -g pane-active-border fg=black
+        set-option -g pane-active-border-style fg=blue
         set-option -g pane-border-style fg=black
         set-option -g status-style "bg=default fg=default"
-        set-option -g status-left "${client_prefix}"
+        set-option -g status-left "${client_prefix}#[bold,fg=${accent}]#S #[default]"
         set-option -g status-right "${git}${pwd}${battery}${time}"
         set-option -g window-status-current-format "${current_window}"
         set-option -g window-status-format "${window_status}"

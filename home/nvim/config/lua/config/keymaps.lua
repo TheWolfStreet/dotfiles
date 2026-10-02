@@ -2,48 +2,16 @@ local km = vim.keymap.set
 
 km("n", "Q", "@q")
 
--- Telescope
-km("n", "<leader>fg", require("telescope.builtin").live_grep, { desc = "[F]ind in file using Telescope" })
-km("n", "<leader>fc", "<nop>")
-km(
-    "n",
-    "<leader><leader>",
-    function() require("telescope.builtin").find_files(require("telescope.themes").get_dropdown({ previewer = false })) end,
-    { desc = "Telescope [f]ind file" }
-)
+km("x", "<leader>p", '"_dP', { desc = "Paste without replacing register" })
+km("n", "<C-q>", function() Snacks.bufdelete() end, { desc = "Delete Buffer" })
+km("n", "<leader>ct", "<cmd>ColorizerToggle<cr>", { desc = "Toggle Colorizer" })
+km("n", "<leader>uP", "<cmd>PickColor<cr>", { desc = "Pick Color" })
+km("n", "<leader>cn", function() require("neogen").generate() end, { desc = "Generate Annotations" })
 
--- Move selected lines
-km("v", "J", ":m '>+1<CR>gv=gv")
-km("v", "K", ":m '<-2<CR>gv=gv")
-
--- Diagnostics
-km("n", "<leader>xx", vim.cmd.TroubleToggle, { desc = "TroubleToggle" })
-km("n", "<leader>xw", "<cmd>TroubleToggle workspace_diagnostics<cr>", { desc = "TroubleToggle [W]orkspace" })
-
--- Buffers
-km({ "n", "i", "v" }, "<A-l>", vim.cmd.bnext, { desc = "Switch to next Buffer" })
-km({ "n", "i", "v" }, "<A-h>", vim.cmd.bprev, { desc = "Switch to prev Buffer" })
-km("n", "<C-q>", function() vim.cmd("bw") end, { desc = "Close Buffer" })
-
--- Selection
-km("n", "<C-a>", "ggVG")
-km("v", "V", "j")
-
--- Paste
-km("n", "<leader>p", '"_dP')
-
--- Colors
-km("n", "<leader>ct", vim.cmd.ColorizerToggle, { desc = "[C]olorizer" })
-km("n", "<leader>cp", vim.cmd.PickColor, { desc = "[P]ick Color" })
-
--- Generate docs
-km("n", "<Leader>dg", require("neogen").generate, { desc = "Generate Docs" })
-
--- Tmux
-km({ "n", "i", "v" }, "<C-h>", vim.cmd.TmuxNavigateLeft)
-km({ "n", "i", "v" }, "<C-j>", vim.cmd.TmuxNavigateDown)
-km({ "n", "i", "v" }, "<C-k>", vim.cmd.TmuxNavigateUp)
-km({ "n", "i", "v" }, "<C-l>", vim.cmd.TmuxNavigateRight)
+km("n", "<C-h>", "<cmd>TmuxNavigateLeft<cr>", { desc = "Navigate Left (tmux)" })
+km("n", "<C-j>", "<cmd>TmuxNavigateDown<cr>", { desc = "Navigate Down (tmux)" })
+km("n", "<C-k>", "<cmd>TmuxNavigateUp<cr>", { desc = "Navigate Up (tmux)" })
+km("n", "<C-l>", "<cmd>TmuxNavigateRight<cr>", { desc = "Navigate Right (tmux)" })
 
 require("snacks")
     .toggle({

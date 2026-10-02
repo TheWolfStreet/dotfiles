@@ -46,6 +46,8 @@
     home-manager,
     ...
   }: let
+    system = "x86_64-linux";
+    pkgs = nixpkgs.legacyPackages.${system};
     defaultUsername = "tws";
     gitName = "TheWolfStreet";
     gitEmail = "wolfthestreet@gmail.com";
@@ -64,7 +66,7 @@
       dotfilesPath = "/home/${username}/.dotfiles";
     in
       nixpkgs.lib.nixosSystem {
-        system = "x86_64-linux";
+        inherit system;
 
         specialArgs = {
           inherit inputs configurationName username hostname gitName gitEmail stateVersion dotfilesPath;
@@ -77,5 +79,27 @@
       };
   in {
     nixosConfigurations = nixpkgs.lib.mapAttrs mkSystem hosts;
+
+    formatter.${system} = pkgs.alejandra;
+
+    checks.${system} = {
+      ags-package = inputs.ags2-shell.packages.${system}.default;
+      formatting =
+        pkgs.runCommand "dotfiles-formatting" {
+          nativeBuildInputs = [pkgs.alejandra];
+          src = nixpkgs.lib.fileset.toSource {
+            root = ./.;
+            fileset = nixpkgs.lib.fileset.unions [
+              ./flake.nix
+              (nixpkgs.lib.fileset.fileFilter (file: file.hasExt "nix") ./hosts)
+              (nixpkgs.lib.fileset.fileFilter (file: file.hasExt "nix") ./modules)
+              (nixpkgs.lib.fileset.fileFilter (file: file.hasExt "nix") ./home)
+            ];
+          };
+        } ''
+          alejandra --check "$src/flake.nix" "$src/hosts" "$src/modules" "$src/home"
+          touch "$out"
+        '';
+    };
   };
 }

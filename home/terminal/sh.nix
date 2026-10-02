@@ -56,7 +56,7 @@ in {
 
     nushell = {
       enable = true;
-      shellAliases = commonAliases;
+      inherit shellAliases;
       environmentVariables = {
         PROMPT_INDICATOR_VI_INSERT = "  ";
         PROMPT_INDICATOR_VI_NORMAL = "∙ ";
@@ -115,8 +115,6 @@ in {
         def purge-history [] {
           open $nu.history-path | query db "DELETE FROM history WHERE exit_status != 0"
         }
-
-        def q [] { purge-history; exit }
 
         ${completions ["git" "nix"]}
 

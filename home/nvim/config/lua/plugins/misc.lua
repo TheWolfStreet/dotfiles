@@ -4,15 +4,26 @@ return {
         opts = { inlay_hints = { enabled = false } },
     },
     { "folke/noice.nvim", enabled = true },
-    { "rcarriga/nvim-notify", enabled = true },
-    { "stevearc/dressing.nvim", enabled = true },
     { "nvim-pack/nvim-spectre", enabled = false },
     { "norcalli/nvim-colorizer.lua" },
     { "christoomey/vim-tmux-navigator" },
-    { "f-person/git-blame.nvim" },
+    {
+        "f-person/git-blame.nvim",
+        cmd = {
+            "GitBlameEnable",
+            "GitBlameDisable",
+            "GitBlameToggle",
+            "GitBlameCopySHA",
+            "GitBlameCopyCommitURL",
+            "GitBlameCopyFileURL",
+            "GitBlameCopyPRURL",
+            "GitBlameOpenCommitURL",
+            "GitBlameOpenFileURL",
+        },
+        init = function() vim.g.gitblame_enabled = false end,
+    },
     { "ziontee113/color-picker.nvim", opts = {} },
     { "danymat/neogen", opts = {} },
-    { "j-hui/fidget.nvim", opts = {} },
     {
         "kawre/leetcode.nvim",
         dependencies = {
@@ -24,5 +35,12 @@ return {
             lang = "cpp",
         },
     },
-    { "RaafatTurki/hex.nvim", lazy = true, event = { "BufReadPre" } },
+    {
+        "RaafatTurki/hex.nvim",
+        cmd = { "HexDump", "HexAssemble", "HexToggle" },
+        opts = {
+            is_file_binary_pre_read = function() return false end,
+            is_file_binary_post_read = function() return false end,
+        },
+    },
 }

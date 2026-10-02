@@ -3,7 +3,7 @@
     ./base.nix
     ./boot.nix
     ./locale.nix
-    ./hermes.nix
+    ./home-manager.nix
     ./network.nix
     ./power.nix
     ./responsiveness.nix

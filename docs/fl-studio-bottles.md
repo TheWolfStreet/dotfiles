@@ -24,7 +24,7 @@ modules/desktop/audio.nix   PipeWire rate and quantum
 modules/desktop/hyprland.nix
 modules/hardware/amd.nix
 modules/hardware/nvidia.nix
-modules/system/base.nix     Imports the Home Manager music module
+modules/system/home-manager.nix  Imports the Home Manager music module
 modules/system/boot.nix     Zen kernel and threadirqs
 ```
 

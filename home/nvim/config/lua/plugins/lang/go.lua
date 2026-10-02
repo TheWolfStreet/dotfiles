@@ -1,5 +1,4 @@
 return {
-    { import = "lazyvim.plugins.extras.lang.go" },
     {
         "stevearc/conform.nvim",
         optional = true,

@@ -45,7 +45,10 @@
 
   xdg.configFile."gtk-3.0/settings.ini".force = true;
 
-  qt.platformTheme.name = "gtk3";
+  qt = {
+    enable = true;
+    platformTheme.name = "gtk3";
+  };
 
   xdg.dataFile."flatpak/overrides/global".text = let
     dirs = [

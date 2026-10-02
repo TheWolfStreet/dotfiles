@@ -89,23 +89,26 @@ in {
           Type = "oneshot";
           RemainAfterExit = true;
           ExecStart = pkgs.writeShellScript "enable-power-actions" ''
+            set -e
             ${pkgs.power-profiles-daemon}/bin/powerprofilesctl configure-action --enable amdgpu_panel_power
             ${pkgs.power-profiles-daemon}/bin/powerprofilesctl configure-action --enable amdgpu_dpm
           '';
           ExecStop = pkgs.writeShellScript "disable-power-actions" ''
-            ${pkgs.power-profiles-daemon}/bin/powerprofilesctl configure-action --disable amdgpu_panel_power
-            ${pkgs.power-profiles-daemon}/bin/powerprofilesctl configure-action --disable amdgpu_dpm
+            failed=0
+            ${pkgs.power-profiles-daemon}/bin/powerprofilesctl configure-action --disable amdgpu_panel_power || failed=1
+            ${pkgs.power-profiles-daemon}/bin/powerprofilesctl configure-action --disable amdgpu_dpm || failed=1
 
             for gpu in /sys/class/drm/card*/device/power_dpm_force_performance_level; do
-              if [ -w "$gpu" ]; then
-                printf auto > "$gpu"
+              if [ -e "$gpu" ]; then
+                printf auto > "$gpu" || failed=1
               fi
             done
             for panel in /sys/class/drm/card*-*/amdgpu/panel_power_savings; do
-              if [ -w "$panel" ]; then
-                printf 0 > "$panel"
+              if [ -e "$panel" ]; then
+                printf 0 > "$panel" || failed=1
               fi
             done
+            exit "$failed"
           '';
         };
       };

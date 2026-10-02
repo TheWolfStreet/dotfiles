@@ -12,6 +12,13 @@ in {
     sessionVariables.BROWSER = "librewolf";
   };
 
+  xdg.configFile."hyprland-mimeapps.list".text = ''
+    [Default Applications]
+    x-scheme-handler/http=librewolf.desktop;
+    x-scheme-handler/https=librewolf.desktop;
+    text/html=librewolf.desktop;
+  '';
+
   programs.librewolf = {
     enable = true;
     profiles.default = {

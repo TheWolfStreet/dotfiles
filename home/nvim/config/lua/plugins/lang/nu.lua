@@ -1,13 +1,5 @@
 return {
     {
-        "folke/ts-comments.nvim",
-        opts = {
-            lang = {
-                typst = "# %s",
-            },
-        },
-    },
-    {
         "neovim/nvim-lspconfig",
         opts = { servers = { nushell = {} } },
     },

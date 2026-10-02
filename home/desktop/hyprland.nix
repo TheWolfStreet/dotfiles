@@ -8,10 +8,41 @@
 
   playerctl = "${pkgs.playerctl}/bin/playerctl";
   brightnessctl = "${pkgs.brightnessctl}/bin/brightnessctl";
+  keyboard_backlight = pkgs.writeShellScript "keyboard-backlight" ''
+    set -euo pipefail
+    case "$*" in
+      +1|1-) ;;
+      *) printf 'Usage: keyboard-backlight {+1|1-}\n' >&2; exit 2 ;;
+    esac
+    led_dir=/sys/class/leds
+    [ -d "$led_dir" ] || exit 0
+    if [ ! -r "$led_dir" ] || [ ! -x "$led_dir" ]; then
+      printf 'keyboard-backlight: cannot read LED devices\n' >&2
+      exit 1
+    fi
+    device=
+    for led in "$led_dir"/*:kbd_backlight; do
+      [ -e "$led" ] || continue
+      if [ -n "$device" ]; then
+        printf 'keyboard-backlight: multiple devices (%s, %s); select a device explicitly with brightnessctl\n' "$device" "''${led##*/}" >&2
+        exit 1
+      fi
+      device="''${led##*/}"
+    done
+    [ -n "$device" ] || exit 0
+    exec ${brightnessctl} --class=leds --device="$device" set "$1"
+  '';
   pactl = "${pkgs.pulseaudio}/bin/pactl";
   hyprlock = "pidof hyprlock || hyprlock";
   touchpad_toggle = import ../scripts/touchpad.nix pkgs;
   jq = "${pkgs.jq}/bin/jq";
+  lid_closed = pkgs.writeShellScript "lid-closed" ''
+    for lid in /proc/acpi/button/lid/*/state; do
+      [ -r "$lid" ] || continue
+      ${pkgs.gnugrep}/bin/grep -qi closed "$lid" && exit 0
+    done
+    exit 1
+  '';
   ac_online = pkgs.writeShellScript "ac-online" ''
     has_battery=false
     for p in /sys/class/power_supply/*; do
@@ -27,60 +58,94 @@
     [ "$has_battery" = false ]
   '';
   lid_close = pkgs.writeShellScript "lid-close" ''
-    state="''${XDG_RUNTIME_DIR:-/tmp}/hypr-internal-panel-$UID"
-    monitors=$(hyprctl monitors all -j)
-    if ! ${jq} -e 'any(.[]; (.name | test("^(eDP|LVDS)") | not) and .disabled == false)' <<< "$monitors" >/dev/null; then
+    if [ -z "''${XDG_RUNTIME_DIR:-}" ] || [ ! -d "$XDG_RUNTIME_DIR" ] || [ ! -O "$XDG_RUNTIME_DIR" ] || [ ! -w "$XDG_RUNTIME_DIR" ] || [ "$(${pkgs.coreutils}/bin/stat -c %a "$XDG_RUNTIME_DIR" 2>/dev/null)" != 700 ]; then
+      printf 'lid-close: private XDG_RUNTIME_DIR is required\n' >&2
+      exit 1
+    fi
+    state="$XDG_RUNTIME_DIR/hypr-internal-panel-$UID"
+    monitors=$(hyprctl monitors all -j) || exit 1
+    ${jq} -e 'type == "array" and length > 0 and all(.[]; (.name | type == "string") and (.disabled | type == "boolean"))' <<< "$monitors" >/dev/null || exit 1
+    if ! ${jq} -e 'any(.[]; (.name | test("^(eDP|LVDS)"; "i") | not) and .disabled == false)' <<< "$monitors" >/dev/null; then
       ${ac_online} || ${pkgs.systemd}/bin/systemctl suspend
       exit 0
     fi
 
-    panel=$(${jq} -c '[.[] | select((.name | test("^(eDP|LVDS)")) and .disabled == false)] | first // empty' <<< "$monitors")
+    panel=$(${jq} -c '[.[] | select((.name | test("^(eDP|LVDS)"; "i")) and .disabled == false)] | first // empty' <<< "$monitors")
     [ -n "$panel" ] || exit 0
+    ${jq} -e '(.width | type == "number") and (.height | type == "number") and (.refreshRate | type == "number") and (.x | type == "number") and (.y | type == "number") and (.scale | type == "number") and (.transform | type == "number")' <<< "$panel" >/dev/null || exit 1
 
     name=$(${jq} -r '.name' <<< "$panel")
-    ${jq} -r '[.name, "\(.width)x\(.height)@\(.refreshRate)", "\(.x)x\(.y)", (.scale | tostring), "transform", (.transform | tostring)] | join(",")' \
-      <<< "$panel" > "$state"
-    hyprctl keyword monitor "$name,disable"
+    if [ ! -s "$state" ]; then
+      ${jq} -r '[.name, "\(.width)x\(.height)@\(.refreshRate)", "\(.x)x\(.y)", (.scale | tostring), "transform", (.transform | tostring)] | join(",")' \
+        <<< "$panel" > "$state" || exit 1
+    fi
+    hyprctl keyword monitor "$name,disable" || exit 1
   '';
   restore_panel = pkgs.writeShellScript "restore-panel" ''
-    state="''${XDG_RUNTIME_DIR:-/tmp}/hypr-internal-panel-$UID"
-    if [ -s "$state" ]; then
-      IFS= read -r monitor_rule < "$state"
-      [ -n "$monitor_rule" ] || exit 1
-      name="''${monitor_rule%%,*}"
-
-      ${pkgs.coreutils}/bin/sleep 1
-      hyprctl reload >/dev/null
-      for _ in $(${pkgs.coreutils}/bin/seq 1 30); do
-        hyprctl keyword monitor "$monitor_rule" >/dev/null
-        hyprctl dispatch dpms on "$name" >/dev/null
-        if hyprctl monitors -j | ${jq} -e --arg name "$name" 'any(.[]; .name == $name and .dpmsStatus)' >/dev/null; then
-          ${pkgs.coreutils}/bin/sleep 1
-          hyprctl dispatch dpms on "$name" >/dev/null
-          ${pkgs.coreutils}/bin/rm -f "$state"
-          exit 0
-        fi
-        ${pkgs.coreutils}/bin/sleep 0.5
-      done
+    if [ -z "''${XDG_RUNTIME_DIR:-}" ] || [ ! -d "$XDG_RUNTIME_DIR" ] || [ ! -O "$XDG_RUNTIME_DIR" ] || [ ! -w "$XDG_RUNTIME_DIR" ] || [ "$(${pkgs.coreutils}/bin/stat -c %a "$XDG_RUNTIME_DIR" 2>/dev/null)" != 700 ]; then
+      printf 'restore-panel: private XDG_RUNTIME_DIR is required\n' >&2
+      exit 1
     fi
+    state="$XDG_RUNTIME_DIR/hypr-internal-panel-$UID"
+    if ${lid_closed}; then exit 0; fi
+    if [ ! -s "$state" ]; then
+      ${wake_display}
+      exit $?
+    fi
+    IFS= read -r monitor_rule < "$state"
+    [ -n "$monitor_rule" ] || exit 1
+    name="''${monitor_rule%%,*}"
+
+    ${pkgs.coreutils}/bin/sleep 1
+    hyprctl reload >/dev/null || exit 1
+    for _ in $(${pkgs.coreutils}/bin/seq 1 30); do
+      if ${lid_closed}; then exit 0; fi
+      if hyprctl keyword monitor "$monitor_rule" >/dev/null && hyprctl dispatch dpms on "$name" >/dev/null &&
+        hyprctl monitors -j | ${jq} -e --arg name "$name" 'type == "array" and any(.[]; .name == $name and .dpmsStatus == true)' >/dev/null; then
+        ${pkgs.coreutils}/bin/sleep 1
+        if ${lid_closed}; then exit 0; fi
+        hyprctl dispatch dpms on "$name" >/dev/null || exit 1
+        ${pkgs.coreutils}/bin/rm -f "$state"
+        exit 0
+      fi
+      ${pkgs.coreutils}/bin/sleep 0.5
+    done
     exit 1
   '';
   wake_display = pkgs.writeShellScript "wake-display" ''
     # amdgpu can fail to relight the internal panel after s2idle when the lid was closed during
     # suspend. Nudge DPMS on, retrying until the panel reports on; if it never
     # does, force a full modeset toggle as a last resort.
-    if ! hyprctl monitors all -j | ${jq} -e 'any(.[]; .name | test("^(eDP|LVDS)"))' >/dev/null 2>&1; then
-      hyprctl dispatch dpms on >/dev/null 2>&1
-      exit 0
+    if ${lid_closed}; then
+      monitors=$(hyprctl monitors -j) || exit 1
+      ${jq} -e 'type == "array" and all(.[]; .name | type == "string")' <<< "$monitors" >/dev/null || exit 1
+      failed=0
+      while IFS= read -r name; do
+        if ! hyprctl dispatch dpms on "$name" >/dev/null; then
+          printf 'wake-display: could not wake %s\n' "$name" >&2
+          failed=1
+        fi
+      done < <(${jq} -r '.[] | select(.name | test("^(eDP|LVDS)"; "i") | not) | .name' <<< "$monitors")
+      exit "$failed"
+    fi
+    monitors=$(hyprctl monitors all -j) || exit 1
+    ${jq} -e 'type == "array" and all(.[]; .name | type == "string")' <<< "$monitors" >/dev/null || exit 1
+    if ! ${jq} -e 'any(.[]; .name | test("^(eDP|LVDS)"; "i"))' <<< "$monitors" >/dev/null; then
+      hyprctl dispatch dpms on >/dev/null
+      exit $?
     fi
 
     for _ in $(${pkgs.coreutils}/bin/seq 1 20); do
+      if ${lid_closed}; then exit 0; fi
       hyprctl dispatch dpms on >/dev/null 2>&1
-      if hyprctl monitors all -j | ${jq} -e 'any(.[]; (.name | test("^(eDP|LVDS)")) and .dpmsStatus)' >/dev/null 2>&1; then
+      monitors=$(hyprctl monitors all -j) || exit 1
+      ${jq} -e 'type == "array" and all(.[]; (.name | type == "string") and (.dpmsStatus | type == "boolean"))' <<< "$monitors" >/dev/null || exit 1
+      if ${jq} -e 'any(.[]; (.name | test("^(eDP|LVDS)"; "i")) and .dpmsStatus == true)' <<< "$monitors" >/dev/null; then
         exit 0
       fi
       ${pkgs.coreutils}/bin/sleep 0.25
     done
+    if ${lid_closed}; then exit 0; fi
     hyprctl dispatch dpms off >/dev/null 2>&1
     ${pkgs.coreutils}/bin/sleep 0.5
     hyprctl dispatch dpms on >/dev/null 2>&1
@@ -100,8 +165,8 @@ in {
   };
 
   xdg.desktopEntries."org.gnome.Settings" = {
-    name = "Settings";
-    comment = "Gnome Control Center";
+    name = "GNOME Settings";
+    comment = "GNOME control center (GNOME settings only)";
     icon = "org.gnome.Settings";
     exec = "env XDG_CURRENT_DESKTOP=gnome ${pkgs.gnome-control-center}/bin/gnome-control-center";
     categories = ["X-Preferences"];
@@ -120,9 +185,6 @@ in {
         no_donation_nag = true;
       };
 
-      env = [
-        ''QT_QPA_PLATFORMTHEME, gtk3''
-      ];
       exec-once = [
         "hyprctl setcursor ${cursorTheme.name} ${toString cursorTheme.size}"
       ];
@@ -202,6 +264,13 @@ in {
           # Alt + TAB switch
           "ALT, Tab, cyclenext"
           "ALT, Tab, bringactivetotop"
+          "ALT CTRL, Tab, cyclenext, prev"
+          "ALT CTRL, Tab, bringactivetotop"
+
+          "SUPER CTRL, right, movefocus, r"
+          "SUPER CTRL, left, movefocus, l"
+          "SUPER CTRL, up, movefocus, u"
+          "SUPER CTRL, down, movefocus, d"
 
           "SUPER, Q, killactive"
           "SUPER, F, fullscreen"
@@ -230,18 +299,17 @@ in {
 
       # Push to talk
       bindip = ",mouse:276, exec, ${pactl} set-source-mute @DEFAULT_SOURCE@ 0";
-      bindir = ",mouse:276, exec, ${pactl} set-source-mute @DEFAULT_SOURCE@ 1";
+      bindilpr = ",mouse:276, exec, ${pactl} set-source-mute @DEFAULT_SOURCE@ 1";
 
       bindle = [
         "CTRL, F8,               exec, ${brightnessctl} set +5%"
         "CTRL, F7,               exec, ${brightnessctl} set 5%-"
         ",XF86MonBrightnessUp,   exec, ${brightnessctl} set +5%"
         ",XF86MonBrightnessDown, exec, ${brightnessctl} set  5%-"
-        ",XF86KbdBrightnessUp,   exec, ${brightnessctl} -d asus::kbd_backlight set +1"
-        ",XF86KbdBrightnessDown, exec, ${brightnessctl} -d asus::kbd_backlight set  1-"
         ",XF86AudioRaiseVolume,  exec, ${pactl} set-sink-volume @DEFAULT_SINK@ +5%"
         ",XF86AudioLowerVolume,  exec, ${pactl} set-sink-volume @DEFAULT_SINK@ -5%"
-        ",XF86AudioMute,         exec, ${pactl} set-sink-mute @DEFAULT_SINK@ toggle"
+        ",XF86KbdBrightnessUp,   exec, ${keyboard_backlight} +1"
+        ",XF86KbdBrightnessDown, exec, ${keyboard_backlight} 1-"
       ];
 
       bindl = [
@@ -254,6 +322,7 @@ in {
         ",XF86AudioPause,      exec, ${playerctl} pause"
         ",XF86AudioPrev,       exec, ${playerctl} previous"
         ",XF86AudioNext,       exec, ${playerctl} next"
+        ",XF86AudioMute,       exec, ${pactl} set-sink-mute @DEFAULT_SINK@ toggle"
         "SHIFT ,XF86AudioMute, exec, ${pactl} set-source-mute @DEFAULT_SOURCE@ toggle"
         ",XF86AudioMicMute,    exec, ${pactl} set-source-mute @DEFAULT_SOURCE@ toggle"
       ];
@@ -440,7 +509,7 @@ in {
         {
           timeout = 1200;
           on-timeout = "hyprctl dispatch dpms off";
-          on-resume = "hyprctl dispatch dpms on";
+          on-resume = "${wake_display}";
         }
         {
           timeout = 1800;
@@ -494,6 +563,15 @@ in {
           halign = "center";
           valign = "center";
         }
+        {
+          text = "Layout: $LAYOUT";
+          color = "rgba(216, 222, 233, 0.80)";
+          font_size = 16;
+          font_family = "SF Pro Display Nerd Font Regular";
+          position = "0, -210";
+          halign = "center";
+          valign = "center";
+        }
       ];
 
       image = {
@@ -518,9 +596,9 @@ in {
         inner_color = "rgba(255, 255, 255, 0.1)";
         check_color = "rgba(255, 255, 255, 0.1)";
         fail_color = "rgba(255, 255, 255, 0.1)";
-        capslock_color = "rgba(255, 255, 255, 0.1)";
+        capslock_color = "rgba(235, 165, 65, 0.85)";
         numlock_color = "rgba(255, 255, 255, 0.1)";
-        bothlock_color = "rgba(255, 255, 255, 0.1)";
+        bothlock_color = "rgba(235, 165, 65, 0.85)";
         font_color = "rgb(200, 200, 200)";
         fade_on_empty = false;
         font_family = "SF Pro Display Nerd Font Regular";

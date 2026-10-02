@@ -7,6 +7,10 @@ local diff = {
         modified = icons.git.modified,
         removed = icons.git.removed,
     },
+    source = function()
+        local signs = vim.b.gitsigns_status_dict
+        if signs then return { added = signs.added, modified = signs.changed, removed = signs.removed } end
+    end,
 }
 
 local diagnostic = {
@@ -21,26 +25,13 @@ local diagnostic = {
 
 local filename = {
     "filename",
-    cond = function()
-        local bufs_loaded = {}
-
-        for i, buf_hndl in ipairs(vim.api.nvim_list_bufs()) do
-            if vim.api.nvim_buf_is_loaded(buf_hndl) then bufs_loaded[i] = buf_hndl end
-        end
-
-        return #bufs_loaded == 2
-    end,
+    path = 1,
     symbols = {
         modified = " ",
         readonly = "[ro]",
         unnamed = "[unnamed]",
         newfile = "[new]",
     },
-}
-
-local navic = {
-    function() return require("nvim-navic").get_location() end,
-    cond = function() return package.loaded["nvim-navic"] and require("nvim-navic").is_available() end,
 }
 
 local position = {
@@ -64,9 +55,9 @@ return {
                 sections = {
                     lualine_a = { "mode" },
                     lualine_b = { "branch", diff },
-                    lualine_c = { diagnostic, navic },
+                    lualine_c = { LazyVim.lualine.root_dir({ cwd = true }), filename, diagnostic },
                     lualine_x = { "searchcount", "selectioncount", "encoding", "filetype" },
-                    lualine_y = { filename },
+                    lualine_y = {},
                     lualine_z = { position },
                 },
             }

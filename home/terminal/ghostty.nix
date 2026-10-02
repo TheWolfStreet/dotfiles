@@ -40,7 +40,7 @@ in {
 
   xdg.configFile = {
     "ghostty/config".text = ''
-      command = ${pkgs.tmux}/bin/tmux
+      command = ${pkgs.tmux}/bin/tmux new-session -A -s main
       font-family = ${themeDark.monospaceFont.name}
       font-size = 16
       font-feature = liga

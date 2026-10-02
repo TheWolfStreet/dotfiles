@@ -1,7 +1,14 @@
-{pkgs, ...}: {
+{
+  pkgs,
+  configurationName,
+  dotfilesPath,
+  ...
+}: {
   home.sessionVariables = {
     EDITOR = "nvim";
     VISUAL = "nvim";
+    NVIM_NIXD_HOST = configurationName;
+    NVIM_NIXD_DOTFILES = dotfilesPath;
   };
 
   programs.neovim = {
@@ -38,10 +45,17 @@
 
       nixd
       lua-language-server
+      clang-tools
+      cmake
+      ninja
+      neocmakelsp
+      cmake-format
+      cmake-lint
       bash-language-server
       stylua
       alejandra
       statix
+      libxml2
     ];
   };
 

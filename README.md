@@ -12,7 +12,7 @@ A multi-host NixOS and Home Manager configuration built around Hyprland and the 
 ## Included
 
 - Hyprland desktop with tuigreet, Hyprlock, GTK/Qt theming, GNOME services, and the packaged AGS shell
-- PipeWire and WirePlumber fixed at 44.1 kHz with a 512-sample quantum, plus declarative EasyEffects presets and MIDI hotplug bridging
+- PipeWire and WirePlumber fixed at 44.1 kHz with a 512-sample quantum, plus writable EasyEffects presets and MIDI hotplug bridging
 - NetworkManager, key-only SSH defaults, Flatpak, and declarative Flathub provisioning
 - AMD, Intel, and NVIDIA hardware modules with native and 32-bit graphics acceleration
 - Optional gaming, laptop power management, containers, libvirt/VM tooling, and Hermes Agent integration
@@ -108,11 +108,13 @@ sudo nixos-rebuild boot --flake ~/.dotfiles#<configuration> --impure
 sudo reboot
 ```
 
-Tuigreet starts after boot. The bootstrap password is the configured username; replace it immediately after the first login:
+Tuigreet starts after boot. On a fresh installation, the initial password is the configured username (`tws`, or `ghost` for `ironmaiden`). Change it after the first login:
 
 ```bash
 passwd
 ```
+
+Existing installations retain their passwords; rebuilds do not reset a changed password to the initial value. Desktop SSH intentionally accepts passwords, so change the bootstrap password before exposing it to an untrusted network.
 
 ## Host Options
 
@@ -132,9 +134,11 @@ Hosts compose the common desktop, hardware, and system modules and enable only m
 | `gaming.enable` | Steam, Gamescope, Gamemode, and local-transfer firewall support |
 | `power.enable` | Laptop power, lid, suspend, and device power policies |
 | `virtualisation.enable` | Docker, Podman, libvirt, virt-manager, Boxes, Distrobox, Lazydocker, SPICE USB, and `nx-vm` |
-| `hermes.enable` | Hermes Agent; imports `~/.hermes/nixos/hermes.nix` when present, otherwise installs the generic flake package |
+| `hermes.enable` | Hermes Agent; available when the host explicitly imports the Hermes feature module |
 
 Hardware-specific NixOS options can be added directly in a host. Examples include ASUS services, Intel legacy VA-API, RF hardware, Wireshark USB capture, and host-specific NetworkManager or WirePlumber rules. The optional Hermes implementation path is another impure, machine-local input.
+
+For generic Hermes support, add `(import ../modules/system/hermes.nix {})` to the host's imports and set `hermes.enable = true`. The module also accepts an `implementation` module path. `hosts/nixtop.nix` explicitly selects `~/.hermes/nixos/hermes.nix` when present and otherwise uses the generic package; other hosts do not discover or import this local code.
 
 Import `../home/pentest.nix` into a host's Home Manager configuration only where the security toolkit is wanted:
 
@@ -151,8 +155,8 @@ The installed helpers retain the current flake configuration name even when it d
 | `nx-switch` | Build and switch immediately |
 | `nx-boot` | Build and select the generation for the next boot |
 | `nx-test` | Activate temporarily without adding a boot entry |
-| `nx-update` | Update flake inputs and switch |
-| `nx-gc` | Expire old Home Manager generations, collect old Nix generations, and optimize the store |
+| `nx-update` | Update inputs and switch; report the failed phase without discarding lockfile changes |
+| `nx-gc` | List available generations and confirm before expiring/collecting them; `--yes` skips confirmation |
 | `nx-vm` | Build and run the host VM; installed only when virtualization is enabled |
 | `hyprlock-revive` | Restore and relaunch Hyprlock after a lock failure |
 
@@ -166,10 +170,73 @@ nx-switch
 Useful direct checks:
 
 ```bash
-nix flake check --impure
+nix fmt -- flake.nix hosts modules home
+nix flake check --impure --no-update-lock-file
+nix build --impure --no-update-lock-file --no-link .#nixosConfigurations.nixtop.config.system.build.toplevel
 hyprctl monitors
 journalctl --user -u ags.service -b
 ```
+
+Use the matching selector on each physical machine. Hardware remains deliberately external: evaluating another selector here combines its policy with this machine's `/etc/nixos/hardware-configuration.nix`, not that host's actual hardware. Flake checks build the root Nix formatting check and AGS package; they do not replace a system build or boot/audio/suspend tests. Formatting commands above exclude the independently maintained shell submodule. Add `--offline` to checks and builds when all required sources and dependencies are already cached.
+
+`nx-gc` is intentionally destructive to rollback history; do not run it while testing a new generation. It expires standalone Home Manager generations older than one day, deletes all old root-profile Nix generations, and optimizes the store. In NixOS-managed homes without a standalone Home Manager profile, only the system generation collection applies. Cancelling the prompt deletes nothing.
+
+VM variants use the username as a disposable test password, disable SSH and physical ASUS/Hermes integration, and do not change the production account's password.
+
+### Terminal And Files
+
+Ghostty attaches to or creates the tmux session `main`. Reopening the terminal restores detached work; multiple terminals attached to `main` share its selected window. Use `tmux new-session -s project` for an independent session.
+
+The tmux prefix is `Ctrl+Space`; press it before the second key:
+
+| Binding | Action |
+| --- | --- |
+| Prefix, `c` | New window in the current directory |
+| Prefix, `"` / `%` | Split vertically/horizontally in the current directory |
+| Prefix, `h/j/k/l` | Select pane |
+| Prefix, `d` | Detach; reopening Ghostty reattaches |
+| Prefix, `s` / `w` | Choose session/window |
+| Prefix, `,` / `$` | Rename window/session |
+| Prefix, `v`, then `v` and `y` | Enter copy mode, select, copy |
+| Prefix, `?` | Show tmux bindings |
+| `Alt+1..0` | Select window by its current number |
+
+Raw `Ctrl+h/j/k/l` remain available to the shell, LF, and NeoMutt. Neovim uses these keys for normal-mode window/tmux navigation, not insert-mode editing. Nushell `q`, `:q`, and `exit` preserve history; `purge-history` explicitly removes failed-command history.
+
+LF keeps `V` for visual selection and uses `i` for the current file's `bat` pager. `x` and Delete send selected files to the trash. All-text selections open together in Neovim; selections containing non-text files open with the configured opener. The LF package has a small selection-export patch so trash/open/zip preserve filenames containing spaces, tabs, quotes, wildcards, and newlines rather than guessing from newline-separated paths.
+
+### Neovim
+
+LazyVim's built-in extras load before custom overrides. Snacks is the general file/search/explorer interface; Telescope remains for specialized integrations. Nix provides Nix/Lua and C/C++/CMake tools; other enabled languages can use their project environments without enabling Mason on NixOS.
+
+`<leader>` is Space:
+
+| Binding | Action |
+| --- | --- |
+| `<leader>ff` / `fF` | Find files in project root / working directory |
+| `<leader>fc` / `fg` | Config files / Git files |
+| `<leader>sg` / `sG` / `sb` | Project grep / working-directory grep / buffer lines |
+| `<leader>e` / `E` | Project / working-directory explorer |
+| `<leader>,`, `H/L`, `<leader>bd` | Pick buffer, previous/next buffer, delete without disturbing splits |
+| `gd`, `gr`, `K`, `<leader>cr`, `<leader>ca` | Definition, references, documentation, rename, code action |
+| `<leader>xx` / `xX` | All available / current-buffer diagnostics |
+| `<leader>cf`, `<leader>uf` / `uF` | Format; toggle global / buffer autoformat |
+| `Ctrl+x`, `Ctrl+o` | Show completion; tmux owns `Ctrl+Space` |
+| `<leader>p` in visual mode | Replace selection without changing the paste register |
+| `<leader>cn`, `<leader>uP`, `<leader>ut` | Generate annotations, pick color, toggle transparency |
+| `<leader>sk` / `sh` | Search bindings / help |
+
+Normal `Ctrl+A` and visual `V` retain Vim semantics. The statusline always shows the relative file path, and its diff counters use Gitsigns. `:HexToggle` is explicit rather than automatic binary conversion. Git blame is on demand through existing Gitsigns bindings or `:GitBlameToggle`.
+
+For project-specific compiler/tool versions, enter `nix develop` inside a tmux pane before starting Neovim. Reattaching an existing session does not import a new environment. C/C++ projects should supply `compile_commands.json` through their CMake presets or build configuration; formatter/editorconfig rules own indentation. Use `:ConformInfo`, `:LazyFormatInfo`, and the LSP configuration picker to diagnose missing tools. Nixd evaluates option completion for this checkout's configured host, not an unrelated project's system.
+
+### Recovery
+
+The boot menu timeout remains zero. Hold or repeatedly press Space during startup to reach systemd-boot and select an older generation.
+
+From an authenticated TTY or SSH connection, use `hyprctl instances` to identify the compositor, then `hyprlock-revive <instance>` to request lock restoration. Inside the graphical session, the helper uses its current instance automatically. A successful dispatch is not proof that the lock rendered: verify it on the display. If the compositor is unavailable, inspect its logs or end the affected session instead of repeatedly launching lock clients.
+
+Lid/dock automation runs in the Hyprland session; pre-login logind lid behavior is unchanged. Panel recovery preserves saved display state while a readable lid reports closed, and monitor-query failures do not count as an undocked state. The lock screen shows the layout and Caps Lock feedback for password entry.
 
 ## AGS Shell
 
@@ -177,9 +244,10 @@ The root flake builds `ags2-shell` from the submodule, installs the matching AGS
 
 ## Managed User Configuration
 
-- EasyEffects is enabled on every host. Home Manager force-replaces `~/.config/easyeffects` and `~/.local/share/easyeffects` with `home/easyeffects/`; device-specific autoload filenames may need adjustment on another machine.
+- EasyEffects is enabled on every host. Home Manager links `~/.config/easyeffects` and `~/.local/share/easyeffects` to writable checkout directories under `home/easyeffects/`; device-specific autoload filenames may need adjustment on another machine. GUI edits change the checkout, and Nix generation rollback does not restore these files. Preserve live state and `.hm-bak` backups before changing ownership or link targets.
 - `home/music.nix` runs a MIDI hotplug bridge that connects hardware sequencer ports to `Midi Through:0`. The FL Studio Hyprland watcher is also installed globally; Bottles setup and restart requirements are documented in [docs/fl-studio-bottles.md](docs/fl-studio-bottles.md).
-- `hermes.enable` is host-gated. It imports `~/.hermes/nixos/hermes.nix` when available and otherwise installs the generic Hermes package with an evaluation warning.
+- Nix manages Neovim and its Lua configuration; Lazy manages downloaded plugins and its lockfile in the user cache. Plugin versions are not frozen by a Nix generation, and clearing the cache can discard that lockfile.
+- Hyprland-specific MIME defaults select LibreWolf for web links and HTML without replacing the writable `~/.config/mimeapps.list` or its other application associations.
 
 ## Repository Layout
 
@@ -191,7 +259,7 @@ The root flake builds `ags2-shell` from the submodule, installs the matching AGS
 |-- modules/
 |   |-- desktop/      # Hyprland, audio, greeter, Chromium policy, gaming, and desktop services
 |   |-- hardware/     # Devices plus AMD, Intel, and NVIDIA options
-|   `-- system/       # Base OS, boot, network, power, services, and virtualization
+|   `-- system/       # Base OS, Home Manager bridge, boot, network, power, and services
 |-- home/
 |   |-- desktop/      # AGS, Hyprland, themes, applications, and FL Studio integration
 |   |-- terminal/     # Shell, Ghostty, tmux, mail, GPG, and prompt
@@ -205,6 +273,8 @@ The root flake builds `ags2-shell` from the submodule, installs the matching AGS
 |-- flake.nix         # Inputs, identities, host registry, and system constructor
 `-- flake.lock
 ```
+
+`modules/system/home-manager.nix` is the common Home Manager composition point. Application modules own configuration and required tools; `home/packages.nix` owns shared unconfigured applications. Hosts add their own settings and optional modules through normal NixOS/Home Manager merges.
 
 ## Common Keybindings
 
@@ -222,7 +292,10 @@ The root flake builds `ags2-shell` from the submodule, installs the matching AGS
 | `Super + P` | Toggle the dwindle split direction |
 | `Super + arrows` | Move window |
 | `Super + Shift + arrows` | Resize window |
+| `Super + Ctrl + arrows` | Focus window in direction |
 | `Alt + Tab` | Cycle windows |
+| `Ctrl + Alt + Tab` | Cycle windows backward without triggering the Alt+Shift layout toggle |
+| `Alt + Shift` | Cycle configured keyboard layouts |
 | `Super + R` | Open launcher |
 | `Super + Tab` | Open workspace overview |
 | `Super + X` | Open terminal |
@@ -244,15 +317,18 @@ The root flake builds `ags2-shell` from the submodule, installs the matching AGS
 | `XF86Audio*` | Media and volume controls |
 | `Shift + XF86AudioMute` | Toggle microphone mute |
 | `XF86MonBrightness*` | Change display brightness |
-| `XF86KbdBrightness*` | Change ASUS keyboard-backlight brightness |
+| `Ctrl + F7/F8` | Decrease/increase display brightness |
+| `XF86KbdBrightness*` | Change the single standard keyboard backlight by one step; unsupported hardware is a no-op |
 | `XF86TouchpadToggle` | Toggle touchpad |
-| `mouse:276` | Push to talk while held |
+| `mouse:276` | Momentary microphone unmute; release mutes, including during lock |
+
+Keyboard-backlight controls detect LED devices ending in `:kbd_backlight` at runtime, independently of ASUS services. Multiple matching devices produce an explicit error instead of choosing arbitrarily; use `brightnessctl --class=leds --device=<name>` to select one explicitly. ThinkLight and zoned RGB controls are separate interfaces. Permission and write failures remain visible.
 
 ## Operational Notes
 
 - This configuration tracks unstable inputs and is currently constructed for `x86_64-linux`.
 - `/etc/nixos/hardware-configuration.nix` remains machine-local, and enabled Hermes configurations may import `~/.hermes/nixos/hermes.nix`; evaluation and rebuild commands therefore use `--impure`.
-- SSH permits public-key authentication by default, denies root login, and disables password authentication unless a host explicitly overrides it.
+- SSH denies root login. The `nixos` desktop intentionally accepts passwords and public keys; the other physical hosts default to public-key authentication only.
 - Flatpak is enabled system-wide and Flathub provisioning retries until networking becomes available.
 - Home Manager conflict backups use the `.hm-bak` extension and are ignored by Git.
 

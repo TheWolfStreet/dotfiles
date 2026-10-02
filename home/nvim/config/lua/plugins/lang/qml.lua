@@ -24,10 +24,7 @@ vim.api.nvim_create_autocmd("FileType", {
             vim.list_extend(cmd, { "-I", qt_qml })
         end
 
-        vim.lsp.start({ name = "qmlls", cmd = cmd, root_dir = root }, {
-            bufnr = ev.buf,
-            reuse_client = function(client, config) return client.name == config.name end,
-        })
+        vim.lsp.start({ name = "qmlls", cmd = cmd, root_dir = root }, { bufnr = ev.buf })
     end,
 })
 

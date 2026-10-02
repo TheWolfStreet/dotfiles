@@ -1,15 +1,10 @@
 {
   lib,
   pkgs,
+  osConfig,
   virtualisationEnabled,
   ...
 }: {
-  imports = [
-    ./scripts/nx.nix
-    ./scripts/revive.nix
-    ./easyeffects
-  ];
-
   home.packages = with pkgs;
     [
       # Useful tooling
@@ -84,18 +79,22 @@
       iotop
 
       sweethome3d.application
-      # Freecad wrapper: forces mesa gl/egl vendor selection to avoid weird driver picks
-      (symlinkJoin {
-        name = "FreeCAD";
-        paths = [freecad-wayland];
-        buildInputs = [makeWrapper];
-        postBuild = ''
-          wrapProgram $out/bin/FreeCAD \
-          --set __GLX_VENDOR_LIBRARY_NAME mesa \
-          --set __EGL_VENDOR_LIBRARY_FILENAMES ${mesa}/share/glvnd/egl_vendor.d/50_mesa.json
-        '';
-        meta.mainProgram = "FreeCAD";
-      })
+      (
+        if osConfig.hardware.nvidia.enable
+        then freecad-wayland
+        else
+          symlinkJoin {
+            name = "FreeCAD";
+            paths = [freecad-wayland];
+            buildInputs = [makeWrapper];
+            postBuild = ''
+              wrapProgram $out/bin/FreeCAD \
+              --set __GLX_VENDOR_LIBRARY_NAME mesa \
+              --set __EGL_VENDOR_LIBRARY_FILENAMES ${mesa}/share/glvnd/egl_vendor.d/50_mesa.json
+            '';
+            meta.mainProgram = "FreeCAD";
+          }
+      )
     ]
     ++ lib.optionals virtualisationEnabled [
       distrobox

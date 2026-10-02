@@ -1,11 +1,6 @@
 return {
     { "nvim-mini/mini.icons" },
-    { "roobert/tailwindcss-colorizer-cmp.nvim", opts = {} },
-    { import = "lazyvim.plugins.extras.linting.eslint" },
-    { import = "lazyvim.plugins.extras.lang.typescript" },
-    { import = "lazyvim.plugins.extras.lang.tailwind" },
     -- { import = "lazyvim.plugins.extras.lang.astro" },
-    { import = "lazyvim.plugins.extras.lang.svelte" },
     -- { import = "lazyvim.plugins.extras.lang.vue" },
     {
         "stevearc/conform.nvim",
@@ -47,7 +42,7 @@ return {
 
             local tailwind = opts.servers.tailwindcss or {}
 
-            local prev_on_new_config = tailwind.on_new_config
+            local prev_before_init = tailwind.before_init
 
             local function resolve_tailwind_v4_config(root_dir)
                 local candidates = {
@@ -57,31 +52,23 @@ return {
                 }
 
                 for _, rel_path in ipairs(candidates) do
-                    if vim.fn.filereadable(root_dir .. "/" .. rel_path) == 1 then
-                        return rel_path
-                    end
+                    if vim.fn.filereadable(root_dir .. "/" .. rel_path) == 1 then return rel_path end
                 end
 
                 return nil
             end
 
-            tailwind.on_new_config = function(new_config, new_root_dir)
-                if prev_on_new_config then
-                    prev_on_new_config(new_config, new_root_dir)
-                end
-
-                local config_file = resolve_tailwind_v4_config(new_root_dir)
+            tailwind.before_init = function(params, config)
+                if prev_before_init then prev_before_init(params, config) end
+                local config_file = config.root_dir and resolve_tailwind_v4_config(config.root_dir)
 
                 if config_file then
-                    new_config.settings = new_config.settings or {}
-                    new_config.settings.tailwindCSS = new_config.settings.tailwindCSS or {}
-                    new_config.settings.tailwindCSS.experimental = vim.tbl_deep_extend(
-                        "force",
-                        new_config.settings.tailwindCSS.experimental or {},
-                        {
+                    config.settings = config.settings or {}
+                    config.settings.tailwindCSS = config.settings.tailwindCSS or {}
+                    config.settings.tailwindCSS.experimental =
+                        vim.tbl_deep_extend("force", config.settings.tailwindCSS.experimental or {}, {
                             configFile = config_file,
-                        }
-                    )
+                        })
                 end
             end
 

@@ -1,12 +1,22 @@
 {
   username,
   pkgs,
+  config,
+  lib,
   ...
-}: {
+}: let
+  hermesPath = /home/${username}/.hermes/nixos/hermes.nix;
+in {
   # ASUS TUF Gaming A16 laptop.
   imports = [
     ./common.nix
     /etc/nixos/hardware-configuration.nix
+    (import ../modules/system/hermes.nix {
+      implementation =
+        if builtins.pathExists hermesPath
+        then hermesPath
+        else null;
+    })
   ];
 
   hardware.amd = {
@@ -34,13 +44,15 @@
   '';
 
   # The BOE panel's overdrive overshoots at 144 Hz: bright/dark fringes trail moving edges
-  systemd.services.panel-overdrive-off = {
+  systemd.services.panel-overdrive-off = lib.mkIf config.services.asusd.enable {
     after = ["asusd.service"];
     requires = ["asusd.service"];
     wantedBy = ["multi-user.target"];
     serviceConfig.Type = "oneshot";
     script = "${pkgs.asusctl}/bin/asusctl armoury set panel_overdrive 0";
   };
+
+  virtualisation.vmVariant.hermes.enable = lib.mkForce false;
 
   networking.networkmanager.ensureProfiles.profiles.ethernet-default = {
     connection = {

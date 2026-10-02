@@ -2,7 +2,7 @@ vim.g.lazyvim_json = vim.fn.stdpath("data") .. "/lazyvim.json"
 
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not (vim.uv or vim.loop).fs_stat(lazypath) then
-    vim.fn.system({
+    local output = vim.fn.system({
         "git",
         "clone",
         "--filter=blob:none",
@@ -10,6 +10,7 @@ if not (vim.uv or vim.loop).fs_stat(lazypath) then
         "https://github.com/folke/lazy.nvim.git",
         lazypath,
     })
+    if vim.v.shell_error ~= 0 then error("Failed to clone lazy.nvim:\n" .. output) end
 end
 vim.opt.rtp:prepend(lazypath)
 
