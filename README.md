@@ -185,7 +185,7 @@ VM variants use the username as a disposable test password, disable SSH and phys
 
 ### Terminal And Files
 
-Ghostty attaches to or creates the tmux session `main`. Reopening the terminal restores detached work; multiple terminals attached to `main` share its selected window. Use `tmux new-session -s project` for an independent session.
+Each Ghostty terminal starts a fresh, independent tmux session. Use the session chooser to switch to existing work, or `tmux attach-session -t <name>` from outside tmux to reattach to a detached session.
 
 The tmux prefix is `Ctrl+Space`; press it before the second key:
 
@@ -194,7 +194,7 @@ The tmux prefix is `Ctrl+Space`; press it before the second key:
 | Prefix, `c` | New window in the current directory |
 | Prefix, `"` / `%` | Split vertically/horizontally in the current directory |
 | Prefix, `h/j/k/l` | Select pane |
-| Prefix, `d` | Detach; reopening Ghostty reattaches |
+| Prefix, `d` | Detach; use the session chooser or `attach-session` to return |
 | Prefix, `s` / `w` | Choose session/window |
 | Prefix, `,` / `$` | Rename window/session |
 | Prefix, `v`, then `v` and `y` | Enter copy mode, select, copy |
