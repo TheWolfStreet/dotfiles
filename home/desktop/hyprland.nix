@@ -529,12 +529,6 @@ in {
         vibrancy = 0.1696;
         vibrancy_darkness = 0.0;
       };
-      general = {
-        no_fade_in = false;
-        grace = 0;
-        disable_loading_bar = false;
-      };
-
       label = [
         {
           text = "cmd[update:1000] echo -e \"$(date +\"%A, %B %d\")\"";
@@ -572,6 +566,15 @@ in {
           halign = "center";
           valign = "center";
         }
+        {
+          text = "cmd[update:250] ${pkgs.hyprland}/bin/hyprctl devices -j | ${jq} -r 'if any(.keyboards[]; .main == true and .capsLock == true) then \"\\u21ea\" else \"\" end'";
+          color = "rgba(216, 222, 233, 0.80)";
+          font_size = 20;
+          font_family = "SFProDisplay Nerd Font Regular";
+          position = "88, -140";
+          halign = "center";
+          valign = "center";
+        }
       ];
 
       image = {
@@ -596,9 +599,9 @@ in {
         inner_color = "rgba(255, 255, 255, 0.1)";
         check_color = "rgba(255, 255, 255, 0.1)";
         fail_color = "rgba(255, 255, 255, 0.1)";
-        capslock_color = "rgba(235, 165, 65, 0.85)";
+        capslock_color = "rgba(255, 255, 255, 0.1)";
         numlock_color = "rgba(255, 255, 255, 0.1)";
-        bothlock_color = "rgba(235, 165, 65, 0.85)";
+        bothlock_color = "rgba(255, 255, 255, 0.1)";
         font_color = "rgb(200, 200, 200)";
         fade_on_empty = false;
         font_family = "SF Pro Display Nerd Font Regular";
