@@ -236,7 +236,7 @@ The boot menu timeout remains zero. Hold or repeatedly press Space during startu
 
 From an authenticated TTY or SSH connection, use `hyprctl instances` to identify the compositor, then `hyprlock-revive <instance>` to request lock restoration. Inside the graphical session, the helper uses its current instance automatically. A successful dispatch is not proof that the lock rendered: verify it on the display. If the compositor is unavailable, inspect its logs or end the affected session instead of repeatedly launching lock clients.
 
-Lid/dock automation runs in the Hyprland session; pre-login logind lid behavior is unchanged. Panel recovery preserves saved display state while a readable lid reports closed, and monitor-query failures do not count as an undocked state. The lock screen shows the layout and a Caps Lock symbol beside the password field without recoloring it. The symbol uses stock Hyprlock and queries the active keyboard every 250 ms; with multiple keyboards, the compositor-reported state can differ from the lock client's state.
+Lid/dock automation runs in the Hyprland session; pre-login logind lid behavior is unchanged. Panel recovery preserves saved display state while a readable lid reports closed, and monitor-query failures do not count as an undocked state. The lock screen centers the keyboard icon, native `$LAYOUT[en,ru,he]` short label, and optional Caps Lock symbol as one group without changing the password field. The Caps Lock indicator uses stock Hyprlock and queries the active keyboard every 250 ms; with multiple keyboards, the compositor-reported Caps Lock state can differ from the lock client's state.
 
 ## AGS Shell
 

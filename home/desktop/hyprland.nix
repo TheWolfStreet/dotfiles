@@ -558,20 +558,18 @@ in {
           valign = "center";
         }
         {
-          text = "Layout: $LAYOUT";
+          text = builtins.concatStringsSep " " [
+            "cmd[update:250] ${pkgs.hyprland}/bin/hyprctl devices -j | ${jq} -r --arg layout '$LAYOUT[en,ru,he]' '"
+            ''(.keyboards | map(select(.main == true)) | first) as $keyboard |''
+            ''"<span font_desc=\"SFProDisplay Nerd Font 12\">\u21ea</span>" as $caps_icon |''
+            ''"<span font_desc=\"SFProDisplay Nerd Font 12\">\uf11c</span>" as $keyboard_icon |''
+            ''$keyboard_icon + "  " + $layout + (if $keyboard.capsLock == true then "  " + $caps_icon else "" end)''
+            "'"
+          ];
           color = "rgba(216, 222, 233, 0.80)";
           font_size = 16;
           font_family = "SF Pro Display Nerd Font Regular";
           position = "0, -210";
-          halign = "center";
-          valign = "center";
-        }
-        {
-          text = "cmd[update:250] ${pkgs.hyprland}/bin/hyprctl devices -j | ${jq} -r 'if any(.keyboards[]; .main == true and .capsLock == true) then \"\\u21ea\" else \"\" end'";
-          color = "rgba(216, 222, 233, 0.80)";
-          font_size = 20;
-          font_family = "SFProDisplay Nerd Font Regular";
-          position = "88, -140";
           halign = "center";
           valign = "center";
         }
