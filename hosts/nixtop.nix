@@ -43,6 +43,31 @@ in {
     ACTION=="add", SUBSYSTEM=="i2c", KERNEL=="i2c-ASUP1205:00", ATTR{power/control}="on"
   '';
 
+  # After s2idle or a lid close the touchpad can come back dead. Reloading
+  # i2c_hid does not clear it; rebinding its I2C controller (AMDI0010:00, which
+  # carries only the touchpad) does.
+  systemd.services.touchpad-rebind = {
+    description = "Rebind the touchpad's I2C controller after resume";
+    after = ["suspend.target" "hibernate.target" "hybrid-sleep.target" "suspend-then-hibernate.target"];
+    wantedBy = ["suspend.target" "hibernate.target" "hybrid-sleep.target" "suspend-then-hibernate.target"];
+    serviceConfig.Type = "oneshot";
+    script = ''
+      driver=/sys/bus/platform/drivers/i2c_designware
+      [ -e "$driver/AMDI0010:00" ] && echo AMDI0010:00 > "$driver/unbind"
+      ${pkgs.coreutils}/bin/sleep 1
+      echo AMDI0010:00 > "$driver/bind"
+    '';
+  };
+
+  services.acpid = {
+    enable = true;
+    lidEventCommands = ''
+      case "$1" in
+        *open*) ${pkgs.systemd}/bin/systemctl --no-block start touchpad-rebind.service ;;
+      esac
+    '';
+  };
+
   # The BOE panel's overdrive overshoots at 144 Hz: bright/dark fringes trail moving edges
   systemd.services.panel-overdrive-off = lib.mkIf config.services.asusd.enable {
     after = ["asusd.service"];
