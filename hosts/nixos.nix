@@ -15,6 +15,10 @@
 
   gaming.enable = true;
   virtualisation.enable = true;
+  services.tailscale = {
+    enable = true;
+    openFirewall = true;
+  };
 
   networking.networkmanager.ensureProfiles.profiles.ethernet-default = {
     connection = {

@@ -32,6 +32,10 @@ in {
   power.enable = true;
   virtualisation.enable = true;
   services.asusd.enable = true;
+  services.tailscale = {
+    enable = true;
+    openFirewall = true;
+  };
 
   # ASUS TUF A16 FA617NSR PixArt touchpad (ASUP1205:00 093A:2008) freezes with
   # "i2c_hid_get_input: incomplete report (18/65535)" until a suspend/resume
