@@ -16,8 +16,6 @@
   gaming.enable = true;
   virtualisation.enable = true;
 
-  services.openssh.settings.PasswordAuthentication = true;
-
   networking.networkmanager.ensureProfiles.profiles.ethernet-default = {
     connection = {
       id = "Ethernet";
