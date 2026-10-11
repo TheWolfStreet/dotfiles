@@ -43,8 +43,9 @@ in {
   boot.kernelParams = ["i2c_hid.polling_mode=1"];
 
   # Keep the touchpad's I2C link powered; runtime autosuspend can also wedge it.
-  services.udev.extraRules = ''
+  services.udev.extraRules = lib.mkAfter ''
     ACTION=="add", SUBSYSTEM=="i2c", KERNEL=="i2c-ASUP1205:00", ATTR{power/control}="on"
+    ACTION=="add", SUBSYSTEM=="pci", ATTR{vendor}=="0x1022", ATTR{device}=="0x15d7", ATTR{power/control}="on"
   '';
 
   # After s2idle or a lid close the touchpad can come back dead. Reloading
