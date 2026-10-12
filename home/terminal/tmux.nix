@@ -134,6 +134,8 @@ in {
         bind-key -T copy-mode-vi C-v send-keys -X rectangle-toggle
         bind-key -T copy-mode-vi y send-keys -X copy-selection-and-cancel
         bind-key b set-option status
+        # Middle-click a window in the status bar to close it, like a browser tab.
+        bind-key -n MouseDown2Status kill-window -t=
 
         bind-key -n M-1 select-window -t 1
         bind-key -n M-2 select-window -t 2

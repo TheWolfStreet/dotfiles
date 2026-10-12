@@ -84,7 +84,17 @@
   services = {
     gvfs.enable = true;
     devmon.enable = true;
-    udisks2.enable = true;
+    udisks2 = {
+      enable = true;
+      # NixOS ships no mount.ntfs helper, so udisks must use the kernel's ntfs3 driver. `force` lets it mount
+      # sticks Windows left marked dirty (fast startup, unplugged without ejecting).
+      settings."mount_options.conf".defaults = {
+        ntfs_drivers = "ntfs3,ntfs";
+        "ntfs:ntfs3_defaults" = "uid=$UID,gid=$GID,windows_names,force";
+        # udisks only passes options on its allow list, and `force` is not on the stock one.
+        "ntfs:ntfs3_allow" = "uid=$UID,gid=$GID,umask,dmask,fmask,iocharset,discard,nodiscard,sparse,nosparse,hidden,nohidden,sys_immutable,nosys_immutable,showmeta,noshowmeta,prealloc,noprealloc,hide_dot_files,nohide_dot_files,windows_names,nocase,case,force";
+      };
+    };
     upower.enable = true;
     power-profiles-daemon.enable = true;
     accounts-daemon.enable = true;
