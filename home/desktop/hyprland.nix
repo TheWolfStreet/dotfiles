@@ -65,11 +65,6 @@
     state="$XDG_RUNTIME_DIR/hypr-internal-panel-$UID"
     monitors=$(hyprctl monitors all -j) || exit 1
     ${jq} -e 'type == "array" and length > 0 and all(.[]; (.name | type == "string") and (.disabled | type == "boolean"))' <<< "$monitors" >/dev/null || exit 1
-    if ! ${jq} -e 'any(.[]; (.name | test("^(eDP|LVDS)"; "i") | not) and .disabled == false)' <<< "$monitors" >/dev/null; then
-      ${ac_online} || ${pkgs.systemd}/bin/systemctl suspend
-      exit 0
-    fi
-
     panel=$(${jq} -c '[.[] | select((.name | test("^(eDP|LVDS)"; "i")) and .disabled == false)] | first // empty' <<< "$monitors")
     [ -n "$panel" ] || exit 0
     ${jq} -e '(.width | type == "number") and (.height | type == "number") and (.refreshRate | type == "number") and (.x | type == "number") and (.y | type == "number") and (.scale | type == "number") and (.transform | type == "number")' <<< "$panel" >/dev/null || exit 1
@@ -80,6 +75,10 @@
         <<< "$panel" > "$state" || exit 1
     fi
     hyprctl keyword monitor "$name,disable" || exit 1
+
+    if ! ${jq} -e 'any(.[]; (.name | test("^(eDP|LVDS)"; "i") | not) and .disabled == false)' <<< "$monitors" >/dev/null; then
+      ${ac_online} || ${pkgs.systemd}/bin/systemctl suspend
+    fi
   '';
   restore_panel = pkgs.writeShellScript "restore-panel" ''
     if [ -z "''${XDG_RUNTIME_DIR:-}" ] || [ ! -d "$XDG_RUNTIME_DIR" ] || [ ! -O "$XDG_RUNTIME_DIR" ] || [ ! -w "$XDG_RUNTIME_DIR" ] || [ "$(${pkgs.coreutils}/bin/stat -c %a "$XDG_RUNTIME_DIR" 2>/dev/null)" != 700 ]; then
