@@ -38,7 +38,19 @@ in {
       hardware.cpu.amd.updateMicrocode = true;
 
       boot = {
-        extraModulePackages = [config.boot.kernelPackages.zenpower];
+        # zenpower ships no per-module .cer file, which the kernel module
+        # aggregator requires when merging external modules; provide an empty
+        # one so depmod metadata merges without changing the module itself.
+        extraModulePackages = [
+          (pkgs.runCommand "zenpower-with-cer" { } ''
+            ver=${config.boot.kernelPackages.kernel.modDirVersion}
+            dst=$out/lib/modules/$ver/kernel/drivers/hwmon/zenpower
+            src=${config.boot.kernelPackages.zenpower}/lib/modules/$ver/kernel/drivers/hwmon/zenpower
+            mkdir -p $dst
+            ln -s $src/zenpower.ko $dst/zenpower.ko
+            touch $dst/zenpower.ko.cer
+          '')
+        ];
         initrd.kernelModules = ["zenpower"];
         blacklistedKernelModules = ["k10temp"];
         kernelParams = [

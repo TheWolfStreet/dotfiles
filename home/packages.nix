@@ -37,7 +37,12 @@
 
       # Media + creation
       (mpv.override {scripts = [mpvScripts.mpris];})
-      audacity
+      # audacity disabled 2026-10-21: 4.0.0 fails to build against Qt 6.12.0
+      # (muse-framework QML cache codegen incompatible with Qt's
+      # AOTLookupValidation headers, ExtensionsListPanel_qml.cpp:42;
+      # no upstream fix yet). Re-enable once nixpkgs updates audacity
+      # or Qt past the breakage.
+      # audacity
       krita
       inkscape
       blender

@@ -51,7 +51,7 @@ in {
       enableFishIntegration = false;
       enableNushellIntegration = true;
       enableZshIntegration = false;
-      ignoreCase = true;
+      environment.CARAPACE_MATCH = true;
     };
 
     nushell = {
