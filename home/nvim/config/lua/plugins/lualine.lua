@@ -54,8 +54,8 @@ return {
                 },
                 sections = {
                     lualine_a = { "mode" },
-                    lualine_b = { "branch", diff },
-                    lualine_c = { LazyVim.lualine.root_dir({ cwd = true }), filename, diagnostic },
+                    lualine_b = { diff },
+                    lualine_c = { filename, diagnostic },
                     lualine_x = { "searchcount", "selectioncount", "encoding", "filetype" },
                     lualine_y = {},
                     lualine_z = { position },

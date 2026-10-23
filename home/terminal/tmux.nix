@@ -167,6 +167,7 @@ in {
         set-option -g status-left "${client_prefix}#[bold,fg=${accent}]#S #[default]"
         set-option -g status-right "${git}${pwd}${battery}${time}"
         set-option -g window-status-current-format "${current_window}"
+        set-option -g window-status-current-style default
         set-option -g window-status-format "${window_status}"
         set-option -g window-status-separator ""
       '';
