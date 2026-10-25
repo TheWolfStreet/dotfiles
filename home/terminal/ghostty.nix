@@ -42,7 +42,7 @@ in {
     "ghostty/config".text = ''
       command = ${pkgs.tmux}/bin/tmux
       font-family = ${themeDark.monospaceFont.name}
-      font-size = 16
+      font-size = 15
       font-feature = liga
       font-feature = calt
       theme = light:charmful-light,dark:charmful-dark
