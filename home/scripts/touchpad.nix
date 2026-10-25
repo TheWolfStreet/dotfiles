@@ -11,15 +11,16 @@ in
     device="$(${pkgs.jq}/bin/jq -c 'if (.mice | type) == "array" then [.mice[] | select(.name | test("touchpad"; "i"))][0] // empty else error("mice unavailable") end' <<< "$devices")"
     [ -n "$device" ] || exit 0
     name="$(${pkgs.jq}/bin/jq -er '.name | select(type == "string")' <<< "$device")"
+    name_lua="$(${pkgs.jq}/bin/jq -c '.name' <<< "$device")"
     address="$(${pkgs.jq}/bin/jq -er '.address | select(type == "string")' <<< "$device")"
     key="$(printf '%s\n' "$HYPRLAND_INSTANCE_SIGNATURE" "$name" "$address" | ${pkgs.coreutils}/bin/sha256sum)"
     state_file="$XDG_RUNTIME_DIR/touchpad-disabled-''${key%% *}"
 
     if [ -e "$state_file" ]; then
-      ${hyprctl} keyword "device[$name]:enabled" true
+      ${hyprctl} eval "hl.device({ name = $name_lua, enabled = true })"
       ${pkgs.coreutils}/bin/rm -f "$state_file"
     else
-      ${hyprctl} keyword "device[$name]:enabled" false
+      ${hyprctl} eval "hl.device({ name = $name_lua, enabled = false })"
       : > "$state_file"
     fi
   ''

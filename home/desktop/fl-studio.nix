@@ -1,5 +1,10 @@
-{pkgs, ...}: let
+{
+  pkgs,
+  lib,
+  ...
+}: let
   jq = "${pkgs.jq}/bin/jq";
+  set_prop = prop: value: ''hl.dispatch(hl.dsp.window.set_prop({ prop = \"${prop}\", value = \"${value}\", window = \"address:$address\" }))'';
 
   hide_fl_vcl_window = pkgs.writeShellScript "hide-fl-vcl-window" ''
     hyprctl clients -j | ${jq} -r '
@@ -15,9 +20,7 @@
       | .address
     ' | while IFS= read -r address; do
       [ -n "$address" ] || continue
-      hyprctl dispatch setprop "address:$address opacity 0" >/dev/null
-      hyprctl dispatch setprop "address:$address no_focus 1" >/dev/null
-      hyprctl dispatch resizewindowpixel "exact 1 1,address:$address" >/dev/null
+      hyprctl eval "${set_prop "opacity" "0"} ${set_prop "no_focus" "1"} hl.dispatch(hl.dsp.window.resize({ x = 1, y = 1, window = \"address:$address\" }))" >/dev/null
     done
   '';
 
@@ -38,13 +41,13 @@
       batch=""
       while IFS= read -r address; do
         [ -n "$address" ] || continue
-        batch="$batch dispatch setprop address:$address opacity 0;"
-        batch="$batch dispatch setprop address:$address opacity_override 1;"
-        batch="$batch dispatch setprop address:$address opacity_inactive 0;"
-        batch="$batch dispatch setprop address:$address opacity_inactive_override 1;"
-        batch="$batch dispatch setprop address:$address no_focus 1;"
+        batch="$batch ${set_prop "opacity" "0"}"
+        batch="$batch ${set_prop "opacity_override" "1"}"
+        batch="$batch ${set_prop "opacity_inactive" "0"}"
+        batch="$batch ${set_prop "opacity_inactive_override" "1"}"
+        batch="$batch ${set_prop "no_focus" "1"}"
       done
-      [ -z "$batch" ] || hyprctl --batch "$batch" >/dev/null
+      [ -z "$batch" ] || hyprctl eval "$batch" >/dev/null
     }
   '';
 
@@ -72,7 +75,12 @@
     done
   '';
 in {
-  wayland.windowManager.hyprland.settings.exec-once = [
-    "${fl_window_watcher}"
+  wayland.windowManager.hyprland.settings.on = [
+    {
+      _args = [
+        "hyprland.start"
+        (lib.generators.mkLuaInline "function() hl.exec_cmd(${lib.generators.toLua {} "${fl_window_watcher}"}) end")
+      ];
+    }
   ];
 }

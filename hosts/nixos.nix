@@ -45,8 +45,13 @@
 
   home-manager.users.${username}.wayland.windowManager.hyprland.settings = {
     monitor = [
-      "HDMI-A-1,1920x1080@100,0x0,1"
+      {
+        output = "HDMI-A-1";
+        mode = "1920x1080@100";
+        position = "0x0";
+        scale = 1;
+      }
     ];
-    input.kb_layout = "us, ru";
+    config.input.kb_layout = "us, ru";
   };
 }

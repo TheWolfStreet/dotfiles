@@ -39,19 +39,18 @@ in {
       home-manager.sharedModules = [
         {
           wayland.windowManager.hyprland.settings = {
-            cursor.no_hardware_cursors = true;
-            env =
-              [
-                "NIXOS_OZONE_WL, 1"
-                "WLR_RENDERER_ALLOW_SOFTWARE, 1"
-              ]
-              ++ lib.optionals (!cfg.prime.offload.enable) [
-                "LIBVA_DRIVER_NAME, nvidia"
-                "VDPAU_DRIVER, nvidia"
-                "GBM_BACKEND, nvidia-drm"
-                "__GLX_VENDOR_LIBRARY_NAME, nvidia"
-                "NVD_BACKEND, direct"
-              ];
+            config.cursor.no_hardware_cursors = true;
+            env = lib.mapAttrsToList (name: value: {_args = [name value];}) ({
+                NIXOS_OZONE_WL = "1";
+                WLR_RENDERER_ALLOW_SOFTWARE = "1";
+              }
+              // lib.optionalAttrs (!cfg.prime.offload.enable) {
+                LIBVA_DRIVER_NAME = "nvidia";
+                VDPAU_DRIVER = "nvidia";
+                GBM_BACKEND = "nvidia-drm";
+                __GLX_VENDOR_LIBRARY_NAME = "nvidia";
+                NVD_BACKEND = "direct";
+              });
           };
         }
       ];
