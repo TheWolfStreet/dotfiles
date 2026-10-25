@@ -100,6 +100,8 @@
       '';
   in "#(${script} #{q:pane_current_path})";
 in {
+  systemd.user.sessionVariables.TMUX_TMPDIR = "\${XDG_RUNTIME_DIR}";
+
   programs.tmux = {
     enable = true;
     plugins = with pkgs.tmuxPlugins; [yank];
@@ -159,6 +161,8 @@ in {
         bind-key -n M-F10 select-window -t 10
 
         set-option -g @main_accent "blue"
+        set-option -g @main_accent_fg "black"
+        set-option -g mode-style "bg=${accent},fg=#{@main_accent_fg}"
         set-option -g status-left-length 30
         set-option -g status-right-length 100
         set-option -g pane-active-border-style fg=blue

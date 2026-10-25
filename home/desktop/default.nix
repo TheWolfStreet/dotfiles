@@ -6,6 +6,7 @@
     ./spotify.nix
     ./theme.nix
     ./ags.nix
+    ./xembed-tray.nix
     ./dconf.nix
   ];
 }

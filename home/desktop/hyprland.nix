@@ -91,6 +91,9 @@
       ${ac_online} || ${pkgs.systemd}/bin/systemctl suspend
     fi
   '';
+  reapply_lid = pkgs.writeShellScript "reapply-lid" ''
+    if ${lid_closed}; then exec ${lid_close}; fi
+  '';
   restore_panel = pkgs.writeShellScript "restore-panel" ''
     if [ -z "''${XDG_RUNTIME_DIR:-}" ] || [ ! -d "$XDG_RUNTIME_DIR" ] || [ ! -O "$XDG_RUNTIME_DIR" ] || [ ! -w "$XDG_RUNTIME_DIR" ] || [ "$(${pkgs.coreutils}/bin/stat -c %a "$XDG_RUNTIME_DIR" 2>/dev/null)" != 700 ]; then
       printf 'restore-panel: private XDG_RUNTIME_DIR is required\n' >&2
@@ -261,6 +264,12 @@ in {
           _args = [
             "hyprland.start"
             (lua "function() hl.exec_cmd(${toLua "hyprctl setcursor ${cursorTheme.name} ${toString cursorTheme.size}"}) end")
+          ];
+        }
+        {
+          _args = [
+            "config.reloaded"
+            (lua "function() hl.exec_cmd(${toLua "${reapply_lid}"}) end")
           ];
         }
       ];
@@ -465,6 +474,29 @@ in {
           name = "discord_special";
           match.title = "Discord";
           workspace = "special";
+        }
+        {
+          name = "xwayland_popups";
+          match.xwayland = true;
+          match.float = true;
+          match.title = "^$";
+          decorate = false;
+          no_blur = true;
+          no_shadow = true;
+          no_anim = true;
+          pin = true;
+        }
+        {
+          name = "xembedsniproxy";
+          match.class = "^(xembedsniproxy)$";
+          workspace = "special:tray silent";
+          pin = false;
+          opacity = "0.0 0.0";
+          size = "1 1";
+          no_anim = true;
+          no_blur = true;
+          no_initial_focus = true;
+          no_focus = true;
         }
         {
           name = "xwaylandvideobridge";
