@@ -1,0 +1,31 @@
+--- a/plugins/mousepad/waylandremoteinput.cpp
++++ b/plugins/mousepad/waylandremoteinput.cpp
+@@ -186,7 +186,7 @@
+                                           QLatin1String("org.freedesktop.portal.Session"),
+                                           QLatin1String("Closed"),
+                                           this,
+-                                          SLOT(handleXdpSessionFinished(uint, QVariantMap)));
++                                          SLOT(handleXdpSessionFinished(QVariantMap)));
+ 
+     auto reply = iface->SelectDevices(m_xdpPath, startParameters);
+     QDBusPendingCallWatcher *watcher = new QDBusPendingCallWatcher(reply);
+@@ -350,7 +350,7 @@
+     }
+ }
+ 
+-void RemoteDesktopSession::handleXdpSessionFinished(uint /*code*/, const QVariantMap & /*results*/)
++void RemoteDesktopSession::handleXdpSessionFinished(const QVariantMap & /*details*/)
+ {
+     m_xdpPath = {};
+     m_eiNotifier.setEnabled(false);
+--- a/plugins/mousepad/waylandremoteinput.h
++++ b/plugins/mousepad/waylandremoteinput.h
+@@ -42,7 +42,7 @@
+     void handleXdpSessionCreated(uint code, const QVariantMap &results);
+     void handleXdpSessionConfigured(uint code, const QVariantMap &results);
+     void handleXdpSessionStarted(uint code, const QVariantMap &results);
+-    void handleXdpSessionFinished(uint code, const QVariantMap &results);
++    void handleXdpSessionFinished(const QVariantMap &details);
+ 
+ private:
+     void connectToEi(int fd);
