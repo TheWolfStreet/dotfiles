@@ -169,9 +169,20 @@ in {
     extraPortals = [
       pkgs.xdg-desktop-portal-hyprland
       pkgs.xdg-desktop-portal-gtk
+      pkgs.xdg-desktop-portal-luminous
     ];
-    config.common.default = ["hyprland" "gtk"];
+    config.common = {
+      default = ["hyprland" "gtk"];
+      # xdg-desktop-portal-hyprland has no RemoteDesktop; luminous provides it for KDE Connect remote input.
+      "org.freedesktop.impl.portal.RemoteDesktop" = ["luminous"];
+    };
   };
+
+  xdg.configFile."hypr/xdph.conf".text = ''
+    screencopy {
+      allow_token_by_default = true
+    }
+  '';
 
   xdg.desktopEntries."org.gnome.Settings" = {
     name = "GNOME Settings";
@@ -511,18 +522,21 @@ in {
           allows_input = true;
         }
         {
-          name = "kdeconnect";
+          name = "kdeconnect_presenter";
           match.class = "^(org.kde.kdeconnect.daemon)$";
-          opacity = "1.0 1.0";
-          no_blur = true;
-          decorate = false;
-          no_shadow = true;
-          no_anim = true;
-          no_focus = true;
-          suppress_event = "fullscreen";
+          match.title = "^(KDE Connect Daemon)$";
           float = true;
           pin = true;
-          center = true;
+          move = "0 0";
+          size = "monitor_w monitor_h";
+          opacity = "1.0 1.0";
+          decorate = false;
+          no_shadow = true;
+          no_blur = true;
+          no_anim = true;
+          no_focus = true;
+          no_initial_focus = true;
+          suppress_event = "fullscreen maximize activate";
         }
       ];
     };
