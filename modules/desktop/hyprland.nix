@@ -1,9 +1,12 @@
 {
   config,
+  inputs,
   pkgs,
   lib,
   ...
 }: {
+  imports = [inputs.hyprland-remote-portal.nixosModules.default];
+
   nix.settings = {
     # Keep default NixOS substituters/keys (eg cache.nixos.org), and add AGS.
     substituters = lib.mkAfter [
@@ -17,6 +20,8 @@
   programs.hyprland = {
     enable = true;
   };
+
+  xdg.portal.extraPortals = [pkgs.xdg-desktop-portal-gtk];
 
   security = {
     polkit.enable = true;
@@ -82,6 +87,11 @@
     };
   };
   services = {
+    hyprland-remote-portal = {
+      enable = true;
+      trustedApps = ["org.kde.kdeconnect" "kdeconnect"];
+    };
+
     gvfs.enable = true;
     devmon.enable = true;
     udisks2 = {

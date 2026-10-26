@@ -31,7 +31,7 @@
       enable = true;
       # BUG: KDE Connect types Wayland text per UTF-16 unit, so emoji surrogate pairs are dropped.
       package = pkgs.kdePackages.kdeconnect-kde.overrideAttrs (old: {
-        patches = (old.patches or []) ++ [./kdeconnect-emoji.patch];
+        patches = (old.patches or []) ++ [../../patches/kdeconnect-emoji.patch];
       });
     };
     droidcam.enable = true;

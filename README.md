@@ -12,6 +12,7 @@ A multi-host NixOS and Home Manager configuration built around Hyprland and the 
 ## Included
 
 - Hyprland desktop with tuigreet, Hyprlock, GTK/Qt theming, GNOME services, and the packaged AGS shell
+- KDE Connect remote input and presentation remote through [hyprland-remote-portal](https://github.com/TheWolfStreet/hyprland-remote-portal), with the laser pointer shown on the cursor's monitor and emoji typing patched into KDE Connect
 - PipeWire and WirePlumber fixed at 44.1 kHz with a 512-sample quantum, plus writable EasyEffects presets and MIDI hotplug bridging
 - NetworkManager, key-only SSH defaults, Flatpak, and declarative Flathub provisioning
 - AMD, Intel, and NVIDIA hardware modules with native and 32-bit graphics acceleration
@@ -33,7 +34,7 @@ All bundled host files contain machine-specific hardware, monitor, network, or s
 
 ### 1. Clone The Repository
 
-The AGS shell is a Git submodule. Clone recursively to `~/.dotfiles`; generated rebuild helpers use that exact path under the configured user's home directory.
+The AGS shell and the remote input portal are Git submodules. Clone recursively to `~/.dotfiles`; generated rebuild helpers use that exact path under the configured user's home directory.
 
 ```bash
 git clone --recurse-submodules https://github.com/TheWolfStreet/dotfiles.git ~/.dotfiles
@@ -177,7 +178,7 @@ hyprctl monitors
 journalctl --user -u ags.service -b
 ```
 
-Use the matching selector on each physical machine. Hardware remains deliberately external: evaluating another selector here combines its policy with this machine's `/etc/nixos/hardware-configuration.nix`, not that host's actual hardware. Flake checks build the root Nix formatting check and AGS package; they do not replace a system build or boot/audio/suspend tests. Formatting commands above exclude the independently maintained shell submodule. Add `--offline` to checks and builds when all required sources and dependencies are already cached.
+Use the matching selector on each physical machine. Hardware remains deliberately external: evaluating another selector here combines its policy with this machine's `/etc/nixos/hardware-configuration.nix`, not that host's actual hardware. Flake checks build the root Nix formatting check and AGS package; they do not replace a system build or boot/audio/suspend tests. Formatting commands above exclude the independently maintained submodules. Add `--offline` to checks and builds when all required sources and dependencies are already cached.
 
 `nx-gc` is intentionally destructive to rollback history; do not run it while testing a new generation. It expires standalone Home Manager generations older than one day, deletes all old root-profile Nix generations, and optimizes the store. In NixOS-managed homes without a standalone Home Manager profile, only the system generation collection applies. Cancelling the prompt deletes nothing.
 
@@ -256,6 +257,7 @@ The root flake builds `ags2-shell` from the submodule, installs the matching AGS
 |-- ags2-shell/       # Standalone AGS shell submodule
 |-- docs/             # Specialized operational guides
 |-- hosts/            # Machine-specific hardware and desktop settings
+|-- hyprland-remote-portal/  # RemoteDesktop portal submodule for KDE Connect remote input
 |-- modules/
 |   |-- desktop/      # Hyprland, audio, greeter, Chromium policy, gaming, and desktop services
 |   |-- hardware/     # Devices plus AMD, Intel, and NVIDIA options
@@ -270,6 +272,7 @@ The root flake builds `ags2-shell` from the submodule, installs the matching AGS
 |   |-- music.nix     # MIDI hotplug bridge
 |   |-- packages.nix  # Shared user applications and utilities
 |   `-- pentest.nix   # Optional security toolkit
+|-- patches/          # Patches applied to upstream packages
 |-- flake.nix         # Inputs, identities, host registry, and system constructor
 `-- flake.lock
 ```

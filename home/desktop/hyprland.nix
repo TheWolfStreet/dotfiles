@@ -1,5 +1,4 @@
 {
-  inputs,
   pkgs,
   lib,
   config,
@@ -183,18 +182,7 @@
     ${pkgs.systemd}/bin/systemctl suspend
   '';
 in {
-  imports = [inputs.hyprland-remote-portal.homeManagerModules.default];
-
   xdg = {
-    portal = {
-      enable = true;
-      extraPortals = [
-        pkgs.xdg-desktop-portal-hyprland
-        pkgs.xdg-desktop-portal-gtk
-      ];
-      config.common.default = ["hyprland" "gtk"];
-    };
-
     configFile."hypr/xdph.conf".text = ''
       screencopy {
         allow_token_by_default = true
@@ -213,6 +201,7 @@ in {
 
   wayland.windowManager.hyprland = {
     enable = true;
+    portalPackage = null;
     configType = "lua";
     systemd.enable = true;
     xwayland.enable = true;
@@ -565,10 +554,6 @@ in {
     };
   };
   services = {
-    hyprland-remote-portal = {
-      enable = true;
-      trustedApps = ["org.kde.kdeconnect" "kdeconnect"];
-    };
     hypridle = {
       enable = true;
       settings = {
