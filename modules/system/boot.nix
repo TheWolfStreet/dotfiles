@@ -1,4 +1,8 @@
-{pkgs, lib, ...}: {
+{
+  pkgs,
+  lib,
+  ...
+}: {
   boot = {
     tmp.cleanOnBoot = true;
     supportedFilesystems = ["ntfs"];

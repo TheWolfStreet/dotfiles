@@ -42,7 +42,7 @@ in {
         # aggregator requires when merging external modules; provide an empty
         # one so depmod metadata merges without changing the module itself.
         extraModulePackages = [
-          (pkgs.runCommand "zenpower-with-cer" { } ''
+          (pkgs.runCommand "zenpower-with-cer" {} ''
             ver=${config.boot.kernelPackages.kernel.modDirVersion}
             dst=$out/lib/modules/$ver/kernel/drivers/hwmon/zenpower
             src=${config.boot.kernelPackages.zenpower}/lib/modules/$ver/kernel/drivers/hwmon/zenpower

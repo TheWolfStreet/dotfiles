@@ -31,24 +31,36 @@ in {
   hermes.enable = true;
   power.enable = true;
   virtualisation.enable = true;
-  services.asusd.enable = true;
-  services.tailscale = {
-    enable = true;
-    openFirewall = true;
-  };
 
-  # ASUS TUF A16 FA617NSR PixArt touchpad (ASUP1205:00 093A:2008) freezes with
+  # BUG: the ASUS TUF A16 PixArt touchpad (ASUP1205:00 093A:2008) freezes with
   # "i2c_hid_get_input: incomplete report (18/65535)" until a suspend/resume
-  # cycle resets the bus. Poll instead of relying on the racy GPIO IRQ.
+  # cycle resets the bus. Polling avoids the racy GPIO IRQ.
   boot.kernelParams = ["i2c_hid.polling_mode=1"];
 
-  # Keep the touchpad's I2C link powered; runtime autosuspend can also wedge it.
-  services.udev.extraRules = lib.mkAfter ''
-    ACTION=="add", SUBSYSTEM=="i2c", KERNEL=="i2c-ASUP1205:00", ATTR{power/control}="on"
-    ACTION=="add", SUBSYSTEM=="pci", ATTR{vendor}=="0x1022", ATTR{device}=="0x15d7", ATTR{power/control}="on"
-  '';
+  services = {
+    asusd.enable = true;
+    tailscale = {
+      enable = true;
+      openFirewall = true;
+    };
 
-  # After s2idle or a lid close the touchpad can come back dead. Reloading
+    # BUG: runtime autosuspend can wedge the touchpad's I2C link, so keep it powered.
+    udev.extraRules = lib.mkAfter ''
+      ACTION=="add", SUBSYSTEM=="i2c", KERNEL=="i2c-ASUP1205:00", ATTR{power/control}="on"
+      ACTION=="add", SUBSYSTEM=="pci", ATTR{vendor}=="0x1022", ATTR{device}=="0x15d7", ATTR{power/control}="on"
+    '';
+
+    acpid = {
+      enable = true;
+      lidEventCommands = ''
+        case "$1" in
+          *open*) ${pkgs.systemd}/bin/systemctl --no-block start touchpad-rebind.service ;;
+        esac
+      '';
+    };
+  };
+
+  # BUG: after s2idle or a lid close the touchpad can come back dead. Reloading
   # i2c_hid does not clear it; rebinding its I2C controller (AMDI0010:00, which
   # carries only the touchpad) does.
   systemd.services.touchpad-rebind = {
@@ -64,16 +76,7 @@ in {
     '';
   };
 
-  services.acpid = {
-    enable = true;
-    lidEventCommands = ''
-      case "$1" in
-        *open*) ${pkgs.systemd}/bin/systemctl --no-block start touchpad-rebind.service ;;
-      esac
-    '';
-  };
-
-  # The BOE panel's overdrive overshoots at 144 Hz: bright/dark fringes trail moving edges
+  # BUG: the BOE panel's overdrive overshoots at 144 Hz, so bright and dark fringes trail moving edges.
   systemd.services.panel-overdrive-off = lib.mkIf config.services.asusd.enable {
     after = ["asusd.service"];
     requires = ["asusd.service"];

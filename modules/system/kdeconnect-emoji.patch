@@ -1,0 +1,19 @@
+--- a/plugins/mousepad/waylandremoteinput.cpp
++++ b/plugins/mousepad/waylandremoteinput.cpp
+@@ -497,13 +497,13 @@
+                 s_session->keyboardKeycode(keycode, true);
+                 s_session->keyboardKeycode(keycode, false);
+             } else if (!key.isEmpty()) {
+-                for (const QChar character : key) {
+-                    const auto keysym = xkb_utf32_to_keysym(character.unicode());
++                for (const char32_t character : key.toUcs4()) {
++                    const auto keysym = xkb_utf32_to_keysym(character);
+                     if (keysym != XKB_KEY_NoSymbol) {
+                         s_session->keyboardKeysym(keysym, true);
+                         s_session->keyboardKeysym(keysym, false);
+                     } else {
+-                        qCDebug(KDECONNECT_PLUGIN_MOUSEPAD) << "Cannot send character" << character;
++                        qCDebug(KDECONNECT_PLUGIN_MOUSEPAD) << "Cannot send character" << QString::fromUcs4(&character, 1);
+                     }
+                 }
+             }

@@ -1,3 +1,6 @@
 [submodule "ags2-shell"]
 	path = ags2-shell
 	url = https://github.com/TheWolfStreet/ags2-shell
+[submodule "hyprland-remote-portal"]
+	path = hyprland-remote-portal
+	url = https://github.com/TheWolfStreet/hyprland-remote-portal

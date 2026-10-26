@@ -1,4 +1,5 @@
 {
+  inputs,
   pkgs,
   lib,
   config,
@@ -12,6 +13,24 @@
   bind = keys: dispatcher: options: {
     _args = [keys dispatcher] ++ lib.optional (options != {}) options;
   };
+  window_target = "local a = w.address if not a:match('^0x') then a = '0x' .. a end local target = 'address:' .. a";
+  place_presenter = lua ''
+    function(w)
+      if not w or w.class ~= "org.kde.kdeconnect.daemon" or w.title ~= "KDE Connect Daemon" then return end
+      local m = hl.get_monitor_at_cursor()
+      if not m then return end
+      ${window_target}
+      hl.dispatch(hl.dsp.window.move({ x = m.x, y = m.y, window = target }))
+      hl.dispatch(hl.dsp.window.resize({ x = math.floor(m.width / m.scale), y = math.floor(m.height / m.scale), window = target }))
+    end
+  '';
+  present_fullscreen = lua ''
+    function(w)
+      if not w or w.class ~= "libreoffice-impress" or not (w.title or ""):match("^Presenting:") or w.fullscreen == 2 then return end
+      ${window_target}
+      hl.dispatch(hl.dsp.window.fullscreen_state({ internal = 2, client = 2, window = target }))
+    end
+  '';
   float_rule = name: class: {
     inherit name;
     match.class = "^(${class})$";
@@ -164,33 +183,32 @@
     ${pkgs.systemd}/bin/systemctl suspend
   '';
 in {
-  xdg.portal = {
-    enable = true;
-    extraPortals = [
-      pkgs.xdg-desktop-portal-hyprland
-      pkgs.xdg-desktop-portal-gtk
-      pkgs.xdg-desktop-portal-luminous
-    ];
-    config.common = {
-      default = ["hyprland" "gtk"];
-      # xdg-desktop-portal-hyprland has no RemoteDesktop; luminous provides it for KDE Connect remote input.
-      "org.freedesktop.impl.portal.RemoteDesktop" = ["luminous"];
+  imports = [inputs.hyprland-remote-portal.homeManagerModules.default];
+
+  xdg = {
+    portal = {
+      enable = true;
+      extraPortals = [
+        pkgs.xdg-desktop-portal-hyprland
+        pkgs.xdg-desktop-portal-gtk
+      ];
+      config.common.default = ["hyprland" "gtk"];
     };
-  };
 
-  xdg.configFile."hypr/xdph.conf".text = ''
-    screencopy {
-      allow_token_by_default = true
-    }
-  '';
+    configFile."hypr/xdph.conf".text = ''
+      screencopy {
+        allow_token_by_default = true
+      }
+    '';
 
-  xdg.desktopEntries."org.gnome.Settings" = {
-    name = "GNOME Settings";
-    comment = "GNOME control center (GNOME settings only)";
-    icon = "org.gnome.Settings";
-    exec = "env XDG_CURRENT_DESKTOP=gnome ${pkgs.gnome-control-center}/bin/gnome-control-center";
-    categories = ["X-Preferences"];
-    terminal = false;
+    desktopEntries."org.gnome.Settings" = {
+      name = "GNOME Settings";
+      comment = "GNOME control center (GNOME settings only)";
+      icon = "org.gnome.Settings";
+      exec = "env XDG_CURRENT_DESKTOP=gnome ${pkgs.gnome-control-center}/bin/gnome-control-center";
+      categories = ["X-Preferences"];
+      terminal = false;
+    };
   };
 
   wayland.windowManager.hyprland = {
@@ -283,6 +301,9 @@ in {
             (lua "function() hl.exec_cmd(${toLua "${reapply_lid}"}) end")
           ];
         }
+        {_args = ["window.open" place_presenter];}
+        {_args = ["window.open" present_fullscreen];}
+        {_args = ["window.title" present_fullscreen];}
       ];
 
       monitor = [
@@ -488,9 +509,11 @@ in {
         }
         {
           name = "xwayland_popups";
-          match.xwayland = true;
-          match.float = true;
-          match.title = "^$";
+          match = {
+            xwayland = true;
+            float = true;
+            title = "^$";
+          };
           decorate = false;
           no_blur = true;
           no_shadow = true;
@@ -536,35 +559,41 @@ in {
           no_anim = true;
           no_focus = true;
           no_initial_focus = true;
-          suppress_event = "fullscreen maximize activate";
+          suppress_event = "fullscreen fullscreenoutput maximize activate";
         }
       ];
     };
   };
-  services.hypridle = {
-    enable = true;
-    settings = {
-      general = {
-        after_sleep_cmd = "${restore_panel}; ${wake_display}";
-        before_sleep_cmd = "${pkgs.systemd}/bin/loginctl lock-session";
-        ignore_dbus_inhibit = false;
-        lock_cmd = "${hyprlock}";
+  services = {
+    hyprland-remote-portal = {
+      enable = true;
+      trustedApps = ["org.kde.kdeconnect" "kdeconnect"];
+    };
+    hypridle = {
+      enable = true;
+      settings = {
+        general = {
+          after_sleep_cmd = "${restore_panel}; ${wake_display}";
+          before_sleep_cmd = "${pkgs.systemd}/bin/loginctl lock-session";
+          ignore_dbus_inhibit = false;
+          lock_cmd = "${hyprlock}";
+        };
+        listener = [
+          {
+            timeout = 900;
+            on-timeout = "${hyprlock}";
+          }
+          {
+            timeout = 1200;
+            on-timeout = "hyprctl dispatch 'hl.dsp.dpms({ action = \"off\" })'";
+            on-resume = "${wake_display}";
+          }
+          {
+            timeout = 1800;
+            on-timeout = "${suspend_on_battery}";
+          }
+        ];
       };
-      listener = [
-        {
-          timeout = 900;
-          on-timeout = "${hyprlock}";
-        }
-        {
-          timeout = 1200;
-          on-timeout = "hyprctl dispatch 'hl.dsp.dpms({ action = \"off\" })'";
-          on-resume = "${wake_display}";
-        }
-        {
-          timeout = 1800;
-          on-timeout = "${suspend_on_battery}";
-        }
-      ];
     };
   };
   programs.hyprlock = {

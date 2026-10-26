@@ -227,6 +227,22 @@
         "type": "github"
       }
     },
+    "hyprland-remote-portal": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "path": "./hyprland-remote-portal",
+        "type": "path"
+      },
+      "original": {
+        "path": "./hyprland-remote-portal",
+        "type": "path"
+      },
+      "parent": []
+    },
     "mactahoe-icon-theme": {
       "inputs": {
         "nixpkgs": [
@@ -353,6 +369,7 @@
         "apple-fonts": "apple-fonts",
         "hermes-agent": "hermes-agent",
         "home-manager": "home-manager_2",
+        "hyprland-remote-portal": "hyprland-remote-portal",
         "mactahoe-icon-theme": "mactahoe-icon-theme",
         "nixpkgs": "nixpkgs",
         "spicetify-nix": "spicetify-nix"
