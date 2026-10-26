@@ -1,0 +1,42 @@
+--- a/core/backends/lan/lanlinkprovider.cpp
++++ b/core/backends/lan/lanlinkprovider.cpp
+@@ -20,6 +20,12 @@
+ #include <mstcpip.h>
+ #endif
+ 
++#ifdef Q_OS_LINUX
++#include <QSocketNotifier>
++#include <linux/rtnetlink.h>
++#include <unistd.h>
++#endif
++
+ #include <QHostInfo>
+ #include <QMetaEnum>
+ #include <QNetworkInterface>
+@@ -96,6 +102,26 @@
+     // We want to know if our current network reachability has changed, or if we change from one network to another
+     connect(QNetworkInformation::instance(), &QNetworkInformation::reachabilityChanged, this, checkNetworkChange);
+     connect(QNetworkInformation::instance(), &QNetworkInformation::transportMediumChanged, this, checkNetworkChange);
++
++#ifdef Q_OS_LINUX
++    const int addressEvents = socket(AF_NETLINK, SOCK_RAW | SOCK_CLOEXEC | SOCK_NONBLOCK, NETLINK_ROUTE);
++    sockaddr_nl groups = {};
++    groups.nl_family = AF_NETLINK;
++    groups.nl_groups = RTMGRP_IPV4_IFADDR | RTMGRP_IPV6_IFADDR;
++    if (addressEvents >= 0 && bind(addressEvents, reinterpret_cast<sockaddr *>(&groups), sizeof(groups)) == 0) {
++        auto notifier = new QSocketNotifier(addressEvents, QSocketNotifier::Read, this);
++        connect(notifier, &QSocketNotifier::activated, this, [this, addressEvents]() {
++            char buffer[8192];
++            while (recv(addressEvents, buffer, sizeof(buffer), 0) > 0) { }
++            onNetworkChange();
++        });
++        connect(notifier, &QObject::destroyed, notifier, [addressEvents]() {
++            close(addressEvents);
++        });
++    } else if (addressEvents >= 0) {
++        close(addressEvents);
++    }
++#endif
+ }
+ 
+ LanLinkProvider::~LanLinkProvider()
