@@ -484,13 +484,11 @@ in {
           no_blur = true;
           no_shadow = true;
           no_anim = true;
-          pin = true;
         }
         {
           name = "xembedsniproxy";
           match.class = "^(xembedsniproxy)$";
           workspace = "special:tray silent";
-          pin = false;
           opacity = "0.0 0.0";
           size = "1 1";
           no_anim = true;
