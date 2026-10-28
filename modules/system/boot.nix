@@ -7,7 +7,6 @@
     tmp.cleanOnBoot = true;
     supportedFilesystems = ["ntfs"];
     consoleLogLevel = 2;
-    initrd.verbose = false;
     loader = {
       timeout = 0;
       systemd-boot = {
