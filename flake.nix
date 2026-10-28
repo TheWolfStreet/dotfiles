@@ -89,6 +89,43 @@
 
     checks.${system} = {
       ags-package = inputs.ags2-shell.packages.${system}.default;
+      lid-policy = let
+        lid_config = import ./home/desktop/hyprland.nix {
+          lib = pkgs.lib;
+          config.home.sessionVariables.BROWSER = "false";
+          theme.cursor = {
+            name = "test";
+            size = 24;
+          };
+          pkgs =
+            pkgs
+            // {
+              systemd = pkgs.writeShellScriptBin "systemctl" ''
+                printf '%s\n' "$*" >> "$SYSTEMCTL_LOG"
+              '';
+              writeShellScript = name: text:
+                pkgs.writeShellScript name (
+                  if name == "lid-closed"
+                  then ''[ "$LID_STATE" = closed ]''
+                  else if name == "ac-online"
+                  then ''[ "$AC_ONLINE" = 1 ]''
+                  else text
+                );
+            };
+        };
+        lid_script = key: let
+          binding = builtins.head (builtins.filter (binding: builtins.head binding._args == key) lid_config.wayland.windowManager.hyprland.settings.bind);
+        in
+          pkgs.lib.removeSuffix "\")" (pkgs.lib.removePrefix "hl.dsp.exec_cmd(\"" (builtins.elemAt binding._args 1).expr);
+      in
+        pkgs.runCommand "lid-policy-tests" {
+          nativeBuildInputs = [pkgs.nodejs];
+          LID_CLOSE = lid_script "switch:on:Lid Switch";
+          RESTORE_PANEL = lid_script "switch:off:Lid Switch";
+        } ''
+          node --test ${./tests/lid_policy.mjs}
+          touch "$out"
+        '';
       formatting =
         pkgs.runCommand "dotfiles-formatting" {
           nativeBuildInputs = [pkgs.alejandra];

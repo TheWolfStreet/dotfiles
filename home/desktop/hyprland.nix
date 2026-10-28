@@ -93,16 +93,61 @@
       exit 1
     fi
     state="$XDG_RUNTIME_DIR/hypr-internal-panel-$UID"
+    exec 9>"$state.lock"
+    ${pkgs.util-linux}/bin/flock 9 || exit 1
     monitors=$(hyprctl monitors all -j) || exit 1
     ${jq} -e 'type == "array" and length > 0 and all(.[]; (.name | type == "string") and (.disabled | type == "boolean"))' <<< "$monitors" >/dev/null || exit 1
     panel=$(${jq} -c '[.[] | select((.name | test("^(eDP|LVDS)"; "i")) and .disabled == false)] | first // empty' <<< "$monitors")
     [ -n "$panel" ] || exit 0
     ${jq} -e '(.width | type == "number") and (.height | type == "number") and (.refreshRate | type == "number") and (.x | type == "number") and (.y | type == "number") and (.scale | type == "number") and (.transform | type == "number")' <<< "$panel" >/dev/null || exit 1
+    mirrors=$(${jq} -c --argjson panel "$panel" '[.[] | select(.disabled == false and .name != $panel.name and (.mirrorOf == $panel.name or .mirrorOf == ($panel.id | tostring))) | .mirrorOf = $panel.name]' <<< "$monitors") || exit 1
+    ${jq} -e 'all(.[]; (.width | type == "number") and (.height | type == "number") and (.refreshRate | type == "number") and (.x | type == "number") and (.y | type == "number") and (.scale | type == "number") and (.transform | type == "number"))' <<< "$mirrors" >/dev/null || exit 1
+
+    monitor_rule() {
+      ${jq} -r '"hl.monitor({ output = \(.name | tojson), mode = \("\(.width)x\(.height)@\(.refreshRate)" | tojson), position = \("\(.x)x\(.y)" | tojson), scale = \(.scale), transform = \(.transform), mirror = \((.mirrorOf // "none") | tojson), disabled = false })"'
+    }
 
     if [ ! -s "$state" ]; then
-      ${jq} -r '.name, "hl.monitor({ output = \(.name | tojson), mode = \("\(.width)x\(.height)@\(.refreshRate)" | tojson), position = \("\(.x)x\(.y)" | tojson), scale = \(.scale), transform = \(.transform), disabled = false })"' \
-        <<< "$panel" > "$state" || exit 1
+      ${jq} -r '.name' <<< "$panel" > "$state" || exit 1
+      monitor_rule <<< "$panel" >> "$state" || exit 1
+      while IFS= read -r monitor; do
+        monitor_rule <<< "$monitor" >> "$state" || exit 1
+      done < <(${jq} -c '.[]' <<< "$mirrors")
     fi
+
+    while IFS= read -r monitor; do
+      name=$(${jq} -r '.name' <<< "$monitor")
+      original_rule=$(monitor_rule <<< "$monitor") || exit 1
+      rule=$(monitor_rule <<< "$(${jq} '.mirrorOf = "none"' <<< "$monitor")") || exit 1
+      hyprctl eval "hl.monitor({ output = $(${jq} -c '.name' <<< "$monitor"), disabled = true })" || exit 1
+      disabled=false
+      for _ in $(${pkgs.coreutils}/bin/seq 1 20); do
+        if hyprctl monitors all -j | ${jq} -e --arg name "$name" 'any(.[]; .name == $name and .disabled == true)' >/dev/null; then
+          disabled=true
+          break
+        fi
+        ${pkgs.coreutils}/bin/sleep 0.025
+      done
+      promoted=false
+      if [ "$disabled" = true ] && hyprctl eval "$rule"; then
+        for _ in $(${pkgs.coreutils}/bin/seq 1 20); do
+          if hyprctl monitors all -j | ${jq} -e --arg name "$name" 'any(.[]; .name == $name and .disabled == false and (.mirrorOf == null or .mirrorOf == "none"))' >/dev/null; then
+            promoted=true
+            break
+          fi
+          ${pkgs.coreutils}/bin/sleep 0.025
+        done
+      fi
+      if [ "$promoted" = false ]; then
+        hyprctl eval "$original_rule" || printf 'lid-close: could not restore %s\n' "$name" >&2
+        printf 'lid-close: could not promote %s\n' "$name" >&2
+        exit 1
+      fi
+    done < <(${jq} -c '.[]' <<< "$mirrors")
+
+    while IFS= read -r name; do
+      hyprctl dispatch "hl.dsp.dpms({ action = \"on\", monitor = $name })" >/dev/null || exit 1
+    done < <(${jq} -c '.[] | select((.name | test("^(eDP|LVDS)"; "i") | not) and .disabled == false) | .name' <<< "$monitors")
     hyprctl eval "hl.monitor({ output = $(${jq} -c '.name' <<< "$panel"), disabled = true })" || exit 1
 
     if ! ${jq} -e 'any(.[]; (.name | test("^(eDP|LVDS)"; "i") | not) and .disabled == false)' <<< "$monitors" >/dev/null; then
@@ -118,6 +163,8 @@
       exit 1
     fi
     state="$XDG_RUNTIME_DIR/hypr-internal-panel-$UID"
+    exec 9>"$state.lock"
+    ${pkgs.util-linux}/bin/flock 9 || exit 1
     if ${lid_closed}; then exit 0; fi
     if [ ! -s "$state" ]; then
       ${wake_display}
@@ -135,6 +182,10 @@
         ${pkgs.coreutils}/bin/sleep 1
         if ${lid_closed}; then exit 0; fi
         hyprctl dispatch "hl.dsp.dpms({ action = \"on\", monitor = \"$name\" })" >/dev/null || exit 1
+        while IFS= read -r external_rule; do
+          [ -n "$external_rule" ] || continue
+          hyprctl eval "$external_rule" >/dev/null || exit 1
+        done < <(${pkgs.coreutils}/bin/tail -n +3 "$state")
         ${pkgs.coreutils}/bin/rm -f "$state"
         exit 0
       fi
