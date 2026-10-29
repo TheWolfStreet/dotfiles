@@ -2,6 +2,6 @@
   imports = [
     ./git.nix
     ./lf.nix
-    ./opencode.nix
+    ./agents.nix
   ];
 }
