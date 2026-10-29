@@ -27,7 +27,7 @@ in {
           enable32Bit = true;
         };
         nvidia = {
-          branch = "latest";
+          branch = "production"; # 615.78.08 (latest) has a buggy shader compiler that segfaults on some vkd3d shaders
           open = true;
           videoAcceleration = true;
           nvidiaSettings = false;
