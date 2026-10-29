@@ -56,7 +56,7 @@
     defaultUsername = "tws";
     gitName = "TheWolfStreet";
     gitEmail = "wolfthestreet@gmail.com";
-    stateVersion = "24.05";
+    stateVersion = "26.11";
 
     hosts = {
       ironmaiden.username = "ghost";

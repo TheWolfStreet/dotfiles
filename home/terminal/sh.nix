@@ -56,6 +56,7 @@ in {
 
     nushell = {
       enable = true;
+      loadSessionVariables = true;
       inherit shellAliases;
       environmentVariables = {
         PROMPT_INDICATOR_VI_INSERT = "  ";
