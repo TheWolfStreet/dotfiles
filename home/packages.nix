@@ -83,7 +83,6 @@
       # Live I/O monitoring
       iotop
 
-      sweethome3d.application
       (
         if osConfig.hardware.nvidia.enable
         then freecad-wayland
