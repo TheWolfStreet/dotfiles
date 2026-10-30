@@ -12,7 +12,7 @@ A multi-host NixOS and Home Manager configuration built around Hyprland and the 
 ## Included
 
 - Hyprland desktop with tuigreet, Hyprlock, GTK/Qt theming, GNOME services, and the packaged AGS shell
-- KDE Connect remote input and presentation remote through [hyprland-remote-portal](https://github.com/TheWolfStreet/hyprland-remote-portal), with the laser pointer shown on the cursor's monitor and emoji typing patched into KDE Connect
+- KDE Connect remote input and presentation remote through [hyprland-remote-portal](https://github.com/TheWolfStreet/hyprland-remote-portal), with the laser pointer shown on the cursor's monitor; KDE Connect is patched for emoji typing, finding the phone when a second network connects, and recovering remote input after a portal restart
 - PipeWire and WirePlumber fixed at 44.1 kHz with a 512-sample quantum, plus writable EasyEffects presets and MIDI hotplug bridging
 - NetworkManager, key-only SSH defaults, Flatpak, and declarative Flathub provisioning
 - AMD, Intel, and NVIDIA hardware modules with native and 32-bit graphics acceleration
@@ -94,8 +94,15 @@ Create `hosts/<configuration>.nix` and import the shared modules plus the machin
   virtualisation.enable = true;
 
   home-manager.users.${username}.wayland.windowManager.hyprland.settings = {
-    monitor = ["eDP-1,1920x1080@60,0x0,1"];
-    input.kb_layout = "us";
+    monitor = [
+      {
+        output = "eDP-1";
+        mode = "1920x1080@60";
+        position = "0x0";
+        scale = 1;
+      }
+    ];
+    config.input.kb_layout = "us";
   };
 }
 ```
@@ -115,7 +122,7 @@ Tuigreet starts after boot. On a fresh installation, the initial password is the
 passwd
 ```
 
-Existing installations retain their passwords; rebuilds do not reset a changed password to the initial value. Desktop SSH intentionally accepts passwords, so change the bootstrap password before exposing it to an untrusted network.
+Existing installations retain their passwords; rebuilds do not reset a changed password to the initial value.
 
 ## Host Options
 
@@ -130,14 +137,14 @@ Hosts compose the common desktop, hardware, and system modules and enable only m
 | `hardware.intel.cpu.enable` | Intel microcode |
 | `hardware.intel.gpu.enable` | Intel graphics and VA-API support |
 | `hardware.intel.gpu.vaapiDriver` | `modern` for Broadwell and newer, `legacy` for older GPUs |
-| `hardware.nvidia.enable` | NVIDIA driver, Wayland, and video acceleration |
+| `hardware.nvidia.enable` | Open NVIDIA driver (production branch), Wayland, and video acceleration |
 | `hardware.nvidia.persistence.enable` | NVIDIA persistence daemon |
 | `gaming.enable` | Steam, Gamescope, Gamemode, and local-transfer firewall support |
 | `power.enable` | Laptop power, lid, suspend, and device power policies |
 | `virtualisation.enable` | Docker, Podman, libvirt, virt-manager, Boxes, Distrobox, Lazydocker, SPICE USB, and `nx-vm` |
 | `hermes.enable` | Hermes Agent; available when the host explicitly imports the Hermes feature module |
 
-Hardware-specific NixOS options can be added directly in a host. Examples include ASUS services, Intel legacy VA-API, RF hardware, Wireshark USB capture, and host-specific NetworkManager or WirePlumber rules. The optional Hermes implementation path is another impure, machine-local input.
+Hardware-specific NixOS options can be added directly in a host. Examples include ASUS services, RF hardware, Wireshark USB capture, and host-specific NetworkManager or WirePlumber rules. The optional Hermes implementation path is another impure, machine-local input.
 
 For generic Hermes support, add `(import ../modules/system/hermes.nix {})` to the host's imports and set `hermes.enable = true`. The module also accepts an `implementation` module path. `hosts/nixtop.nix` explicitly selects `~/.hermes/nixos/hermes.nix` when present and otherwise uses the generic package; other hosts do not discover or import this local code.
 
@@ -178,7 +185,7 @@ hyprctl monitors
 journalctl --user -u ags.service -b
 ```
 
-Use the matching selector on each physical machine. Hardware remains deliberately external: evaluating another selector here combines its policy with this machine's `/etc/nixos/hardware-configuration.nix`, not that host's actual hardware. Flake checks build the root Nix formatting check and AGS package; they do not replace a system build or boot/audio/suspend tests. Formatting commands above exclude the independently maintained submodules. Add `--offline` to checks and builds when all required sources and dependencies are already cached.
+Use the matching selector on each physical machine. Hardware remains deliberately external: evaluating another selector here combines its policy with this machine's `/etc/nixos/hardware-configuration.nix`, not that host's actual hardware. Flake checks run the root Nix formatting check and the lid-policy tests and build the AGS package; they do not replace a system build or boot/audio/suspend tests. Formatting commands above exclude the independently maintained submodules. Add `--offline` to checks and builds when all required sources and dependencies are already cached.
 
 `nx-gc` is intentionally destructive to rollback history; do not run it while testing a new generation. It expires standalone Home Manager generations older than one day, deletes all old root-profile Nix generations, and optimizes the store. In NixOS-managed homes without a standalone Home Manager profile, only the system generation collection applies. Cancelling the prompt deletes nothing.
 
@@ -237,7 +244,7 @@ The boot menu timeout remains zero. Hold or repeatedly press Space during startu
 
 From an authenticated TTY or SSH connection, use `hyprctl instances` to identify the compositor, then `hyprlock-revive <instance>` to request lock restoration. Inside the graphical session, the helper uses its current instance automatically. A successful dispatch is not proof that the lock rendered: verify it on the display. If the compositor is unavailable, inspect its logs or end the affected session instead of repeatedly launching lock clients.
 
-Lid/dock automation runs in the Hyprland session; pre-login logind lid behavior is unchanged. Panel recovery preserves saved display state while a readable lid reports closed, and monitor-query failures do not count as an undocked state. The lock screen centers the keyboard icon, native `$LAYOUT[en,ru,he]` short label, and optional Caps Lock symbol as one group without changing the password field. The Caps Lock indicator uses stock Hyprlock and queries the active keyboard every 250 ms; with multiple keyboards, the compositor-reported Caps Lock state can differ from the lock client's state.
+Lid/dock automation runs in the Hyprland session; pre-login logind lid behavior is unchanged. Closing the lid turns external displays that mirror the panel into standalone outputs before the panel turns off, opening it restores the mirror, and with no external display the laptop suspends unless it is on AC. Panel recovery preserves saved display state while a readable lid reports closed, and monitor-query failures do not count as an undocked state. The lock screen centers the keyboard icon, native `$LAYOUT[en,ru,he]` short label, and optional Caps Lock symbol as one group without changing the password field. The Caps Lock indicator uses stock Hyprlock and queries the active keyboard every 250 ms; with multiple keyboards, the compositor-reported Caps Lock state can differ from the lock client's state.
 
 ## AGS Shell
 
@@ -248,6 +255,7 @@ The root flake builds `ags2-shell` from the submodule, installs the matching AGS
 - EasyEffects is enabled on every host. Home Manager links `~/.config/easyeffects` and `~/.local/share/easyeffects` to writable checkout directories under `home/easyeffects/`; device-specific autoload filenames may need adjustment on another machine. GUI edits change the checkout, and Nix generation rollback does not restore these files. Preserve live state and `.hm-bak` backups before changing ownership or link targets.
 - `home/music.nix` runs a MIDI hotplug bridge that connects hardware sequencer ports to `Midi Through:0`. The FL Studio Hyprland watcher is also installed globally; Bottles setup and restart requirements are documented in [docs/fl-studio-bottles.md](docs/fl-studio-bottles.md).
 - Nix manages Neovim and its Lua configuration; Lazy manages downloaded plugins and its lockfile in the user cache. Plugin versions are not frozen by a Nix generation, and clearing the cache can discard that lockfile.
+- Claude Code (`~/.claude/CLAUDE.md`) and opencode (`~/.config/opencode/AGENTS.md`) link to the writable `home/dev/AGENTS.md`; edits change the checkout.
 - Hyprland-specific MIME defaults select LibreWolf for web links and HTML without replacing the writable `~/.config/mimeapps.list` or its other application associations.
 
 ## Repository Layout
@@ -266,13 +274,14 @@ The root flake builds `ags2-shell` from the submodule, installs the matching AGS
 |   |-- desktop/      # AGS, Hyprland, themes, applications, and FL Studio integration
 |   |-- terminal/     # Shell, Ghostty, tmux, mail, GPG, and prompt
 |   |-- nvim/         # Neovim package and configuration
-|   |-- dev/          # Git and development tools
+|   |-- dev/          # Git, development tools, and shared agent instructions
 |   |-- easyeffects/  # EasyEffects configuration and presets
 |   |-- scripts/      # Rebuild, lock recovery, and touchpad helpers
 |   |-- music.nix     # MIDI hotplug bridge
 |   |-- packages.nix  # Shared user applications and utilities
 |   `-- pentest.nix   # Optional security toolkit
 |-- patches/          # Patches applied to upstream packages
+|-- tests/            # Lid and dock policy tests run by the flake checks
 |-- flake.nix         # Inputs, identities, host registry, and system constructor
 `-- flake.lock
 ```
@@ -331,7 +340,8 @@ Keyboard-backlight controls detect LED devices ending in `:kbd_backlight` at run
 
 - This configuration tracks unstable inputs and is currently constructed for `x86_64-linux`.
 - `/etc/nixos/hardware-configuration.nix` remains machine-local, and enabled Hermes configurations may import `~/.hermes/nixos/hermes.nix`; evaluation and rebuild commands therefore use `--impure`.
-- SSH denies root login. The `nixos` desktop intentionally accepts passwords and public keys; the other physical hosts default to public-key authentication only.
+- SSH denies root login and password authentication on every host.
+- Nix collects garbage during builds when free space drops below 5 GiB, freeing up to 20 GiB.
 - Flatpak is enabled system-wide and Flathub provisioning retries until networking becomes available.
 - Home Manager conflict backups use the `.hm-bak` extension and are ignored by Git.
 
