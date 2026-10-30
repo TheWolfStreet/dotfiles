@@ -19,10 +19,10 @@
   nixpkgs.config.allowUnfree = true;
   nix = {
     settings = {
-      keep-outputs = true;
-      keep-derivations = true;
       experimental-features = ["nix-command" "flakes"];
       auto-optimise-store = true;
+      min-free = 5 * 1024 * 1024 * 1024;
+      max-free = 20 * 1024 * 1024 * 1024;
     };
   };
 
