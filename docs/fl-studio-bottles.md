@@ -88,7 +88,7 @@ Apply the full host configuration:
 
 ```bash
 cd /home/tws/.dotfiles
-sudo nixos-rebuild switch --flake .#nixtop --impure
+nixos-rebuild switch --flake .#nixtop --impure --sudo
 ```
 
 After activation, verify the MIDI service:

@@ -112,7 +112,7 @@ Keep `/etc/nixos/hardware-configuration.nix` outside this repository. Its absolu
 ### 4. Build And Boot
 
 ```bash
-sudo nixos-rebuild boot --flake ~/.dotfiles#<configuration> --impure
+nixos-rebuild boot --flake ~/.dotfiles#<configuration> --impure --sudo
 sudo reboot
 ```
 

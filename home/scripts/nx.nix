@@ -12,7 +12,7 @@
     pkgs.writeShellScriptBin "nx-${action}" ''
       set -euo pipefail
       printf 'Rebuilding %s: %s\n' '${configurationName}' '${action}'
-      exec sudo nixos-rebuild ${action} --flake "${dotfilesPath}#${configurationName}" --impure "$@"
+      exec nixos-rebuild ${action} --flake "${dotfilesPath}#${configurationName}" --impure --sudo "$@"
     '';
 
   nx-switch = rebuild "switch";
@@ -28,7 +28,7 @@
       exit 1
     fi
     printf 'Building and activating %s\n' '${configurationName}'
-    if ! sudo nixos-rebuild switch --flake "${dotfilesPath}#${configurationName}" --impure; then
+    if ! nixos-rebuild switch --flake "${dotfilesPath}#${configurationName}" --impure --sudo; then
       printf 'Build or activation failed; the updated lockfile was left intact. Inspect the output and system state before retrying.\n' >&2
       exit 1
     fi
