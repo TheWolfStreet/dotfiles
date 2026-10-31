@@ -21,6 +21,16 @@
     };
   };
 
+  nix.settings = {
+    max-jobs = 2;
+    cores = 0;
+  };
+
+  systemd.services.nix-daemon.serviceConfig = {
+    CPUWeight = "idle";
+    MemoryHigh = "60%";
+  };
+
   services.irqbalance.enable = true;
 
   zramSwap.enable = true;
