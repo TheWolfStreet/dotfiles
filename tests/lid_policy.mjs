@@ -12,7 +12,7 @@ import { tmpdir } from "node:os"
 import { join } from "node:path"
 import test from "node:test"
 
-function fixture(t, { mirror = "none", external = true, ac = true, fault = "" } = {}) {
+function fixture(t, { mirror = "none", external = true, ac = true, inhibited = false } = {}) {
 	const root = mkdtempSync(join(tmpdir(), "lid-policy-"))
 	t.after(() => rmSync(root, { recursive: true, force: true }))
 	const runtime = join(root, "runtime")
@@ -34,7 +34,6 @@ function fixture(t, { mirror = "none", external = true, ac = true, fault = "" } 
 		disabled: false,
 		dpmsStatus: true,
 		mirrorOf: "none",
-		advertised: true,
 	}
 	const tv = {
 		...panel,
@@ -45,7 +44,6 @@ function fixture(t, { mirror = "none", external = true, ac = true, fault = "" } 
 		refreshRate: 30,
 		x: mirror === "none" ? 1920 : 0,
 		mirrorOf: mirror,
-		advertised: mirror === "none",
 	}
 	writeFileSync(state, JSON.stringify({ monitors: external ? [panel, tv] : [panel], calls: [] }))
 	const hyprctl = join(bin, "hyprctl")
@@ -54,35 +52,13 @@ import fs from "node:fs"
 const path = process.env.MONITOR_STATE
 const state = JSON.parse(fs.readFileSync(path, "utf8"))
 const args = process.argv.slice(2)
-const fault = process.env.FAULT
 const command = args[1] ?? ""
-const text = (key) => {
-	const match = command.match(new RegExp(key + '\\\\s*=\\\\s*("(?:[^"\\\\\\\\]|\\\\\\\\.)*")'))
-	return match ? JSON.parse(match[1]) : undefined
-}
-const output = text("output")
-const mirror = text("mirror")
+const output = command.match(/output\\s*=\\s*"([^"]*)"/)?.[1]
 const disabled = command.match(/disabled\\s*=\\s*(true|false)/)?.[1]
-state.calls.push({ args, output, mirror, disabled })
-let failed = false
-if (args[0] === "eval") {
-	const monitor = state.monitors.find((monitor) => monitor.name === output)
-	if (monitor) {
-		failed = (fault === "disable" && disabled === "true" && output !== "eDP-1") ||
-			(fault === "enable" && mirror === "none" && output !== "eDP-1")
-		if (!failed &&
-			!(fault === "stuck" && disabled === "true" && output !== "eDP-1") &&
-			!(fault === "stuck_enable" && mirror === "none" && output !== "eDP-1")) {
-			const was_disabled = monitor.disabled
-			if (disabled !== undefined) monitor.disabled = disabled === "true"
-			if (mirror !== undefined) monitor.mirrorOf = mirror
-			monitor.advertised = !monitor.disabled && monitor.mirrorOf === "none" &&
-				(was_disabled || monitor.advertised)
-		}
-	}
-}
+state.calls.push({ args, output, disabled })
+const monitor = state.monitors.find((monitor) => monitor.name === output)
+if (args[0] === "eval" && monitor && disabled !== undefined) monitor.disabled = disabled === "true"
 fs.writeFileSync(path, JSON.stringify(state))
-if (failed) process.exit(1)
 if (args[0] === "monitors") console.log(JSON.stringify(state.monitors.filter((monitor) => args.includes("all") || !monitor.disabled)))
 else console.log("ok")
 `)
@@ -95,11 +71,14 @@ else console.log("ok")
 		SYSTEMCTL_LOG: systemctl,
 		LID_STATE: "closed",
 		AC_ONLINE: ac ? "1" : "0",
-		FAULT: fault,
+		SLEEP_INHIBITED: inhibited ? "1" : "",
 	}
+	const read = () => JSON.parse(readFileSync(state, "utf8"))
 	return {
 		runtime,
-		read: () => JSON.parse(readFileSync(state, "utf8")),
+		read,
+		tv: () => read().monitors.find((monitor) => monitor.name === "HDMI-A-1"),
+		evals: () => read().calls.filter((call) => call.args[0] === "eval"),
 		commands: () => {
 			try {
 				return readFileSync(systemctl, "utf8")
@@ -115,56 +94,45 @@ else console.log("ok")
 	}
 }
 
-for (const mirror of ["eDP-1", "0"])
-	test(`closing a mirrored lid republishes the TV before disabling the panel (${mirror})`, (t) => {
+for (const mirror of ["none", "eDP-1"])
+	test(`closing the lid disables only the panel and stays awake with an external display (mirror=${mirror})`, (t) => {
 		const f = fixture(t, { mirror, ac: false })
 		const closed = f.close()
 		assert.equal(closed.status, 0, closed.stderr)
-		const { monitors, calls } = f.read()
-		assert.equal(monitors[0].disabled, true)
-		assert.equal(monitors[1].disabled, false)
-		assert.equal(monitors[1].mirrorOf, "none")
-		assert.equal(monitors[1].advertised, true)
-		const changed = calls.filter((call) => call.args[0] === "eval")
-		assert.deepEqual(changed.map((call) => [call.output, call.disabled, call.mirror]), [
-			["HDMI-A-1", "true", undefined],
-			["HDMI-A-1", "false", "none"],
-			["eDP-1", "true", undefined],
-		])
+		assert.equal(f.read().monitors[0].disabled, true)
+		assert.equal(f.tv().disabled, false)
+		assert.equal(f.tv().mirrorOf, mirror)
+		assert.deepEqual(f.evals().map((call) => [call.output, call.disabled]), [["eDP-1", "true"]])
 		assert.equal(f.commands(), "")
-		const opened = f.open()
-		assert.equal(opened.status, 0, opened.stderr)
-		assert.equal(f.read().monitors[0].disabled, false)
-		assert.equal(f.read().monitors[1].mirrorOf, "eDP-1")
 	})
 
-test("closing an extended lid leaves the TV enabled and advertised", (t) => {
-	const f = fixture(t, { ac: false })
-	const result = f.close()
-	assert.equal(result.status, 0, result.stderr)
-	assert.equal(f.read().monitors[0].disabled, true)
-	assert.equal(f.read().monitors[1].advertised, true)
-	assert.equal(f.read().calls.filter((call) => call.args[0] === "eval").length, 1)
-	assert.equal(f.commands(), "")
+test("opening the lid restores the panel and leaves the external display alone", (t) => {
+	const f = fixture(t, { mirror: "eDP-1", ac: false })
+	assert.equal(f.close().status, 0)
+	const opened = f.open()
+	assert.equal(opened.status, 0, opened.stderr)
+	assert.equal(f.read().monitors[0].disabled, false)
+	assert.deepEqual(f.evals().map((call) => call.output), ["eDP-1", "eDP-1"])
+	assert.equal(f.tv().mirrorOf, "eDP-1")
 })
 
-for (const fault of ["disable", "enable", "stuck", "stuck_enable"])
-	test(`failed TV promotion keeps the panel available and restores the mirror (${fault})`, (t) => {
-		const f = fixture(t, { mirror: "eDP-1", fault })
-		assert.notEqual(f.close().status, 0)
-		assert.equal(f.read().monitors[0].disabled, false)
-		assert.equal(f.read().monitors[1].disabled, false)
-		assert.equal(f.read().monitors[1].mirrorOf, "eDP-1")
-		assert.equal(f.commands(), "")
-	})
-
 for (const ac of [false, true])
-	test(`closing an undocked lid preserves the power policy (AC=${ac})`, (t) => {
+	test(`closing an undocked lid suspends on battery and turns the panel off on AC (AC=${ac})`, (t) => {
 		const f = fixture(t, { external: false, ac })
 		const result = f.close()
 		assert.equal(result.status, 0, result.stderr)
 		assert.equal(f.commands(), ac ? "" : "suspend\n")
+		assert.equal(f.read().monitors[0].disabled, ac)
+		assert.deepEqual(f.evals().map((call) => call.output), ac ? ["eDP-1"] : [])
 	})
+
+test("an inhibited suspend on battery turns the panel off instead", (t) => {
+	const f = fixture(t, { external: false, ac: false, inhibited: true })
+	const result = f.close()
+	assert.equal(result.status, 0, result.stderr)
+	assert.equal(f.commands(), "suspend\n")
+	assert.equal(f.read().monitors[0].disabled, true)
+})
 
 test("lid handling refuses a runtime directory that is not private", (t) => {
 	const f = fixture(t)

@@ -91,7 +91,7 @@
       ags-package = inputs.ags2-shell.packages.${system}.default;
       lid-policy = let
         lid_config = import ./home/desktop/hyprland.nix {
-          lib = pkgs.lib;
+          inherit (pkgs) lib;
           config.home.sessionVariables.BROWSER = "false";
           theme.cursor = {
             name = "test";
@@ -102,6 +102,7 @@
             // {
               systemd = pkgs.writeShellScriptBin "systemctl" ''
                 printf '%s\n' "$*" >> "$SYSTEMCTL_LOG"
+                [ -z "''${SLEEP_INHIBITED:-}" ]
               '';
               writeShellScript = name: text:
                 pkgs.writeShellScript name (
