@@ -342,7 +342,7 @@ Keyboard-backlight controls detect LED devices ending in `:kbd_backlight` at run
 - `/etc/nixos/hardware-configuration.nix` remains machine-local, and enabled Hermes configurations may import `~/.hermes/nixos/hermes.nix`; evaluation and rebuild commands therefore use `--impure`.
 - SSH denies root login and password authentication on every host.
 - Nix collects garbage during builds when free space drops below 5 GiB, freeing up to 20 GiB.
-- Flatpak is enabled system-wide and Flathub provisioning retries until networking becomes available.
+- Flatpak is enabled system-wide and Flathub provisioning retries until networking becomes available. `home/desktop/theme.nix` shares GTK settings, icons, and Nix store access with sandboxes, but does not currently share the user Fontconfig configuration; Home Manager profile fonts additionally require `xdg-config/fontconfig:ro` in those overrides.
 - Home Manager conflict backups use the `.hm-bak` extension and are ignored by Git.
 
 ## License

@@ -478,6 +478,7 @@ in {
           size = "400 616";
         }
         (float_rule "float_nautilus" "org.gnome.Nautilus")
+        (float_rule "float_kdeconnect" "org.kde.kdeconnect.(app|daemon)")
         (float_rule "float_pavucontrol" "pavucontrol")
         (float_rule "float_nmconnection" "nm-connection-editor")
         (float_rule "float_blueberry" "blueberry.py")
