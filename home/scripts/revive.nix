@@ -9,11 +9,7 @@
       printf 'Usage: hyprlock-revive [instance]\n' >&2
       exit 2
     fi
-    instance="''${1:-''${HYPRLAND_INSTANCE_SIGNATURE:-}}"
-    if [ -z "$instance" ]; then
-      printf 'Choose an instance from hyprctl instances, then run hyprlock-revive <instance>.\n' >&2
-      exit 1
-    fi
+    instance="''${1:-0}"
     ${pkgs.hyprland}/bin/hyprctl -i "$instance" eval 'hl.config({ misc = { allow_session_lock_restore = true } })'
     exec ${pkgs.hyprland}/bin/hyprctl -i "$instance" dispatch ${lib.escapeShellArg "hl.dsp.exec_cmd(${lib.generators.toLua {} "${pkgs.hyprlock}/bin/hyprlock"})"}
   '';

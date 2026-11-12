@@ -89,6 +89,40 @@
 
     checks.${system} = {
       ags-package = inputs.ags2-shell.packages.${system}.default;
+      hyprlock-revive = let
+        hyprctl = pkgs.writeShellScriptBin "hyprctl" ''
+          printf '%s\n' "$@" >> "$CALL_LOG"
+          [ "''${FAIL_RESTORE:-0}" != 1 ]
+        '';
+        revive_config = import ./home/scripts/revive.nix {
+          inherit (pkgs) lib;
+          pkgs = pkgs // {hyprland = hyprctl;};
+        };
+        revive = builtins.head revive_config.home.packages;
+      in
+        pkgs.runCommand "hyprlock-revive-tests" {} ''
+          export CALL_LOG="$TMPDIR/calls"
+          export HYPRLAND_INSTANCE_SIGNATURE=stale-instance
+          for instance in 0 2 explicit-signature; do
+            : > "$CALL_LOG"
+            if [ "$instance" = 0 ]; then
+              ${revive}/bin/hyprlock-revive
+            else
+              ${revive}/bin/hyprlock-revive "$instance"
+            fi
+            printf '%s\n' -i "$instance" eval \
+              'hl.config({ misc = { allow_session_lock_restore = true } })' \
+              -i "$instance" dispatch \
+              ${pkgs.lib.escapeShellArg "hl.dsp.exec_cmd(${pkgs.lib.generators.toLua {} "${pkgs.hyprlock}/bin/hyprlock"})"} > "$TMPDIR/expected"
+            diff -u "$TMPDIR/expected" "$CALL_LOG"
+          done
+          : > "$CALL_LOG"
+          if ${revive}/bin/hyprlock-revive 0 1; then exit 1; fi
+          test ! -s "$CALL_LOG"
+          if FAIL_RESTORE=1 ${revive}/bin/hyprlock-revive; then exit 1; fi
+          test "$(wc -l < "$CALL_LOG")" -eq 4
+          touch "$out"
+        '';
       lid-policy = let
         lid_config = import ./home/desktop/hyprland.nix {
           inherit (pkgs) lib;
