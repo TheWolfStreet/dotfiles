@@ -24,6 +24,7 @@
       min-free = 5 * 1024 * 1024 * 1024;
       max-free = 20 * 1024 * 1024 * 1024;
     };
+    extraOptions = "!include /etc/nix/local.conf";
   };
 
   programs = {

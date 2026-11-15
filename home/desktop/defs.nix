@@ -89,9 +89,9 @@ in {
   };
 
   font = {
-    name = "SF Pro Display Nerd Font";
+    name = "SF Pro Display";
     size = 11;
-    package = inputs.apple-fonts.packages.${system}.sf-pro-nerd;
+    package = inputs.apple-fonts.packages.${system}.sf-pro;
   };
 
   monospaceFont = {

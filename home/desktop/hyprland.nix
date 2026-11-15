@@ -87,6 +87,7 @@
     done
     [ "$has_battery" = false ]
   '';
+  monitor_rule_expression = ''"hl.monitor({ output = \(.name | tojson), mode = \("\(.width)x\(.height)@\(.refreshRate)" | tojson), position = \("\(.x)x\(.y)" | tojson), scale = \(.scale), transform = \(.transform), mirror = \($mirror | tojson), disabled = false })"'';
   lid_close = pkgs.writeShellScript "lid-close" ''
     if [ -z "''${XDG_RUNTIME_DIR:-}" ] || [ ! -d "$XDG_RUNTIME_DIR" ] || [ ! -O "$XDG_RUNTIME_DIR" ] || [ ! -w "$XDG_RUNTIME_DIR" ] || [ "$(${pkgs.coreutils}/bin/stat -c %a "$XDG_RUNTIME_DIR" 2>/dev/null)" != 700 ]; then
       printf 'lid-close: private XDG_RUNTIME_DIR is required\n' >&2
@@ -95,19 +96,81 @@
     state="$XDG_RUNTIME_DIR/hypr-internal-panel-$UID"
     exec 9>"$state.lock"
     ${pkgs.util-linux}/bin/flock 9 || exit 1
+    monitor_rule() {
+      ${jq} -r --arg mirror "$2" '${monitor_rule_expression}' <<< "$1"
+    }
+    wait_for_mirror() {
+      local current attempt
+      for ((attempt = 0; attempt < 20; attempt++)); do
+        current=$(hyprctl monitors all -j) || return 1
+        if ${jq} -e --arg name "$1" --arg mirror "$2" '. as $monitors | ([$monitors[] | select(.name == $mirror) | (.id | tostring)] | first // "") as $id | any(.[]; .name == $name and (if $mirror == "" then (.mirrorOf // "none") == "none" else .mirrorOf == $mirror or .mirrorOf == $id end))' <<< "$current" >/dev/null; then
+          return 0
+        fi
+        ${pkgs.coreutils}/bin/sleep 0.1
+      done
+      printf 'lid-close: mirror state did not settle for %s\n' "$1" >&2
+      return 1
+    }
     monitors=$(hyprctl monitors all -j) || exit 1
     ${jq} -e 'type == "array" and length > 0 and all(.[]; (.name | type == "string") and (.disabled | type == "boolean"))' <<< "$monitors" >/dev/null || exit 1
     panel=$(${jq} -c '[.[] | select((.name | test("^(eDP|LVDS)"; "i")) and .disabled == false)] | first // empty' <<< "$monitors")
     [ -n "$panel" ] || exit 0
     ${jq} -e '(.width | type == "number") and (.height | type == "number") and (.refreshRate | type == "number") and (.x | type == "number") and (.y | type == "number") and (.scale | type == "number") and (.transform | type == "number")' <<< "$panel" >/dev/null || exit 1
-    if ! ${jq} -e 'any(.[]; (.name | test("^(eDP|LVDS)"; "i") | not) and .disabled == false)' <<< "$monitors" >/dev/null && ! ${ac_online}; then
-      ${pkgs.systemd}/bin/systemctl suspend && exit 0
+    external=$(${jq} -c '[.[] | select((.name | test("^(eDP|LVDS)"; "i") | not) and .disabled == false and .hardwareDetails.backend != "headless")]' <<< "$monitors")
+    if [ "$external" = '[]' ]; then
+      if ! ${ac_online}; then
+        ${pkgs.systemd}/bin/systemctl suspend && exit 0
+      fi
+      hyprctl dispatch "hl.dsp.dpms({ action = \"off\", monitor = $(${jq} -c '.name' <<< "$panel") })"
+      exit $?
     fi
-    if [ ! -s "$state" ]; then
-      ${jq} -r '.name, "hl.monitor({ output = \(.name | tojson), mode = \("\(.width)x\(.height)@\(.refreshRate)" | tojson), position = \("\(.x)x\(.y)" | tojson), scale = \(.scale), transform = \(.transform), disabled = false })"' \
-        <<< "$panel" > "$state" || exit 1
+    target=$(${jq} -c '[.[] | select((.mirrorOf // "none") == "none")] | first // empty' <<< "$external")
+    if [ -z "$target" ]; then
+      target=$(${jq} -c --argjson panel "$panel" '[.[] | select(.mirrorOf == $panel.name or .mirrorOf == ($panel.id | tostring))] | first // empty' <<< "$external")
     fi
-    hyprctl eval "hl.monitor({ output = $(${jq} -c '.name' <<< "$panel"), disabled = true })" || exit 1
+    if [ -z "$target" ]; then
+      printf 'lid-close: no independent external mirror source is available\n' >&2
+      exit 1
+    fi
+    target_name=$(${jq} -r '.name' <<< "$target")
+    if ${jq} -e --argjson target "$target" '.dpmsStatus == false and (.mirrorOf == $target.name or .mirrorOf == ($target.id | tostring))' <<< "$panel" >/dev/null; then
+      exit 0
+    fi
+    workspace=""
+    if ! ${jq} -e --argjson target "$target" '.mirrorOf == $target.name or .mirrorOf == ($target.id | tostring)' <<< "$panel" >/dev/null; then
+      affected=$(${jq} -c --argjson panel "$panel" '[.[] | select(.mirrorOf == $panel.name or .mirrorOf == ($panel.id | tostring))]' <<< "$external")
+      if [ "$affected" != '[]' ]; then
+        workspace=$(${jq} -r '.activeWorkspace.address // empty' <<< "$panel")
+      fi
+      if [ ! -s "$state" ]; then
+        ${jq} -r --argjson monitors "$monitors" --argjson affected "$affected" '
+          def rule:
+            . as $monitor | ([$monitors[] | select(.name == $monitor.mirrorOf or (.id | tostring) == $monitor.mirrorOf) | .name] | first // "") as $mirror |
+            ${monitor_rule_expression};
+          .name, rule, ($affected[] | rule)' \
+          <<< "$panel" > "$state" || exit 1
+      fi
+      if [ "$(${jq} -r '.mirrorOf // "none"' <<< "$target")" != none ]; then
+        hyprctl eval "$(monitor_rule "$target" "")" || exit 1
+        wait_for_mirror "$target_name" "" || exit 1
+      fi
+      while IFS= read -r monitor; do
+        name=$(${jq} -r '.name' <<< "$monitor")
+        hyprctl eval "$(monitor_rule "$monitor" "$target_name")" || exit 1
+        wait_for_mirror "$name" "$target_name" || exit 1
+      done < <(${jq} -c --arg name "$target_name" '.[] | select(.name != $name)' <<< "$affected")
+    fi
+    panel_name=$(${jq} -r '.name' <<< "$panel")
+    if [ "$(${jq} -r '.mirrorOf // "none"' <<< "$panel")" != none ]; then
+      hyprctl eval "$(monitor_rule "$panel" "")" || exit 1
+      wait_for_mirror "$panel_name" "" || exit 1
+    fi
+    hyprctl dispatch "hl.dsp.dpms({ action = \"off\", monitor = $(${jq} -c '.name' <<< "$panel") })" || exit 1
+    hyprctl eval "$(monitor_rule "$panel" "$target_name")" || exit 1
+    wait_for_mirror "$panel_name" "$target_name" || exit 1
+    if [ -n "$workspace" ]; then
+      hyprctl eval "hl.get_monitor($(${jq} -c '.name' <<< "$target")):set_workspace($(${jq} -cn --arg workspace "$workspace" '$workspace'))" || exit 1
+    fi
   '';
   reapply_lid = pkgs.writeShellScript "reapply-lid" ''
     if ${lid_closed}; then exec ${lid_close}; fi
@@ -125,15 +188,28 @@
       ${wake_display}
       exit $?
     fi
-    { IFS= read -r name && IFS= read -r monitor_rule; } < "$state"
+    external_rules=()
+    { IFS= read -r name && IFS= read -r monitor_rule; mapfile -t external_rules; } < "$state"
     [ -n "$name" ] && [ -n "$monitor_rule" ] || exit 1
+    restore_external=false
+    workspace=""
+    if [ "''${#external_rules[@]}" -gt 0 ]; then
+      restore_external=true
+      monitors=$(hyprctl monitors all -j) || exit 1
+      workspace=$(${jq} -r --arg name "$name" '. as $monitors | .[] | select(.name == $name) | . as $panel | (if (.mirrorOf // "none") == "none" then . else $monitors[] | select(.name == $panel.mirrorOf or (.id | tostring) == $panel.mirrorOf) end) | .activeWorkspace.address // empty' <<< "$monitors")
+    fi
 
     ${pkgs.coreutils}/bin/sleep 1
-    hyprctl reload >/dev/null || exit 1
     for _ in $(${pkgs.coreutils}/bin/seq 1 30); do
       if ${lid_closed}; then exit 0; fi
       if hyprctl eval "$monitor_rule" >/dev/null && hyprctl dispatch "hl.dsp.dpms({ action = \"on\", monitor = \"$name\" })" >/dev/null &&
-        hyprctl monitors -j | ${jq} -e --arg name "$name" 'type == "array" and any(.[]; .name == $name and .dpmsStatus == true)' >/dev/null; then
+        hyprctl monitors all -j | ${jq} -e --arg name "$name" --argjson restore_external "$restore_external" 'type == "array" and any(.[]; .name == $name and .dpmsStatus == true and ($restore_external == false or (.mirrorOf // "none") == "none"))' >/dev/null; then
+        for external_rule in "''${external_rules[@]}"; do
+          hyprctl eval "$external_rule" >/dev/null || exit 1
+        done
+        if [ -n "$workspace" ]; then
+          hyprctl eval "hl.get_monitor($(${jq} -cn --arg name "$name" '$name')):set_workspace($(${jq} -cn --arg workspace "$workspace" '$workspace'))" >/dev/null || exit 1
+        fi
         ${pkgs.coreutils}/bin/sleep 1
         if ${lid_closed}; then exit 0; fi
         hyprctl dispatch "hl.dsp.dpms({ action = \"on\", monitor = \"$name\" })" >/dev/null || exit 1
@@ -146,15 +222,19 @@
   '';
   wake_display = pkgs.writeShellScript "wake-display" ''
     if ${lid_closed}; then
-      monitors=$(hyprctl monitors -j) || exit 1
+      monitors=$(hyprctl monitors all -j) || exit 1
       ${jq} -e 'type == "array" and all(.[]; .name | type == "string")' <<< "$monitors" >/dev/null || exit 1
+      if ${jq} -e 'any(.[]; (.name | test("^(eDP|LVDS)"; "i") | not) and .disabled == false and (.mirrorOf // "none") != "none")' <<< "$monitors" >/dev/null; then
+        hyprctl dispatch 'hl.dsp.dpms({ action = "on" })' >/dev/null || exit 1
+        exec ${lid_close}
+      fi
       failed=0
       while IFS= read -r name; do
         if ! hyprctl dispatch "hl.dsp.dpms({ action = \"on\", monitor = \"$name\" })" >/dev/null; then
           printf 'wake-display: could not wake %s\n' "$name" >&2
           failed=1
         fi
-      done < <(${jq} -r '.[] | select(.name | test("^(eDP|LVDS)"; "i") | not) | .name' <<< "$monitors")
+      done < <(${jq} -r '.[] | select((.name | test("^(eDP|LVDS)"; "i") | not) and .disabled == false) | .name' <<< "$monitors")
       exit "$failed"
     fi
     monitors=$(hyprctl monitors all -j) || exit 1
@@ -289,6 +369,18 @@ in {
         {
           _args = [
             "config.reloaded"
+            (lua "function() hl.exec_cmd(${toLua "${reapply_lid}"}) end")
+          ];
+        }
+        {
+          _args = [
+            "monitor.added"
+            (lua "function() hl.exec_cmd(${toLua "${reapply_lid}"}) end")
+          ];
+        }
+        {
+          _args = [
+            "monitor.removed"
             (lua "function() hl.exec_cmd(${toLua "${reapply_lid}"}) end")
           ];
         }
@@ -600,7 +692,7 @@ in {
           text = "cmd[update:1000] echo -e \"$(date +\"%A, %B %d\")\"";
           color = "rgba(216, 222, 233, 0.70)";
           font_size = 25;
-          font_family = "SF Pro Display Nerd Font Bold";
+          font_family = "SF Pro Display Bold";
           position = "0, 350";
           halign = "center";
           valign = "center";
@@ -609,7 +701,7 @@ in {
           text = "cmd[update:1000] echo \"<span>$(date +\"%H:%M\")</span>\"";
           color = "rgba(216, 222, 233, 0.70)";
           font_size = 120;
-          font_family = "SF Pro Display Nerd Font Bold";
+          font_family = "SF Pro Display Bold";
           position = "0, 250";
           halign = "center";
           valign = "center";
@@ -618,7 +710,7 @@ in {
           text = "$USER";
           color = "rgba(216, 222, 233, 0.80)";
           font_size = 20;
-          font_family = "SF Pro Display Nerd Font Bold";
+          font_family = "SF Pro Display Bold";
           position = "0, -82";
           halign = "center";
           valign = "center";
@@ -627,14 +719,14 @@ in {
           text = builtins.concatStringsSep " " [
             "cmd[update:250] ${pkgs.hyprland}/bin/hyprctl devices -j | ${jq} -r --arg layout '$LAYOUT[en,ru,he]' '"
             ''(.keyboards | map(select(.main == true)) | first) as $keyboard |''
-            ''"<span font_desc=\"SFProDisplay Nerd Font 12\">\u21ea</span>" as $caps_icon |''
-            ''"<span font_desc=\"SFProDisplay Nerd Font 12\">\uf11c</span>" as $keyboard_icon |''
+            ''"<span font_desc=\"SF Pro Display 12\">\u21ea</span>" as $caps_icon |''
+            ''"<span font_desc=\"SF Pro Display 12\">\uf11c</span>" as $keyboard_icon |''
             ''$keyboard_icon + "  " + $layout + (if $keyboard.capsLock == true then "  " + $caps_icon else "" end)''
             "'"
           ];
           color = "rgba(216, 222, 233, 0.80)";
           font_size = 16;
-          font_family = "SF Pro Display Nerd Font Regular";
+          font_family = "SF Pro Display Regular";
           position = "0, -210";
           halign = "center";
           valign = "center";
@@ -668,7 +760,7 @@ in {
         bothlock_color = "rgba(255, 255, 255, 0.1)";
         font_color = "rgb(200, 200, 200)";
         fade_on_empty = false;
-        font_family = "SF Pro Display Nerd Font Regular";
+        font_family = "SF Pro Display Regular";
         placeholder_text = "Password";
         fail_text = "Incorrect";
         hide_input = false;

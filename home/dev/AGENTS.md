@@ -53,7 +53,7 @@ Write code that is correct, simple, readable, local, fast, and unsurprising. Pri
 - Never state repo state from memory. Read or grep first, every time.
 - Before acting on a phone screenshot, verify the foreground activity; a gallery image is not live app state.
 - Before calling it done: inspect the final diff for unintended changes and secrets, report exactly what passed, failed, or wasn't run. A failure is only pre-existing with evidence.
-- Keep diffs focused. Remove obsolete code, and the docs that named it, in the same change.
+- Keep diffs focused. Remove obsolete code and its docs together; keep machine-local trust material and temporary recovery steps out of tracked configuration and documentation.
 - Never commit, push, deploy, or touch prod data without explicit authorization. No co-author trailers or tool attribution.
 
 # Communication

@@ -7,6 +7,7 @@
   home = {
     packages = with pkgs; [
       font-awesome
+      nerd-fonts.symbols-only
       theme.monospaceFont.package
       noto-fonts-cjk-serif
       noto-fonts-cjk-sans
@@ -19,7 +20,25 @@
       };
   };
 
-  fonts.fontconfig.enable = true;
+  fonts.fontconfig = {
+    enable = true;
+    configFile.sf-pro.text = ''
+      <fontconfig>
+        <alias>
+          <family>SFProDisplay Nerd Font</family>
+          <prefer><family>SF Pro Display</family><family>Symbols Nerd Font</family></prefer>
+        </alias>
+        <alias>
+          <family>SF Pro Display Nerd Font</family>
+          <prefer><family>SF Pro Display</family><family>Symbols Nerd Font</family></prefer>
+        </alias>
+        <alias>
+          <family>SF Pro Display</family>
+          <prefer><family>SF Pro Display</family><family>Symbols Nerd Font</family></prefer>
+        </alias>
+      </fontconfig>
+    '';
+  };
 
   gtk = {
     inherit (theme) font;
@@ -56,6 +75,7 @@
       "/run/current-system/sw/share/X11/fonts:ro"
       "xdg-config/gtk-3.0:ro"
       "xdg-config/gtk-4.0:ro"
+      "xdg-config/fontconfig:ro"
       "${config.xdg.dataHome}/icons:ro"
     ];
   in ''

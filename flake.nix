@@ -9,7 +9,6 @@
 
     hermes-agent = {
       url = "github:NousResearch/hermes-agent";
-      inputs.nixpkgs.follows = "nixpkgs";
     };
 
     apple-fonts = {
@@ -89,6 +88,42 @@
 
     checks.${system} = {
       ags-package = inputs.ags2-shell.packages.${system}.default;
+      font-typography = let
+        theme_config = import ./home/desktop/theme.nix {
+          inherit pkgs;
+          config = {};
+          theme = {};
+        };
+        fonts = inputs.apple-fonts.packages.${system}.sf-pro;
+        aliases = pkgs.writeText "sf-pro-fontconfig.conf" theme_config.fonts.fontconfig.configFile.sf-pro.text;
+      in
+        pkgs.runCommand "font-typography-tests" {
+          nativeBuildInputs = [pkgs.fontconfig];
+        } ''
+          export FONTCONFIG_FILE="$TMPDIR/fonts.conf"
+          cat > "$FONTCONFIG_FILE" <<EOF
+          <fontconfig>
+            <dir>${fonts}/share/fonts</dir>
+            <dir>${pkgs.nerd-fonts.symbols-only}/share/fonts</dir>
+            <cachedir>$TMPDIR/font-cache</cachedir>
+            <include>${aliases}</include>
+          </fontconfig>
+          EOF
+          for family in "SF Pro Display" "SFProDisplay Nerd Font" "SF Pro Display Nerd Font"; do
+            for style in Regular Bold; do
+              actual=$(fc-match -f '%{file}' "$family:style=$style")
+              printf '%s -> %s\n' "$family:style=$style" "$actual"
+              test "$actual" = "${fonts}/share/fonts/opentype/SF-Pro-Display-$style.otf"
+            done
+            actual=$(fc-match -f '%{file}' "$family:slant=italic")
+            printf '%s -> %s\n' "$family:slant=italic" "$actual"
+            test "$actual" = "${fonts}/share/fonts/opentype/SF-Pro-Display-RegularItalic.otf"
+            actual=$(fc-match -f '%{family}' "$family:charset=f11c")
+            printf '%s -> %s\n' "$family:charset=f11c" "$actual"
+            test "$actual" = "Symbols Nerd Font"
+          done
+          touch "$out"
+        '';
       hyprlock-revive = let
         hyprctl = pkgs.writeShellScriptBin "hyprctl" ''
           printf '%s\n' "$@" >> "$CALL_LOG"
@@ -157,6 +192,7 @@
           nativeBuildInputs = [pkgs.nodejs];
           LID_CLOSE = lid_script "switch:on:Lid Switch";
           RESTORE_PANEL = lid_script "switch:off:Lid Switch";
+          WAKE_DISPLAY = (builtins.elemAt lid_config.services.hypridle.settings.listener 1).on-resume;
         } ''
           node --test ${./tests/lid_policy.mjs}
           touch "$out"
