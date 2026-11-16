@@ -96,9 +96,20 @@
         };
         fonts = inputs.apple-fonts.packages.${system}.sf-pro;
         aliases = pkgs.writeText "sf-pro-fontconfig.conf" theme_config.fonts.fontconfig.configFile.sf-pro.text;
+        lock_config = import ./home/desktop/hyprland.nix {
+          inherit pkgs;
+          inherit (pkgs) lib;
+          config.home.sessionVariables.BROWSER = "false";
+          theme.cursor = {
+            name = "test";
+            size = 24;
+          };
+        };
+        labels = map (label: {inherit (label) text font_family font_size;}) (pkgs.lib.take 3 lock_config.programs.hyprlock.settings.label);
       in
         pkgs.runCommand "font-typography-tests" {
-          nativeBuildInputs = [pkgs.fontconfig];
+          nativeBuildInputs = [pkgs.fontconfig pkgs.gjs pkgs.gobject-introspection];
+          buildInputs = [pkgs.pango];
         } ''
           export FONTCONFIG_FILE="$TMPDIR/fonts.conf"
           cat > "$FONTCONFIG_FILE" <<EOF
@@ -122,6 +133,45 @@
             printf '%s -> %s\n' "$family:charset=f11c" "$actual"
             test "$actual" = "Symbols Nerd Font"
           done
+          cat > typography.js <<'JS'
+          const { Gio, Pango, PangoCairo } = imports.gi;
+          const context = PangoCairo.FontMap.get_default().create_context();
+          const labels = ${builtins.toJSON labels};
+          function fonts(label, text) {
+            const description = Pango.FontDescription.from_string(label.font_family);
+            description.set_size(label.font_size * Pango.SCALE);
+            description.set_weight(Pango.Weight.NORMAL);
+            description.set_style(Pango.Style.NORMAL);
+            const layout = Pango.Layout.new(context);
+            layout.set_font_description(description);
+            layout.set_markup(text, -1);
+            const iterator = layout.get_iter();
+            const result = [];
+            do {
+              const run = iterator.get_run_readonly();
+              if (run) result.push(run.item.analysis.font.describe());
+            } while (iterator.next_run());
+            return result;
+          }
+          for (const label of labels) {
+            let text = label.text.replaceAll("$USER", "test-user");
+            if (text.startsWith("cmd[")) {
+              const command = text.replace(/^cmd\[update:\d+\] /, "");
+              const process = Gio.Subprocess.new(["bash", "-c", command], Gio.SubprocessFlags.STDOUT_PIPE | Gio.SubprocessFlags.STDERR_PIPE);
+              const [ok, stdout, stderr] = process.communicate_utf8(null, null);
+              if (!ok || !process.get_successful()) throw new Error(stderr || "Label command failed");
+              text = stdout.trim();
+            }
+            const bold = fonts(label, text);
+            if (bold.length === 0 || bold.some(font => font.get_family() !== "SF Pro Display" || font.get_weight() !== Pango.Weight.BOLD))
+              throw new Error("Label did not select original SF Pro Display Bold: " + text);
+            const plain = fonts(label, text.replace(/<\/?b>/g, ""));
+            if (plain.length === 0 || plain.some(font => font.get_weight() !== Pango.Weight.NORMAL))
+              throw new Error("Removing the bold markup did not restore normal weight: " + text);
+            print(text + " -> " + bold.map(font => font.to_string()).join(", "));
+          }
+          JS
+          gjs typography.js
           touch "$out"
         '';
       hyprlock-revive = let

@@ -689,28 +689,28 @@ in {
       };
       label = [
         {
-          text = "cmd[update:1000] echo -e \"$(date +\"%A, %B %d\")\"";
+          text = "cmd[update:1000] echo -e \"<b>$(date +\"%A, %B %d\")</b>\"";
           color = "rgba(216, 222, 233, 0.70)";
           font_size = 25;
-          font_family = "SF Pro Display Bold";
+          font_family = "SF Pro Display";
           position = "0, 350";
           halign = "center";
           valign = "center";
         }
         {
-          text = "cmd[update:1000] echo \"<span>$(date +\"%H:%M\")</span>\"";
+          text = "cmd[update:1000] echo \"<b>$(date +\"%H:%M\")</b>\"";
           color = "rgba(216, 222, 233, 0.70)";
           font_size = 120;
-          font_family = "SF Pro Display Bold";
+          font_family = "SF Pro Display";
           position = "0, 250";
           halign = "center";
           valign = "center";
         }
         {
-          text = "$USER";
+          text = "<b>$USER</b>";
           color = "rgba(216, 222, 233, 0.80)";
           font_size = 20;
-          font_family = "SF Pro Display Bold";
+          font_family = "SF Pro Display";
           position = "0, -82";
           halign = "center";
           valign = "center";
