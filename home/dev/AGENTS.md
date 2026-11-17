@@ -15,7 +15,7 @@ Write code that is correct, simple, readable, local, fast, and unsurprising. Pri
 - A known loose end in your own change is a defect: fix it or stop and ask. Never ship it as a note.
 - One simplification at a time. Preserve existing architecture and shipped UX, including animations and mouse bindings, unless explicitly asked to change them.
 - No new files, wrappers, managers, services, or interfaces without a real, current need. Single-use functions stay local. Modules that only forward calls get removed.
-- Prefer stock configuration over upstream patches; get explicit approval before introducing a custom binary build.
+- Prefer stock configuration over upstream patches; get explicit approval before introducing a custom binary build. Diagnose small packaging defects before changing the installation model.
 - Prefer data-role and protocol metadata over hardcoded application-name lists.
 - Judge a change by how few things remain to name, remember, navigate, and keep synchronized. If two solutions work, prefer fewer moving parts, clearer ownership, shorter paths, and more obvious failure behavior.
 
@@ -54,6 +54,7 @@ Write code that is correct, simple, readable, local, fast, and unsurprising. Pri
 - Before acting on a phone screenshot, verify the foreground activity; a gallery image is not live app state.
 - Before calling it done: inspect the final diff for unintended changes and secrets, report exactly what passed, failed, or wasn't run. A failure is only pre-existing with evidence.
 - Keep GUI tests off the live display; Xvfb `-displayfd` can unlink a live filesystem-only Xwayland socket.
+- Verify distribution installation instructions in a disposable instance of the target distribution, not just against package listings.
 - Keep diffs focused. Remove obsolete code and its docs together; keep machine-local trust material and temporary recovery steps out of tracked configuration and documentation.
 - Never commit, push, deploy, or touch prod data without explicit authorization. No co-author trailers or tool attribution.
 
