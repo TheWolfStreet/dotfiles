@@ -12,8 +12,7 @@ in
     [ -n "$device" ] || exit 0
     name="$(${pkgs.jq}/bin/jq -er '.name | select(type == "string")' <<< "$device")"
     name_lua="$(${pkgs.jq}/bin/jq -c '.name' <<< "$device")"
-    address="$(${pkgs.jq}/bin/jq -er '.address | select(type == "string")' <<< "$device")"
-    key="$(printf '%s\n' "$HYPRLAND_INSTANCE_SIGNATURE" "$name" "$address" | ${pkgs.coreutils}/bin/sha256sum)"
+    key="$(printf '%s\n' "$HYPRLAND_INSTANCE_SIGNATURE" "$name" | ${pkgs.coreutils}/bin/sha256sum)"
     state_file="$XDG_RUNTIME_DIR/touchpad-disabled-''${key%% *}"
 
     if [ -e "$state_file" ]; then
