@@ -164,7 +164,8 @@ The installed helpers retain the current flake configuration name even when it d
 | `nx-boot` | Build and select the generation for the next boot |
 | `nx-test` | Activate temporarily without adding a boot entry |
 | `nx-update` | Update inputs and switch; report the failed phase without discarding lockfile changes |
-| `nx-gc` | List available generations and confirm before expiring/collecting them; `--yes` skips confirmation |
+| `nx-gc` | Collect unreferenced store paths and optimize the store; keeps every generation |
+| `nx-prune` | List available generations and confirm before expiring/collecting them; `--yes` skips confirmation |
 | `nx-vm` | Build and run the host VM; installed only when virtualization is enabled |
 | `hyprlock-revive` | Restore and relaunch Hyprlock after a lock failure |
 
@@ -187,7 +188,7 @@ journalctl --user -u ags.service -b
 
 Use the matching selector on each physical machine. Hardware remains deliberately external: evaluating another selector here combines its policy with this machine's `/etc/nixos/hardware-configuration.nix`, not that host's actual hardware. Flake checks run the root Nix formatting check and the lid-policy tests and build the AGS package; they do not replace a system build or boot/audio/suspend tests. Formatting commands above exclude the independently maintained submodules. Add `--offline` to checks and builds when all required sources and dependencies are already cached.
 
-`nx-gc` is intentionally destructive to rollback history; do not run it while testing a new generation. It expires standalone Home Manager generations older than one day, deletes all old root-profile Nix generations, and optimizes the store. In NixOS-managed homes without a standalone Home Manager profile, only the system generation collection applies. Cancelling the prompt deletes nothing.
+`nx-prune` is intentionally destructive to rollback history; do not run it while testing a new generation. It expires standalone Home Manager generations older than one day, deletes all old root-profile Nix generations, and optimizes the store. In NixOS-managed homes without a standalone Home Manager profile, only the system generation collection applies. Cancelling the prompt deletes nothing.
 
 VM variants use the username as a disposable test password, disable SSH and physical ASUS/Hermes integration, and do not change the production account's password.
 

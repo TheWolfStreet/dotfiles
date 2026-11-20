@@ -41,6 +41,11 @@
   '';
   nx-gc = pkgs.writeShellScriptBin "nx-gc" ''
     set -euo pipefail
+    sudo nix-collect-garbage
+    sudo nix-store --optimize
+  '';
+  nx-prune = pkgs.writeShellScriptBin "nx-prune" ''
+    set -euo pipefail
     hm_profile_dir="''${XDG_STATE_HOME:-$HOME/.local/state}/nix/profiles"
     if [ ! -d "$hm_profile_dir" ]; then
       hm_profile_dir="''${NIX_STATE_DIR:-/nix/var/nix}/profiles/per-user/$USER"
@@ -60,7 +65,7 @@
           exit 0
         fi
         ;;
-      *) printf 'Usage: nx-gc [--yes]\n' >&2; exit 2 ;;
+      *) printf 'Usage: nx-prune [--yes]\n' >&2; exit 2 ;;
     esac
     if [ -e "$hm_profile_dir/home-manager" ] || [ -L "$hm_profile_dir/home-manager" ]; then
       ${config.programs.home-manager.package}/bin/home-manager expire-generations "-1 days"
@@ -69,5 +74,5 @@
     sudo nix-store --optimize
   '';
 in {
-  home.packages = [nx-switch nx-update nx-boot nx-test nx-gc] ++ lib.optional virtualisationEnabled nx-vm;
+  home.packages = [nx-switch nx-update nx-boot nx-test nx-gc nx-prune] ++ lib.optional virtualisationEnabled nx-vm;
 }
