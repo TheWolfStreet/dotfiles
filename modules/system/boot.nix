@@ -1,8 +1,4 @@
-{
-  pkgs,
-  lib,
-  ...
-}: {
+{pkgs, ...}: {
   boot = {
     tmp.cleanOnBoot = true;
     supportedFilesystems = ["ntfs"];
@@ -15,9 +11,7 @@
       };
       efi.canTouchEfiVariables = true;
     };
-    kernelPackages = pkgs.linuxPackages_zen.extend (_: previous: {
-      v4l2loopback = lib.lowPrio previous.v4l2loopback;
-    });
+    kernelPackages = pkgs.linuxPackages_latest;
     plymouth = {
       enable = true;
       theme = "rings";

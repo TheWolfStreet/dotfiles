@@ -32,11 +32,6 @@ in {
   power.enable = true;
   virtualisation.enable = true;
 
-  # BUG: the ASUS TUF A16 PixArt touchpad (ASUP1205:00 093A:2008) freezes with
-  # "i2c_hid_get_input: incomplete report (18/65535)" until a suspend/resume
-  # cycle resets the bus. Polling avoids the racy GPIO IRQ.
-  boot.kernelParams = ["i2c_hid.polling_mode=1"];
-
   services = {
     asusd.enable = true;
     tailscale = {
