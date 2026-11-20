@@ -1,4 +1,8 @@
-{username, ...}: {
+{
+  config,
+  username,
+  ...
+}: {
   # AMD Matisse/NVIDIA desktop.
   imports = [
     ./common.nix
@@ -11,6 +15,12 @@
       enable = true;
       persistence.enable = true;
     };
+  };
+
+  boot = {
+    extraModulePackages = [config.boot.kernelPackages.zenpower];
+    kernelModules = ["zenpower"];
+    blacklistedKernelModules = ["k10temp"];
   };
 
   gaming.enable = true;

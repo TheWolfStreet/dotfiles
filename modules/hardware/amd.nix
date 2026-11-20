@@ -38,12 +38,7 @@ in {
       hardware.cpu.amd.updateMicrocode = true;
 
       boot = {
-        extraModulePackages = [config.boot.kernelPackages.zenpower];
-        kernelModules = ["zenpower"];
-        blacklistedKernelModules = ["k10temp"];
-        kernelParams = [
-          "amd_pstate=active"
-        ];
+        kernelParams = ["amd_pstate=active"];
       };
     })
 
