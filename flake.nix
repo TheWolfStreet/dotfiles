@@ -219,16 +219,10 @@
           pkgs =
             pkgs
             // {
-              systemd = pkgs.writeShellScriptBin "systemctl" ''
-                printf '%s\n' "$*" >> "$SYSTEMCTL_LOG"
-                [ -z "''${SLEEP_INHIBITED:-}" ]
-              '';
               writeShellScript = name: text:
                 pkgs.writeShellScript name (
                   if name == "lid-closed"
                   then ''[ "$LID_STATE" = closed ]''
-                  else if name == "ac-online"
-                  then ''[ "$AC_ONLINE" = 1 ]''
                   else text
                 );
             };

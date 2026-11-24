@@ -12,7 +12,7 @@ import { tmpdir } from "node:os"
 import { join } from "node:path"
 import test from "node:test"
 
-function fixture(t, { mirror = "none", external = true, ac = true, inhibited = false } = {}) {
+function fixture(t, { mirror = "none", external = true } = {}) {
 	const root = mkdtempSync(join(tmpdir(), "lid-policy-"))
 	t.after(() => rmSync(root, { recursive: true, force: true }))
 	const runtime = join(root, "runtime")
@@ -20,7 +20,6 @@ function fixture(t, { mirror = "none", external = true, ac = true, inhibited = f
 	mkdirSync(runtime, { mode: 0o700 })
 	mkdirSync(bin)
 	const state = join(root, "monitors.json")
-	const systemctl = join(root, "systemctl.log")
 	const panel = {
 		id: 0,
 		name: "eDP-1",
@@ -92,10 +91,7 @@ else console.log("ok")
 		PATH: `${bin}:${process.env.PATH}`,
 		XDG_RUNTIME_DIR: runtime,
 		MONITOR_STATE: state,
-		SYSTEMCTL_LOG: systemctl,
 		LID_STATE: "closed",
-		AC_ONLINE: ac ? "1" : "0",
-		SLEEP_INHIBITED: inhibited ? "1" : "",
 	}
 	const read = () => JSON.parse(readFileSync(state, "utf8"))
 	return {
@@ -110,14 +106,6 @@ else console.log("ok")
 		tv: () => read().monitors.find((monitor) => monitor.name === "HDMI-A-1"),
 		evals: () => read().calls.filter((call) => call.args[0] === "eval" && call.args[1].startsWith("hl.monitor(")),
 		dpms: () => read().calls.filter((call) => call.args[0] === "dispatch" && call.args[1].startsWith("hl.dsp.dpms(")),
-		commands: () => {
-			try {
-				return readFileSync(systemctl, "utf8")
-			} catch (error) {
-				if (error.code === "ENOENT") return ""
-				throw error
-			}
-		},
 		close: () => spawnSync("bash", [process.env.LID_CLOSE], { env, encoding: "utf8", timeout: 10000 }),
 		open: () => spawnSync("bash", [process.env.RESTORE_PANEL], {
 			env: { ...env, LID_STATE: "open" }, encoding: "utf8", timeout: 10000,
@@ -128,7 +116,7 @@ else console.log("ok")
 
 for (const mirror of ["none", "eDP-1", "0"])
 	test(`closing a docked lid powers off the panel and uses the external display as its source (mirror=${mirror})`, (t) => {
-		const f = fixture(t, { mirror, ac: false })
+		const f = fixture(t, { mirror })
 		const closed = f.close()
 		assert.equal(closed.status, 0, closed.stderr)
 		assert.equal(f.read().monitors[0].disabled, false)
@@ -139,12 +127,11 @@ for (const mirror of ["none", "eDP-1", "0"])
 		assert.equal(f.tv().mirrorOf, "none")
 		assert.deepEqual(f.evals().map((call) => [call.output, call.mirror]), mirror === "none" ? [["eDP-1", "HDMI-A-1"]] : [["HDMI-A-1", ""], ["eDP-1", "HDMI-A-1"]])
 		assert.deepEqual(f.dpms().map((call) => [call.output, call.action]), [["eDP-1", "off"]])
-		assert.equal(f.commands(), "")
 	})
 
 for (const mirror of ["none", "0"])
 	test(`opening the lid restores the panel and original external mirror relationship (mirror=${mirror})`, (t) => {
-		const f = fixture(t, { mirror, ac: false })
+		const f = fixture(t, { mirror })
 		assert.equal(f.close().status, 0)
 		const opened = f.open()
 		assert.equal(opened.status, 0, opened.stderr)
@@ -185,25 +172,24 @@ test("a powered-on internal mirror is powered off before remirroring without pow
 	assert.deepEqual(f.evals().map((call) => call.mirror), ["", "HDMI-A-1"])
 })
 
-for (const ac of [false, true])
-	test(`unplugging the external display preserves the panel output and applies the undocked power policy (AC=${ac})`, (t) => {
-		const f = fixture(t, { ac })
-		assert.equal(f.close().status, 0)
-		const saved = f.saved()
-		f.change((state) => {
-			state.monitors = state.monitors.filter((monitor) => monitor.name !== "HDMI-A-1")
-			state.monitors[0].mirrorOf = "none"
-		})
-		assert.equal(f.close().status, 0)
-		assert.equal(f.read().monitors.length, 1)
-		assert.equal(f.read().monitors[0].disabled, false)
-		assert.equal(f.read().monitors[0].dpmsStatus, false)
-		assert.equal(f.commands(), ac ? "" : "suspend\n")
-		assert.equal(f.saved(), saved)
-		assert.equal(f.open().status, 0)
-		assert.equal(f.read().monitors[0].dpmsStatus, true)
-		assert.equal(f.read().monitors[0].mirrorOf, "none")
+test("unplugging the external display keeps the panel output powered off and the saved layout", (t) => {
+	const f = fixture(t)
+	assert.equal(f.close().status, 0)
+	const saved = f.saved()
+	f.change((state) => {
+		state.monitors = state.monitors.filter((monitor) => monitor.name !== "HDMI-A-1")
+		state.monitors[0].mirrorOf = "none"
+		state.monitors[0].dpmsStatus = true
 	})
+	assert.equal(f.close().status, 0)
+	assert.equal(f.read().monitors.length, 1)
+	assert.equal(f.read().monitors[0].disabled, false)
+	assert.equal(f.read().monitors[0].dpmsStatus, false)
+	assert.equal(f.saved(), saved)
+	assert.equal(f.open().status, 0)
+	assert.equal(f.read().monitors[0].dpmsStatus, true)
+	assert.equal(f.read().monitors[0].mirrorOf, "none")
+})
 
 test("plugging in an external display with the lid closed creates a powered-off mirror", (t) => {
 	const f = fixture(t, { external: false })
@@ -214,14 +200,14 @@ test("plugging in an external display with the lid closed creates a powered-off 
 	assert.equal(f.read().monitors[0].dpmsStatus, false)
 	assert.equal(f.read().monitors[0].mirrorOf, "2")
 	assert.equal(f.tv().dpmsStatus, true)
-	assert.equal(f.commands(), "")
 })
 
-test("headless fallback outputs do not prevent undocked battery suspension", (t) => {
-	const f = fixture(t, { ac: false })
+test("headless fallback outputs are not used as a mirror source", (t) => {
+	const f = fixture(t)
 	f.change((state) => { state.monitors[1].hardwareDetails.backend = "headless" })
 	assert.equal(f.close().status, 0)
-	assert.equal(f.commands(), "suspend\n")
+	assert.equal(f.read().monitors[0].dpmsStatus, false)
+	assert.equal(f.read().monitors[0].mirrorOf, "none")
 	assert.deepEqual(f.evals(), [])
 })
 
@@ -246,23 +232,10 @@ test("waking multiple external mirrors does not leave the closed internal panel 
 	assert.deepEqual(f.read().monitors.map((monitor) => monitor.dpmsStatus), [false, true, true])
 })
 
-for (const ac of [false, true])
-	test(`closing an undocked lid suspends on battery and turns the panel off on AC (AC=${ac})`, (t) => {
-		const f = fixture(t, { external: false, ac })
-		const result = f.close()
-		assert.equal(result.status, 0, result.stderr)
-		assert.equal(f.commands(), ac ? "" : "suspend\n")
-		assert.equal(f.read().monitors[0].disabled, false)
-		assert.equal(f.read().monitors[0].dpmsStatus, !ac)
-		assert.deepEqual(f.evals(), [])
-		assert.deepEqual(f.dpms().map((call) => [call.output, call.action]), ac ? [["eDP-1", "off"]] : [])
-	})
-
-test("an inhibited suspend on battery turns the panel off without removing the last output", (t) => {
-	const f = fixture(t, { external: false, ac: false, inhibited: true })
+test("closing an undocked lid turns the panel off without removing the last output", (t) => {
+	const f = fixture(t, { external: false })
 	const result = f.close()
 	assert.equal(result.status, 0, result.stderr)
-	assert.equal(f.commands(), "suspend\n")
 	assert.equal(f.read().monitors[0].disabled, false)
 	assert.equal(f.read().monitors[0].dpmsStatus, false)
 	assert.deepEqual(f.evals(), [])

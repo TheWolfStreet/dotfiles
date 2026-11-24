@@ -118,9 +118,6 @@
     ${jq} -e '(.width | type == "number") and (.height | type == "number") and (.refreshRate | type == "number") and (.x | type == "number") and (.y | type == "number") and (.scale | type == "number") and (.transform | type == "number")' <<< "$panel" >/dev/null || exit 1
     external=$(${jq} -c '[.[] | select((.name | test("^(eDP|LVDS)"; "i") | not) and .disabled == false and .hardwareDetails.backend != "headless")]' <<< "$monitors")
     if [ "$external" = '[]' ]; then
-      if ! ${ac_online}; then
-        ${pkgs.systemd}/bin/systemctl suspend && exit 0
-      fi
       hyprctl dispatch "hl.dsp.dpms({ action = \"off\", monitor = $(${jq} -c '.name' <<< "$panel") })"
       exit $?
     fi
@@ -308,7 +305,6 @@ in {
         misc = {
           disable_hyprland_logo = true;
           disable_splash_rendering = true;
-          mouse_move_enables_dpms = true;
           middle_click_paste = false;
           force_default_wallpaper = 0;
         };
